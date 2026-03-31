@@ -9,24 +9,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --champagne: #d8bf9b;
-      --champagne-soft: #f0e2cd;
-      --paper: #efe5d4;
-      --ink: #07182a;
-      --ink-2: #0c2137;
-      --ink-3: #12304a;
-      --panel: rgba(7, 24, 42, 0.97);
-      --panel-soft: rgba(12, 33, 55, 0.92);
-      --gold: #d4af77;
-      --gold-soft: #f0d8ae;
-      --line: rgba(212, 175, 119, 0.2);
-      --line-soft: rgba(255, 255, 255, 0.08);
-      --text: #f8f2e8;
-      --muted: #b8c3cf;
-      --success: #b5d7bf;
-      --warning: #ffd7aa;
-      --info: #c4d6ff;
-      --stone: #d8d0c1;
+      --champagne: #d8bea0;
+      --champagne-soft: #f1e3cf;
+      --paper: #f6ede1;
+      --surface: #120e0c;
+      --surface-2: #1a1411;
+      --surface-3: #241c17;
+      --panel: rgba(19, 14, 12, 0.97);
+      --panel-soft: rgba(29, 22, 18, 0.95);
+      --bronze: #c79a62;
+      --bronze-soft: #efd8b0;
+      --text: #f8f0e5;
+      --muted: #b6a999;
+      --line: rgba(199, 154, 98, 0.18);
+      --line-strong: rgba(199, 154, 98, 0.32);
+      --white-line: rgba(255, 255, 255, 0.08);
+      --success: #bad6c0;
+      --warning: #ffd7ac;
+      --info: #c9d7ea;
+      --stone: #d5c8b8;
       --danger: #ffb8b8;
       --shadow: 0 32px 90px rgba(0, 0, 0, 0.25);
       --radius-xl: 28px;
@@ -46,13 +47,13 @@
 
     body {
       min-height: 100vh;
+      overflow-x: hidden;
       color: var(--text);
       font-family: "Plus Jakarta Sans", sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.16), transparent 16%),
-        radial-gradient(circle at bottom right, rgba(88, 58, 29, 0.12), transparent 18%),
-        linear-gradient(180deg, #cfb28a 0%, #dcc29c 40%, #c8aa80 100%);
-      overflow-x: hidden;
+        radial-gradient(circle at top left, rgba(255,255,255,0.14), transparent 16%),
+        radial-gradient(circle at bottom right, rgba(112, 78, 41, 0.12), transparent 18%),
+        linear-gradient(180deg, #cfb48d 0%, #dec6a3 44%, #c9aa7d 100%);
     }
 
     a {
@@ -74,26 +75,44 @@
     .site-shell {
       min-height: 100vh;
       width: 100%;
-      background: linear-gradient(180deg, #041627 0%, #061b2f 100%);
+      background: linear-gradient(180deg, #130f0c 0%, #17120f 100%);
       position: relative;
       overflow: hidden;
+    }
+
+    .site-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 130px 130px;
+      opacity: 0.08;
     }
 
     .site-nav {
       position: sticky;
       top: 0;
-      z-index: 40;
-      background: rgba(4, 21, 37, 0.98);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      z-index: 50;
+      background: rgba(18, 14, 12, 0.98);
+      border-bottom: 1px solid var(--white-line);
+      backdrop-filter: blur(12px);
     }
 
-    .site-nav-inner {
-      width: min(1360px, calc(100% - 44px));
+    .nav-inner,
+    .section-frame,
+    .footer-inner {
+      width: min(1380px, calc(100% - 44px));
       margin: 0 auto;
+    }
+
+    .nav-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 22px;
       padding: 18px 0;
     }
 
@@ -106,51 +125,56 @@
 
     .brand-main {
       font-family: "Cormorant Garamond", serif;
-      font-size: 34px;
+      font-size: 35px;
       font-weight: 700;
+      color: var(--bronze-soft);
       letter-spacing: 0.02em;
-      color: var(--gold-soft);
     }
 
     .brand-sub {
       margin-top: 2px;
       font-size: 9px;
-      text-transform: uppercase;
       letter-spacing: 0.34em;
-      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
     }
 
     .site-links {
       display: flex;
       align-items: center;
       gap: 34px;
+      flex-wrap: wrap;
+    }
+
+    .site-link {
+      border: none;
+      background: none;
       color: var(--text);
+      cursor: pointer;
       font-size: 15px;
-    }
-
-    .site-links a {
-      position: relative;
       opacity: 0.94;
+      position: relative;
     }
 
-    .site-links a::after {
+    .site-link::after {
       content: "";
       position: absolute;
       left: 0;
       bottom: -8px;
       width: 100%;
       height: 1px;
-      background: var(--gold);
+      background: var(--bronze);
       transform: scaleX(0);
       transform-origin: center;
       transition: transform 0.25s ease;
     }
 
-    .site-links a:hover::after {
+    .site-link:hover::after,
+    .site-link.active::after {
       transform: scaleX(1);
     }
 
-    .nav-actions {
+    .site-actions {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -166,7 +190,8 @@
     .icon-btn,
     .tiny-btn,
     .toast-btn,
-    .confirm-btn {
+    .confirm-btn,
+    .carousel-btn {
       transition: 0.25s ease;
       cursor: pointer;
     }
@@ -180,7 +205,8 @@
     .icon-btn:hover,
     .tiny-btn:hover,
     .toast-btn:hover,
-    .confirm-btn:hover {
+    .confirm-btn:hover,
+    .carousel-btn:hover {
       transform: translateY(-2px);
     }
 
@@ -189,7 +215,8 @@
     .pill-btn,
     .close-btn,
     .icon-btn,
-    .tiny-btn {
+    .tiny-btn,
+    .carousel-btn {
       background: transparent;
       color: var(--text);
       border: 1px solid rgba(255,255,255,0.14);
@@ -197,6 +224,7 @@
     }
 
     .outline-btn,
+    .gold-btn,
     .ghost-btn,
     .pill-btn,
     .close-btn {
@@ -212,22 +240,36 @@
       border: none;
       border-radius: 12px;
       padding: 14px 18px;
-      background: linear-gradient(135deg, #f3ddb7 0%, #d4af77 100%);
+      background: linear-gradient(135deg, #f3ddb7 0%, #c79a62 100%);
       color: #20160a;
       font-weight: 700;
     }
 
-    .hero {
+    .public-main {
       position: relative;
+      z-index: 1;
+    }
+
+    .public-page {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .public-page.active {
+      display: block;
+    }
+
+    .hero {
       min-height: calc(100vh - 76px);
-      background:
-        linear-gradient(180deg, rgba(7, 24, 42, 0.12) 0%, rgba(7, 24, 42, 0.2) 35%, rgba(7, 24, 42, 0.88) 100%),
-        url("https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=2000&q=80") center/cover;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 90px 24px 230px;
+      background:
+        linear-gradient(180deg, rgba(18, 14, 12, 0.08) 0%, rgba(18, 14, 12, 0.18) 34%, rgba(18, 14, 12, 0.9) 100%),
+        url("https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=2000&q=80") center/cover;
     }
 
     .hero-copy {
@@ -236,11 +278,11 @@
 
     .hero-title {
       font-family: "Cormorant Garamond", serif;
-      font-size: clamp(72px, 8vw, 118px);
+      font-size: clamp(74px, 8vw, 118px);
       line-height: 0.9;
       font-weight: 600;
       margin-bottom: 18px;
-      text-shadow: 0 10px 30px rgba(0,0,0,0.24);
+      text-shadow: 0 10px 30px rgba(0,0,0,0.25);
     }
 
     .hero-sub {
@@ -256,16 +298,15 @@
     }
 
     .search-panel {
-      background: linear-gradient(180deg, rgba(4, 20, 35, 0.98), rgba(8, 28, 47, 0.99));
-      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 22px;
       padding: 18px;
+      background: linear-gradient(180deg, rgba(20, 15, 12, 0.98), rgba(34, 26, 21, 0.99));
+      border: 1px solid rgba(255,255,255,0.08);
       box-shadow: 0 30px 80px rgba(0,0,0,0.32);
     }
 
     .search-tabs {
       display: flex;
-      align-items: center;
       justify-content: center;
       gap: 34px;
       margin-bottom: 16px;
@@ -283,7 +324,7 @@
     }
 
     .search-tab.active {
-      color: var(--gold-soft);
+      color: var(--bronze-soft);
     }
 
     .search-tab.active::after {
@@ -293,7 +334,7 @@
       right: 0;
       bottom: -2px;
       height: 2px;
-      background: var(--gold);
+      background: var(--bronze);
     }
 
     .search-grid {
@@ -306,25 +347,153 @@
       width: 100%;
       padding: 16px 14px;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.12);
       outline: none;
-      color: var(--text);
       background: rgba(255,255,255,0.05);
+      color: var(--text);
     }
 
-    .site-main {
-      background: linear-gradient(180deg, #041627 0%, #061b2f 100%);
-      padding: 86px 0 42px;
+    .home-content {
+      padding: 84px 0 44px;
     }
 
-    .section-frame {
-      width: min(1360px, calc(100% - 44px));
-      margin: 0 auto;
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-bottom: 38px;
     }
 
-    .featured-section {
-      position: relative;
-      margin-bottom: 40px;
+    .editorial-panel,
+    .metrics-panel,
+    .feature-panel,
+    .portfolio-panel,
+    .insight-panel,
+    .seller-panel,
+    .seller-form-panel,
+    .table-panel,
+    .dash-panel,
+    .stat-panel,
+    .form-panel,
+    .detail-card,
+    .story-card,
+    .article-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.16);
+    }
+
+    .editorial-panel,
+    .metrics-panel,
+    .portfolio-panel,
+    .insight-panel,
+    .seller-panel,
+    .seller-form-panel,
+    .table-panel,
+    .dash-panel,
+    .stat-panel,
+    .form-panel,
+    .story-card,
+    .article-card {
+      padding: 24px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      color: var(--bronze-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+
+    .editorial-title,
+    .page-title,
+    .panel-title,
+    .story-title,
+    .article-title {
+      font-family: "Cormorant Garamond", serif;
+      line-height: 0.96;
+      font-weight: 600;
+    }
+
+    .editorial-title {
+      font-size: 54px;
+      margin-bottom: 12px;
+    }
+
+    .panel-text,
+    .editorial-text,
+    .page-sub,
+    .story-text,
+    .article-text {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .editorial-text {
+      margin-bottom: 18px;
+    }
+
+    .editorial-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .feature-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .feature-chip {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .feature-chip strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .feature-chip span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .metric-card {
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .metric-card strong {
+      display: block;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 36px;
+      color: var(--bronze-soft);
+      margin-bottom: 6px;
+    }
+
+    .metric-card span {
+      color: var(--muted);
+      font-size: 13px;
     }
 
     .section-head {
@@ -333,20 +502,22 @@
       justify-content: space-between;
       gap: 16px;
       margin-bottom: 26px;
+      position: relative;
     }
 
     .section-title {
       width: 100%;
       text-align: center;
       font-family: "Cormorant Garamond", serif;
-      font-size: clamp(44px, 5vw, 62px);
+      font-size: clamp(46px, 5vw, 62px);
       font-weight: 600;
+      line-height: 0.95;
     }
 
     .carousel-nav {
       position: absolute;
       right: 0;
-      top: 14px;
+      top: 12px;
       display: flex;
       gap: 10px;
     }
@@ -354,45 +525,41 @@
     .carousel-btn {
       width: 46px;
       height: 40px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: transparent;
-      color: var(--text);
-      cursor: pointer;
-      transition: 0.25s ease;
+      display: grid;
+      place-items: center;
     }
 
-    .carousel-btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .featured-grid {
+    .property-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 18px;
     }
 
-    .listing-card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0.018));
-      border: 1px solid rgba(255,255,255,0.08);
+    .property-grid.collection {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .property-card {
       border-radius: 18px;
       overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
       transition: 0.28s ease;
     }
 
-    .listing-card:hover {
+    .property-card:hover {
       transform: translateY(-6px);
-      border-color: rgba(240,216,174,0.24);
-      box-shadow: 0 18px 38px rgba(0,0,0,0.2);
+      border-color: rgba(239,216,176,0.22);
+      box-shadow: 0 18px 38px rgba(0,0,0,0.22);
     }
 
-    .listing-media {
+    .property-media {
       position: relative;
       height: 230px;
       overflow: hidden;
     }
 
-    .listing-media img {
+    .property-media img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -400,12 +567,12 @@
       transition: transform 0.3s ease;
     }
 
-    .listing-card:hover .listing-media img {
+    .property-card:hover .property-media img {
       transform: scale(1.04);
     }
 
-    .price-badge,
-    .listing-flag {
+    .property-price,
+    .property-flag {
       position: absolute;
       top: 14px;
       border-radius: 10px;
@@ -414,134 +581,240 @@
       font-weight: 700;
     }
 
-    .price-badge {
+    .property-price {
       left: 14px;
-      background: linear-gradient(135deg, #f1d8ab 0%, #d4af77 100%);
-      color: #20170a;
+      background: linear-gradient(135deg, #f2dcaf 0%, #c79a62 100%);
+      color: #21170b;
     }
 
-    .listing-flag {
+    .property-flag {
       right: 14px;
-      background: rgba(7, 24, 42, 0.7);
+      background: rgba(18,14,12,0.72);
       color: var(--text);
       border: 1px solid rgba(255,255,255,0.12);
     }
 
-    .listing-body {
+    .property-body {
       padding: 16px 16px 18px;
     }
 
-    .listing-title {
+    .property-title {
       font-family: "Cormorant Garamond", serif;
-      font-size: 30px;
+      font-size: 31px;
       margin-bottom: 8px;
+      line-height: 0.96;
     }
 
-    .listing-meta,
-    .listing-copy {
+    .property-meta,
+    .property-copy {
       color: var(--muted);
       font-size: 13px;
       line-height: 1.7;
     }
 
-    .listing-meta {
+    .property-meta {
       margin-bottom: 10px;
     }
 
-    .story-grid {
+    .property-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .ghost-chip {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: transparent;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .page-space {
+      padding: 66px 0 44px;
+    }
+
+    .page-banner {
+      margin-bottom: 24px;
+      max-width: 940px;
+    }
+
+    .page-title {
+      font-size: clamp(54px, 6vw, 80px);
+      margin-bottom: 10px;
+    }
+
+    .collection-toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .collection-toolbar select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      outline: none;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+
+    .empty-block {
+      padding: 36px 18px;
+      text-align: center;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .seller-layout {
       display: grid;
       grid-template-columns: 1.05fr 0.95fr;
       gap: 18px;
-      margin-bottom: 24px;
     }
 
-    .story-panel {
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 22px;
-      padding: 24px;
-    }
-
-    .panel-kicker {
-      color: var(--gold-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      font-size: 11px;
-      margin-bottom: 10px;
-    }
-
-    .panel-title-lg {
-      font-family: "Cormorant Garamond", serif;
-      font-size: 44px;
-      line-height: 0.96;
-      margin-bottom: 12px;
-    }
-
-    .panel-text {
-      color: var(--muted);
-      line-height: 1.8;
-      margin-bottom: 22px;
-    }
-
-    .mini-stats {
+    .process-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 14px;
+      margin-top: 18px;
     }
 
-    .mini-stat {
-      padding: 16px;
-      border-radius: 14px;
+    .process-card {
+      padding: 18px;
+      border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255,255,255,0.02);
     }
 
-    .mini-stat strong {
+    .process-card strong {
+      display: block;
+      color: var(--bronze-soft);
+      margin-bottom: 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .process-card span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .seller-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .seller-form input,
+    .seller-form select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      outline: none;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+
+    .portfolio-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .portfolio-stat {
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .portfolio-stat strong {
       display: block;
       font-family: "Cormorant Garamond", serif;
-      font-size: 32px;
-      color: var(--gold-soft);
+      font-size: 36px;
+      color: var(--bronze-soft);
       margin-bottom: 6px;
     }
 
-    .mini-stat span {
+    .portfolio-stat span {
       color: var(--muted);
       font-size: 13px;
     }
 
-    .insight-list {
+    .story-grid,
+    .article-grid {
       display: grid;
-      gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
     }
 
-    .insight-item {
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.02);
+    .story-image,
+    .article-image {
+      width: 100%;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 16px;
     }
 
-    .insight-item strong {
+    .story-image img,
+    .article-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       display: block;
-      margin-bottom: 4px;
-      font-size: 15px;
     }
 
-    .insight-item span {
+    .story-badge,
+    .article-badge {
+      display: inline-block;
+      color: var(--bronze-soft);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .story-title,
+    .article-title {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    .story-meta {
       color: var(--muted);
       font-size: 13px;
-      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+
+    .story-text,
+    .article-text {
+      margin-bottom: 14px;
     }
 
     .cta-band {
+      margin-top: 26px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      border-radius: 22px;
+      gap: 18px;
       padding: 26px;
+      border-radius: 22px;
       background:
-        linear-gradient(120deg, rgba(240,216,174,0.14), rgba(255,255,255,0.03)),
+        linear-gradient(120deg, rgba(239,216,176,0.14), rgba(255,255,255,0.03)),
         linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
       border: 1px solid var(--line);
     }
@@ -550,24 +823,28 @@
       font-family: "Cormorant Garamond", serif;
       font-size: 40px;
       margin-bottom: 8px;
+      line-height: 0.96;
     }
 
     .cta-band p {
       color: var(--muted);
       line-height: 1.8;
-      max-width: 800px;
+      max-width: 780px;
+      font-size: 14px;
     }
 
     .site-footer {
-      width: min(1360px, calc(100% - 44px));
-      margin: 0 auto;
       padding: 24px 0 34px;
+    }
+
+    .footer-inner {
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
       display: flex;
       justify-content: space-between;
       gap: 16px;
       color: var(--muted);
       font-size: 13px;
-      border-top: 1px solid rgba(255,255,255,0.06);
     }
 
     .dashboard-overlay {
@@ -575,7 +852,7 @@
       inset: 0;
       z-index: 90;
       display: none;
-      background: rgba(4, 10, 16, 0.82);
+      background: rgba(8, 6, 5, 0.82);
       backdrop-filter: blur(10px);
     }
 
@@ -588,13 +865,13 @@
       height: 100%;
       display: grid;
       grid-template-columns: 290px 1fr;
-      background: linear-gradient(180deg, #071a2d 0%, #0a2239 100%);
+      background: linear-gradient(180deg, #15100d 0%, #1c1511 100%);
     }
 
     .dash-sidebar {
       background:
-        radial-gradient(circle at top left, rgba(240,216,174,0.11), transparent 30%),
-        linear-gradient(180deg, rgba(7, 24, 42, 0.98), rgba(4, 18, 31, 0.99));
+        radial-gradient(circle at top left, rgba(239,216,176,0.1), transparent 30%),
+        linear-gradient(180deg, rgba(19, 14, 12, 0.98), rgba(14, 11, 9, 0.99));
       border-right: 1px solid rgba(255,255,255,0.06);
       padding: 30px 18px;
       display: flex;
@@ -629,12 +906,12 @@
 
     .dash-nav button.active,
     .dash-nav button:hover {
-      color: var(--gold-soft);
-      border-color: rgba(240,216,174,0.16);
-      background: linear-gradient(90deg, rgba(240,216,174,0.12), rgba(255,255,255,0.02));
+      color: var(--bronze-soft);
+      border-color: rgba(239,216,176,0.14);
+      background: linear-gradient(90deg, rgba(239,216,176,0.12), rgba(255,255,255,0.02));
     }
 
-    .sidebar-note {
+    .dash-note {
       margin-top: auto;
       padding: 16px;
       border-radius: 16px;
@@ -645,9 +922,9 @@
       line-height: 1.7;
     }
 
-    .sidebar-note strong {
+    .dash-note strong {
       display: block;
-      color: var(--gold-soft);
+      color: var(--bronze-soft);
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.14em;
@@ -668,8 +945,8 @@
       align-items: center;
       gap: 18px;
       padding: 20px 28px;
+      background: rgba(18, 14, 12, 0.8);
       border-bottom: 1px solid rgba(255,255,255,0.06);
-      background: rgba(7, 24, 42, 0.8);
     }
 
     .dash-mini-brand .brand-main {
@@ -718,7 +995,7 @@
       border-radius: 50%;
       display: grid;
       place-items: center;
-      background: linear-gradient(135deg, #f3ddb7 0%, #d4af77 100%);
+      background: linear-gradient(135deg, #f3ddb7 0%, #c79a62 100%);
       color: #20170a;
       font-weight: 800;
     }
@@ -756,16 +1033,7 @@
     }
 
     .page-title {
-      font-family: "Cormorant Garamond", serif;
-      font-size: 60px;
-      line-height: 0.95;
-      margin-bottom: 6px;
-    }
-
-    .page-sub {
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.75;
+      font-size: clamp(52px, 5vw, 66px);
     }
 
     .page-actions {
@@ -773,16 +1041,6 @@
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
-    }
-
-    .dash-panel,
-    .stat-panel,
-    .form-panel,
-    .table-panel {
-      border-radius: 20px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.16);
     }
 
     .stats-grid {
@@ -797,7 +1055,7 @@
     }
 
     .stat-label {
-      color: var(--gold-soft);
+      color: var(--bronze-soft);
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.16em;
@@ -808,6 +1066,7 @@
       font-family: "Cormorant Garamond", serif;
       font-size: 40px;
       margin-bottom: 8px;
+      line-height: 0.96;
     }
 
     .stat-note {
@@ -827,28 +1086,9 @@
       padding: 20px;
     }
 
-    .panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .panel-head h3 {
-      font-family: "Cormorant Garamond", serif;
-      font-size: 31px;
-      margin-bottom: 6px;
-    }
-
-    .panel-head p {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
     .form-panel {
-      margin-bottom: 16px;
       display: none;
+      margin-bottom: 16px;
     }
 
     .form-panel.open {
@@ -862,13 +1102,13 @@
     }
 
     .field-grid.primary {
-      grid-template-columns: 1.7fr 1fr 0.9fr 0.95fr;
+      grid-template-columns: 1.8fr 1fr 0.8fr 1fr 1fr;
     }
 
     .field-grid.advanced {
       grid-template-columns: repeat(3, 1fr);
-      display: none;
       margin-top: 12px;
+      display: none;
     }
 
     .field-grid.advanced.open {
@@ -894,7 +1134,11 @@
     .filters-grid select,
     .crm-form input,
     .crm-form select,
-    .deal-form input {
+    .deal-form input,
+    .drawer-linker select,
+    .lead-form input,
+    .seller-form input,
+    .seller-form select {
       width: 100%;
       padding: 14px;
       border-radius: 12px;
@@ -913,13 +1157,14 @@
     .field-stack textarea::placeholder,
     .filters-grid input::placeholder,
     .crm-form input::placeholder,
-    .deal-form input::placeholder {
-      color: #93a1b4;
+    .deal-form input::placeholder,
+    .lead-form input::placeholder,
+    .seller-form input::placeholder {
+      color: #958777;
     }
 
     .inline-actions {
       display: flex;
-      align-items: center;
       gap: 12px;
       flex-wrap: wrap;
       margin-top: 14px;
@@ -949,7 +1194,7 @@
       font-size: 11px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--gold-soft);
+      color: var(--bronze-soft);
       background: rgba(255,255,255,0.02);
       border-bottom: 1px solid rgba(255,255,255,0.06);
       white-space: nowrap;
@@ -972,8 +1217,8 @@
     }
 
     .responsive-table tbody tr.data-row:hover {
-      background: rgba(240,216,174,0.04);
-      box-shadow: inset 0 0 0 1px rgba(240,216,174,0.08);
+      background: rgba(239,216,176,0.04);
+      box-shadow: inset 0 0 0 1px rgba(239,216,176,0.08);
       transform: translateY(-1px);
     }
 
@@ -997,7 +1242,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      min-width: 250px;
+      min-width: 260px;
     }
 
     .asset-copy strong {
@@ -1027,39 +1272,34 @@
 
     .status-active {
       color: var(--success);
-      background: rgba(110, 165, 126, 0.14);
-      border-color: rgba(110, 165, 126, 0.24);
+      background: rgba(126, 171, 137, 0.14);
+      border-color: rgba(126, 171, 137, 0.24);
     }
 
     .status-under-offer,
     .status-pending {
       color: var(--warning);
-      background: rgba(194, 131, 56, 0.14);
-      border-color: rgba(194, 131, 56, 0.24);
+      background: rgba(199, 144, 81, 0.14);
+      border-color: rgba(199, 144, 81, 0.24);
     }
 
     .status-rented {
       color: var(--info);
-      background: rgba(94, 119, 189, 0.16);
-      border-color: rgba(94, 119, 189, 0.24);
+      background: rgba(126, 145, 177, 0.16);
+      border-color: rgba(126, 145, 177, 0.24);
     }
 
-    .status-sold {
-      color: var(--stone);
-      background: rgba(111, 116, 126, 0.16);
-      border-color: rgba(111, 116, 126, 0.24);
-    }
-
+    .status-sold,
     .status-archived {
       color: var(--stone);
-      background: rgba(111, 116, 126, 0.16);
-      border-color: rgba(111, 116, 126, 0.24);
+      background: rgba(116, 110, 103, 0.16);
+      border-color: rgba(116, 110, 103, 0.24);
     }
 
     .status-vip {
-      color: var(--gold-soft);
-      background: rgba(240,216,174,0.12);
-      border-color: rgba(240,216,174,0.22);
+      color: var(--bronze-soft);
+      background: rgba(239,216,176,0.12);
+      border-color: rgba(239,216,176,0.22);
     }
 
     .status-buyer,
@@ -1067,15 +1307,15 @@
     .status-renter,
     .status-investor {
       color: var(--info);
-      background: rgba(94, 119, 189, 0.16);
-      border-color: rgba(94, 119, 189, 0.24);
+      background: rgba(126, 145, 177, 0.16);
+      border-color: rgba(126, 145, 177, 0.24);
     }
 
     .row-actions {
       display: flex;
-      align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .tiny-btn {
@@ -1087,7 +1327,7 @@
 
     .tiny-btn.delete {
       color: var(--danger);
-      border-color: rgba(255, 160, 160, 0.2);
+      border-color: rgba(255, 160, 160, 0.18);
       background: rgba(255, 160, 160, 0.08);
     }
 
@@ -1123,7 +1363,7 @@
 
     .pagination-buttons button.active {
       border-color: transparent;
-      background: linear-gradient(135deg, #f3ddb7 0%, #d4af77 100%);
+      background: linear-gradient(135deg, #f3ddb7 0%, #c79a62 100%);
       color: #20160a;
     }
 
@@ -1148,7 +1388,7 @@
 
     .activity-card strong {
       display: block;
-      color: var(--gold-soft);
+      color: var(--bronze-soft);
       font-size: 13px;
       text-transform: uppercase;
       letter-spacing: 0.14em;
@@ -1179,16 +1419,16 @@
 
     .drawer {
       position: absolute;
-      right: 0;
       top: 0;
-      width: min(440px, 100%);
+      right: 0;
+      width: min(460px, 100%);
       height: 100%;
-      background: linear-gradient(180deg, rgba(9, 28, 48, 0.99), rgba(5, 18, 31, 0.99));
-      border-left: 1px solid rgba(255,255,255,0.08);
       transform: translateX(100%);
       transition: transform 0.3s ease;
+      background: linear-gradient(180deg, rgba(27, 20, 16, 0.99), rgba(17, 13, 10, 0.99));
+      border-left: 1px solid rgba(255,255,255,0.08);
+      box-shadow: -24px 0 60px rgba(0,0,0,0.24);
       z-index: 25;
-      box-shadow: -24px 0 60px rgba(0,0,0,0.22);
       display: flex;
       flex-direction: column;
     }
@@ -1245,7 +1485,6 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
     }
 
     .drawer-grid {
@@ -1255,23 +1494,20 @@
       margin-bottom: 16px;
     }
 
-    .drawer-card {
+    .detail-card {
       padding: 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
     }
 
-    .drawer-card strong {
+    .detail-card strong {
       display: block;
-      color: var(--gold-soft);
+      color: var(--bronze-soft);
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.14em;
       margin-bottom: 6px;
     }
 
-    .drawer-card span {
+    .detail-card span {
       color: var(--text);
       font-size: 14px;
     }
@@ -1304,16 +1540,6 @@
       margin-top: 12px;
     }
 
-    .drawer-linker select {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-      outline: none;
-      color: var(--text);
-      background: rgba(255,255,255,0.04);
-    }
-
     .drawer-actions {
       display: flex;
       gap: 10px;
@@ -1321,27 +1547,120 @@
       margin-top: 14px;
     }
 
+    .public-modal-overlay,
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 110;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(9, 7, 6, 0.78);
+      backdrop-filter: blur(8px);
+    }
+
+    .public-modal-overlay.open,
+    .confirm-overlay.open {
+      display: flex;
+    }
+
+    .public-modal,
+    .confirm-card {
+      width: min(1040px, 100%);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(28, 21, 17, 0.99), rgba(17, 13, 10, 0.99));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .public-modal {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      max-height: 92vh;
+    }
+
+    .public-modal-image {
+      min-height: 100%;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .public-modal-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .public-modal-content {
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .public-modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .public-modal-head h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 42px;
+      line-height: 0.94;
+      margin-bottom: 8px;
+    }
+
+    .public-modal-head p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .public-close {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+
+    .lead-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .lead-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
     .toast-zone {
       position: fixed;
       right: 18px;
       bottom: 18px;
-      z-index: 120;
+      z-index: 140;
       display: grid;
       gap: 12px;
-      width: min(380px, calc(100% - 24px));
+      width: min(390px, calc(100% - 24px));
     }
 
     .toast {
       padding: 14px 16px;
       border-radius: 16px;
-      background: linear-gradient(180deg, rgba(8, 27, 47, 0.98), rgba(5, 18, 31, 0.99));
-      border: 1px solid rgba(240,216,174,0.16);
+      background: linear-gradient(180deg, rgba(28, 21, 17, 0.99), rgba(17, 13, 10, 0.99));
+      border: 1px solid rgba(239,216,176,0.14);
       box-shadow: 0 20px 50px rgba(0,0,0,0.28);
     }
 
     .toast strong {
       display: block;
-      color: var(--gold-soft);
+      color: var(--bronze-soft);
       font-size: 13px;
       text-transform: uppercase;
       letter-spacing: 0.14em;
@@ -1356,29 +1675,9 @@
       margin-bottom: 10px;
     }
 
-    .confirm-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 130;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: rgba(6, 11, 18, 0.78);
-      backdrop-filter: blur(8px);
-    }
-
-    .confirm-overlay.open {
-      display: flex;
-    }
-
     .confirm-card {
       width: min(480px, 100%);
-      border-radius: 22px;
       padding: 22px;
-      background: linear-gradient(180deg, rgba(8, 27, 47, 0.98), rgba(5, 18, 31, 0.99));
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 24px 70px rgba(0,0,0,0.3);
     }
 
     .confirm-card h3 {
@@ -1432,26 +1731,29 @@
       }
     }
 
-    @media (max-width: 1220px) {
-      .featured-grid,
-      .stats-grid,
+    @media (max-width: 1240px) {
+      .home-grid,
+      .property-grid,
+      .property-grid.collection,
       .story-grid,
+      .article-grid,
+      .stats-grid,
       .split-grid,
-      .mini-stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
+      .seller-layout,
+      .portfolio-stats,
+      .process-grid,
       .filters-grid,
       .field-grid.primary,
       .field-grid.advanced,
       .crm-form,
-      .deal-form {
+      .deal-form,
+      .lead-grid {
         grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    @media (max-width: 920px) {
-      .site-nav-inner {
+    @media (max-width: 980px) {
+      .nav-inner {
         flex-wrap: wrap;
       }
 
@@ -1463,7 +1765,7 @@
       }
 
       .hero {
-        padding: 66px 18px 190px;
+        padding: 70px 18px 190px;
       }
 
       .search-dock {
@@ -1472,48 +1774,41 @@
       }
 
       .search-grid,
-      .featured-grid,
+      .home-grid,
+      .property-grid,
+      .property-grid.collection,
       .story-grid,
-      .mini-stats,
-      .cta-band,
+      .article-grid,
       .stats-grid,
       .split-grid,
+      .seller-layout,
+      .portfolio-stats,
+      .process-grid,
       .filters-grid,
       .field-grid.primary,
       .field-grid.advanced,
       .crm-form,
       .deal-form,
-      .drawer-grid,
-      .dashboard-shell {
+      .lead-grid,
+      .public-modal,
+      .dashboard-shell,
+      .drawer-grid {
         grid-template-columns: 1fr;
       }
 
-      .section-frame,
-      .site-footer,
-      .dash-pages {
-        width: calc(100% - 24px);
-      }
-
-      .site-main {
-        padding-top: 82px;
-      }
-
-      .site-footer,
-      .cta-band,
       .page-header,
-      .panel-head,
-      .dash-topbar {
+      .cta-band,
+      .footer-inner {
         flex-direction: column;
         align-items: flex-start;
       }
 
-      .dash-topbar {
-        grid-template-columns: 1fr;
+      .welcome-stack {
         text-align: left;
       }
 
-      .welcome-stack {
-        text-align: left;
+      .dash-topbar {
+        grid-template-columns: 1fr;
       }
 
       .carousel-nav {
@@ -1545,63 +1840,48 @@
       }
 
       .responsive-table td {
-        border-bottom: none;
-        padding: 10px 0;
         display: flex;
-        align-items: flex-start;
         justify-content: space-between;
         gap: 12px;
         text-align: right;
+        padding: 10px 0;
+        border-bottom: none;
       }
 
       .responsive-table td::before {
         content: attr(data-label);
-        color: var(--gold-soft);
+        color: var(--bronze-soft);
         font-size: 10px;
-        text-transform: uppercase;
         letter-spacing: 0.14em;
+        text-transform: uppercase;
         text-align: left;
         flex-shrink: 0;
       }
 
       .responsive-table td[data-label="Asset Address"],
       .responsive-table td[data-label="Client"],
+      .responsive-table td[data-label="Strategy / Note"],
       .responsive-table td[data-label="Closed Asset"],
       .responsive-table td[data-label="Address"],
-      .responsive-table td[data-label="Strategy / Note"] {
+      .responsive-table td[data-label="Thumbnail"] {
         display: block;
         text-align: left;
       }
 
       .responsive-table td[data-label="Asset Address"]::before,
       .responsive-table td[data-label="Client"]::before,
+      .responsive-table td[data-label="Strategy / Note"]::before,
       .responsive-table td[data-label="Closed Asset"]::before,
       .responsive-table td[data-label="Address"]::before,
-      .responsive-table td[data-label="Strategy / Note"]::before {
-        display: block;
-        margin-bottom: 8px;
-      }
-
-      .responsive-table td[data-label="Thumbnail"] {
-        display: block;
-        text-align: left;
-      }
-
       .responsive-table td[data-label="Thumbnail"]::before {
         display: block;
         margin-bottom: 8px;
       }
 
-      .row-actions {
-        justify-content: flex-start;
-      }
-
-      .asset-line {
-        min-width: 0;
-      }
-
-      .site-footer {
-        flex-direction: column;
+      .section-frame,
+      .nav-inner,
+      .footer-inner {
+        width: calc(100% - 24px);
       }
     }
   </style>
@@ -1609,147 +1889,272 @@
 <body>
   <div class="site-shell">
     <header class="site-nav">
-      <div class="site-nav-inner">
+      <div class="nav-inner">
         <div class="brand-lockup">
           <div class="brand-main">saDT PRESTIGE</div>
           <div class="brand-sub">Luxury Property Advisory</div>
         </div>
 
         <nav class="site-links">
-          <a href="#home">Home</a>
-          <a href="#search">Buy</a>
-          <a href="#search">Rent</a>
-          <a href="#search">Sell</a>
-          <a href="#portfolio">Portfolio</a>
-          <a href="#insights">Insights</a>
+          <button class="site-link active" data-nav="home" onclick="showPublicPage('home')">Home</button>
+          <button class="site-link" data-nav="buy" onclick="showPublicPage('buy')">Buy</button>
+          <button class="site-link" data-nav="rent" onclick="showPublicPage('rent')">Rent</button>
+          <button class="site-link" data-nav="sell" onclick="showPublicPage('sell')">Sell</button>
+          <button class="site-link" data-nav="portfolio" onclick="showPublicPage('portfolio')">Portfolio</button>
+          <button class="site-link" data-nav="insights" onclick="showPublicPage('insights')">Insights</button>
         </nav>
 
-        <div class="nav-actions">
+        <div class="site-actions">
           <button class="outline-btn" onclick="openDashboard('inventoryPage')">Agent Dashboard Login</button>
         </div>
       </div>
     </header>
 
-    <section class="hero" id="home">
-      <div class="hero-copy">
-        <h1 class="hero-title">Discover Timeless Luxury</h1>
-        <p class="hero-sub">Exclusive Homes • Personalized Service • Your Legacy Starts Here</p>
-      </div>
-    </section>
+    <main class="public-main">
+      <section class="public-page active" id="publicHome">
+        <section class="hero">
+          <div class="hero-copy">
+            <h1 class="hero-title">Discover Timeless Luxury</h1>
+            <p class="hero-sub">Exclusive Homes • Personalized Service • Your Legacy Starts Here</p>
+          </div>
+        </section>
 
-    <div class="search-dock" id="search">
-      <div class="search-panel">
-        <div class="search-tabs">
-          <button class="search-tab active" onclick="setSearchType('BUY', this)">Buy</button>
-          <button class="search-tab" onclick="setSearchType('RENT', this)">Rent</button>
-          <button class="search-tab" onclick="setSearchType('SELL', this)">Sell</button>
-        </div>
-
-        <div class="search-grid">
-          <select id="publicLocation">
-            <option value="">Location</option>
-            <option>Herzliya</option>
-            <option>Caesarea</option>
-            <option>Tel Aviv</option>
-            <option>Netanya</option>
-            <option>Athens Riviera</option>
-          </select>
-
-          <select id="publicBudget">
-            <option value="">Price Range</option>
-            <option value="0-3000000">$0 - $3M</option>
-            <option value="3000000-8000000">$3M - $8M</option>
-            <option value="8000000-15000000">$8M - $15M</option>
-            <option value="15000000-999999999">$15M+</option>
-          </select>
-
-          <select id="publicType">
-            <option value="">Property Type</option>
-            <option>Villa</option>
-            <option>Penthouse</option>
-            <option>Estate</option>
-            <option>Apartment</option>
-          </select>
-
-          <button class="search-btn" onclick="runPublicSearch()">Search</button>
-        </div>
-      </div>
-    </div>
-
-    <main class="site-main">
-      <section class="section-frame featured-section">
-        <div class="carousel-nav">
-          <button class="carousel-btn" onclick="shiftFeatured(-1)">‹</button>
-          <button class="carousel-btn" onclick="shiftFeatured(1)">›</button>
-        </div>
-
-        <div class="section-head">
-          <h2 class="section-title">Featured Exclusive Listings</h2>
-        </div>
-
-        <div class="featured-grid" id="featuredGrid"></div>
-      </section>
-
-      <section class="section-frame story-grid">
-        <div class="story-panel" id="portfolio">
-          <div class="panel-kicker">Prestige Portfolio</div>
-          <h3 class="panel-title-lg">An expensive public face with a disciplined private operating system.</h3>
-          <p class="panel-text">
-            The front end is calm, editorial, and aspirational. Inside, your team manages inventory, client links, status changes,
-            archived assets, and settlements in one premium internal workspace that still feels on-brand.
-          </p>
-
-          <div class="mini-stats">
-            <div class="mini-stat">
-              <strong>87</strong>
-              <span>Luxury homes placed</span>
+        <div class="search-dock">
+          <div class="search-panel">
+            <div class="search-tabs">
+              <button class="search-tab active" data-hero-tab="BUY" onclick="setHeroSearchMode('BUY', this)">Buy</button>
+              <button class="search-tab" data-hero-tab="RENT" onclick="setHeroSearchMode('RENT', this)">Rent</button>
+              <button class="search-tab" data-hero-tab="SELL" onclick="setHeroSearchMode('SELL', this)">Sell</button>
             </div>
-            <div class="mini-stat">
-              <strong>₪450M+</strong>
-              <span>Transaction volume</span>
-            </div>
-            <div class="mini-stat">
-              <strong>4.98</strong>
-              <span>Average client rating</span>
+
+            <div class="search-grid">
+              <select id="heroLocation">
+                <option value="">Location</option>
+                <option>Herzliya</option>
+                <option>Caesarea</option>
+                <option>Tel Aviv</option>
+                <option>Netanya</option>
+                <option>Athens Riviera</option>
+              </select>
+
+              <select id="heroBudget">
+                <option value="">Price Range</option>
+                <option value="0-3000000">$0 - $3M</option>
+                <option value="3000000-8000000">$3M - $8M</option>
+                <option value="8000000-15000000">$8M - $15M</option>
+                <option value="15000000-999999999">$15M+</option>
+              </select>
+
+              <select id="heroType">
+                <option value="">Property Type</option>
+                <option>Villa</option>
+                <option>Penthouse</option>
+                <option>Estate</option>
+                <option>Apartment</option>
+              </select>
+
+              <button class="search-btn" onclick="runHeroSearch()">Search</button>
             </div>
           </div>
         </div>
 
-        <div class="story-panel" id="insights">
-          <div class="panel-kicker">Market Insight</div>
-          <h3 class="panel-title-lg">Sharper positioning for premium client conversations.</h3>
-          <div class="insight-list">
-            <div class="insight-item">
-              <strong>Waterfront prestige remains dominant</strong>
-              <span>Sea-facing inventory continues to command faster attention and stronger pricing power.</span>
+        <div class="home-content">
+          <section class="section-frame home-grid">
+            <div class="editorial-panel">
+              <span class="eyebrow">Private Advisory</span>
+              <h2 class="editorial-title">A warmer, sharper luxury presence built around real estate, not generic SaaS.</h2>
+              <p class="editorial-text">
+                saDT Prestige now leans into a richer editorial mood: champagne warmth, dark espresso depth,
+                refined bronze accents, cleaner typography, and calmer spacing. The website sells aspiration in public
+                while the private dashboard runs the business behind it.
+              </p>
+
+              <div class="editorial-actions">
+                <button class="gold-btn" onclick="showPublicPage('buy')">Browse Buy Residences</button>
+                <button class="ghost-btn" onclick="openDashboard('inventoryPage')">Open Private Dashboard</button>
+              </div>
+
+              <div class="feature-strip">
+                <div class="feature-chip">
+                  <strong>Luxury Focus</strong>
+                  <span>Buy, rent, sell, and manage premium properties from one branded system.</span>
+                </div>
+                <div class="feature-chip">
+                  <strong>Client Flow</strong>
+                  <span>Public inquiries can be captured directly into the internal CRM.</span>
+                </div>
+                <div class="feature-chip">
+                  <strong>Private Control</strong>
+                  <span>Inventory, settlements, statuses, archives, and activity all stay connected.</span>
+                </div>
+              </div>
             </div>
-            <div class="insight-item">
-              <strong>Off-market introductions convert faster</strong>
-              <span>Serious high-net-worth buyers respond better to private, curated access than crowded listing feeds.</span>
+
+            <div class="metrics-panel">
+              <span class="eyebrow">Prestige Snapshot</span>
+              <div class="metrics-grid" id="homeMetricsGrid"></div>
             </div>
-            <div class="insight-item">
-              <strong>Design-led properties outperform</strong>
-              <span>Clean architecture, warm materials, and turnkey finishes continue to drive emotional conversion.</span>
+          </section>
+
+          <section class="section-frame feature-panel">
+            <div class="section-head">
+              <h2 class="section-title">Featured Exclusive Listings</h2>
+              <div class="carousel-nav">
+                <button class="carousel-btn" onclick="shiftFeatured(-1)">‹</button>
+                <button class="carousel-btn" onclick="shiftFeatured(1)">›</button>
+              </div>
+            </div>
+
+            <div class="property-grid" id="homeFeaturedGrid"></div>
+          </section>
+
+          <section class="section-frame cta-band">
+            <div>
+              <h3>Luxury in Public. Control in Private.</h3>
+              <p>
+                Browse the front-end showroom, then step into the internal layer to manage inventory, link clients,
+                archive withdrawn listings, track settlements, and keep your team fully aligned.
+              </p>
+            </div>
+            <button class="gold-btn" onclick="openDashboard('opsPage')">Open Luxury Ops</button>
+          </section>
+        </div>
+      </section>
+
+      <section class="public-page" id="publicCollection">
+        <div class="section-frame page-space">
+          <div class="page-banner">
+            <span class="eyebrow" id="collectionEyebrow">Private Collection</span>
+            <h1 class="page-title" id="collectionTitle">Buy Exceptional Residences</h1>
+            <p class="page-sub" id="collectionSubtitle">Curated, high-end inventory presented with a calmer luxury tone and filtered by your current search direction.</p>
+          </div>
+
+          <div class="collection-toolbar">
+            <select id="collectionLocation" onchange="renderCollectionPage()">
+              <option value="ALL">All Locations</option>
+            </select>
+
+            <select id="collectionType" onchange="renderCollectionPage()">
+              <option value="ALL">All Types</option>
+              <option value="Villa">Villa</option>
+              <option value="Penthouse">Penthouse</option>
+              <option value="Estate">Estate</option>
+              <option value="Apartment">Apartment</option>
+            </select>
+
+            <select id="collectionBudget" onchange="renderCollectionPage()">
+              <option value="ALL">All Budgets</option>
+              <option value="0-3000000">$0 - $3M</option>
+              <option value="3000000-8000000">$3M - $8M</option>
+              <option value="8000000-15000000">$8M - $15M</option>
+              <option value="15000000-999999999">$15M+</option>
+            </select>
+
+            <select id="collectionSort" onchange="renderCollectionPage()">
+              <option value="featured">Featured</option>
+              <option value="newest">Newest</option>
+              <option value="price-desc">Price High to Low</option>
+              <option value="price-asc">Price Low to High</option>
+            </select>
+
+            <button class="pill-btn" onclick="resetCollectionFilters()">Reset</button>
+          </div>
+
+          <div class="property-grid collection" id="collectionGrid"></div>
+        </div>
+      </section>
+
+      <section class="public-page" id="publicSell">
+        <div class="section-frame page-space">
+          <div class="page-banner">
+            <span class="eyebrow">Seller Advisory</span>
+            <h1 class="page-title">List With saDT Prestige</h1>
+            <p class="page-sub">
+              For owners who want an elegant public brand, private buyer handling, and serious execution behind the scenes.
+            </p>
+          </div>
+
+          <div class="seller-layout">
+            <div class="seller-panel">
+              <h2 class="panel-title" style="font-size:42px; margin-bottom:12px;">A more discreet, more premium way to bring luxury inventory to market.</h2>
+              <p class="panel-text">
+                Your property is positioned through strong visual presentation, controlled exposure, and buyer-quality discipline.
+                The front end sells taste and trust. The internal platform tracks every detail once interest begins moving.
+              </p>
+
+              <div class="process-grid">
+                <div class="process-card">
+                  <strong>1. Position</strong>
+                  <span>Editorial-grade presentation, premium storytelling, and a luxury-first online experience.</span>
+                </div>
+                <div class="process-card">
+                  <strong>2. Qualify</strong>
+                  <span>Every inquiry can become a structured internal lead instead of disappearing in scattered messages.</span>
+                </div>
+                <div class="process-card">
+                  <strong>3. Close</strong>
+                  <span>Move from active to under offer to settlement with one connected internal workflow.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="seller-form-panel">
+              <span class="eyebrow">Private Valuation</span>
+              <h3 class="panel-title" style="font-size:38px; margin-bottom:12px;">Request a private selling consultation.</h3>
+              <p class="panel-text">This will create a seller lead in the internal CRM so your team can follow up immediately.</p>
+
+              <div class="seller-form">
+                <input id="sellerName" type="text" placeholder="Full Name">
+                <input id="sellerPhone" type="text" placeholder="Phone">
+                <input id="sellerArea" type="text" placeholder="Property Area / City">
+                <select id="sellerPropertyType">
+                  <option value="Villa">Villa</option>
+                  <option value="Penthouse">Penthouse</option>
+                  <option value="Estate">Estate</option>
+                  <option value="Apartment">Apartment</option>
+                </select>
+                <button class="gold-btn" onclick="captureSellerLead()">Request Private Valuation</button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section-frame cta-band">
-        <div>
-          <h3>Luxury in Public. Control in Private.</h3>
-          <p>
-            Open the internal dashboard to manage property inventory, link assets to clients, track movement,
-            and push closed deals into settlements while keeping the brand experience expensive and consistent.
-          </p>
+      <section class="public-page" id="publicPortfolio">
+        <div class="section-frame page-space">
+          <div class="page-banner">
+            <span class="eyebrow">Portfolio</span>
+            <h1 class="page-title">Track Record That Feels Private, Not Generic.</h1>
+            <p class="page-sub">
+              Success stories, transaction credibility, and a luxury-facing narrative that supports your brand without feeling loud.
+            </p>
+          </div>
+
+          <div class="portfolio-stats" id="portfolioStats"></div>
+          <div class="story-grid" id="portfolioGrid"></div>
         </div>
-        <button class="gold-btn" onclick="openDashboard('inventoryPage')">Open Private Dashboard</button>
+      </section>
+
+      <section class="public-page" id="publicInsights">
+        <div class="section-frame page-space">
+          <div class="page-banner">
+            <span class="eyebrow">Insights</span>
+            <h1 class="page-title">Luxury Market Perspective</h1>
+            <p class="page-sub">
+              Content built to support authority, trust, and premium client conversations around real estate positioning.
+            </p>
+          </div>
+
+          <div class="article-grid" id="insightsGrid"></div>
+        </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div>saDT Prestige Properties</div>
-      <div>Luxury Real Estate Advisory • Israel & Greece</div>
+      <div class="footer-inner">
+        <div>saDT Prestige Properties</div>
+        <div>Luxury Real Estate Advisory • Israel & Greece</div>
+      </div>
     </footer>
   </div>
 
@@ -1768,9 +2173,9 @@
           <button onclick="switchDashPage('opsPage', this)">Luxury Ops</button>
         </div>
 
-        <div class="sidebar-note">
+        <div class="dash-note">
           <strong>Internal Layer</strong>
-          Premium workspace for you and coworkers. Calm, serious, and built to keep every property and relationship connected.
+          Inventory, client links, archived assets, activity tracking, and settlements all live here in one connected workspace.
         </div>
       </aside>
 
@@ -1826,7 +2231,7 @@
               <div class="stat-panel">
                 <div class="stat-label">Archived</div>
                 <div class="stat-value" id="inventoryArchivedCount">0</div>
-                <div class="stat-note">Soft-deleted historical assets</div>
+                <div class="stat-note">Soft-deleted listings</div>
               </div>
             </div>
 
@@ -1856,6 +2261,14 @@
                     <option value="$">$</option>
                     <option value="₪">₪</option>
                     <option value="€">€</option>
+                  </select>
+                </div>
+
+                <div class="field-stack">
+                  <label for="assetIntent">Listing Intent</label>
+                  <select id="assetIntent">
+                    <option value="BUY">BUY</option>
+                    <option value="RENT">RENT</option>
                   </select>
                 </div>
 
@@ -2168,6 +2581,13 @@
     </div>
   </div>
 
+  <div class="public-modal-overlay" id="publicModalOverlay">
+    <div class="public-modal">
+      <div class="public-modal-image" id="publicModalImage"></div>
+      <div class="public-modal-content" id="publicModalContent"></div>
+    </div>
+  </div>
+
   <div class="confirm-overlay" id="confirmOverlay">
     <div class="confirm-card">
       <h3 id="confirmTitle">Confirm</h3>
@@ -2183,14 +2603,60 @@
   <div class="toast-zone" id="toastZone"></div>
 
   <script>
-    const STORAGE_KEY = "SADT_PRESTIGE_LUXE_FINAL";
-    const defaultImages = [
-      "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80"
+    const STORAGE_KEY = "SADT_PRESTIGE_LUXURY_FINAL_V2";
+
+    const propertyPhotos = [
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1600566753151-384129cf4e3e?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80"
+    ];
+
+    const portfolioStories = [
+      {
+        image: propertyPhotos[1],
+        badge: "Sold • 2026",
+        title: "Caesarea Horizon Estate",
+        meta: "Private family office placement • Off-market introduction",
+        text: "Structured as a discreet opportunity and converted through a tightly managed buyer process rather than broad public exposure."
+      },
+      {
+        image: propertyPhotos[2],
+        badge: "Rented • 2026",
+        title: "Netanya Beachfront Villa",
+        meta: "Executive relocation • Premium rental positioning",
+        text: "Presented as a lifestyle asset first, which lifted urgency and created stronger negotiation control."
+      },
+      {
+        image: propertyPhotos[0],
+        badge: "Sold • 2025",
+        title: "Tel Aviv Sky Penthouse",
+        meta: "Urban prestige buyer • Multi-stage viewing flow",
+        text: "The deal accelerated once the property narrative matched the client’s design and privacy priorities."
+      }
+    ];
+
+    const insightArticles = [
+      {
+        image: propertyPhotos[4],
+        badge: "Market Report",
+        title: "Sea-view inventory still commands the strongest emotional premium",
+        text: "Luxury buyers continue responding fastest to homes that pair direct water exposure with private entertaining architecture."
+      },
+      {
+        image: propertyPhotos[5],
+        badge: "Investment Guide",
+        title: "Why design language is now part of valuation",
+        text: "Minimal architecture, warm stone, and hospitality-grade finishes increasingly shape both pricing power and viewing conversion."
+      },
+      {
+        image: propertyPhotos[3],
+        badge: "Seller Strategy",
+        title: "Controlled exposure is outperforming broad luxury listing noise",
+        text: "At the top of the market, a quieter and more selective release often produces stronger buyers and better negotiation posture."
+      }
     ];
 
     function clone(value) {
@@ -2203,6 +2669,7 @@
           id: 1,
           addr: "Eretria Villa, Herzliya",
           location: "Herzliya",
+          intent: "BUY",
           price: 2400000,
           currency: "$",
           status: "ACTIVE",
@@ -2211,7 +2678,7 @@
           amenities: ["Sea View", "Pool", "Smart Home"],
           owner: "Private Owner",
           notes: "Clifftop family villa positioned for sunset showings and international buyers.",
-          image: defaultImages[0],
+          image: propertyPhotos[0],
           linkedClientIds: [101],
           addedBy: "saDT",
           createdAt: "2026-03-26T10:30:00Z",
@@ -2224,6 +2691,7 @@
           id: 2,
           addr: "Caesarea Horizon Estate",
           location: "Caesarea",
+          intent: "BUY",
           price: 18500000,
           currency: "$",
           status: "UNDER OFFER",
@@ -2232,7 +2700,7 @@
           amenities: ["Sea View", "Pool", "Cinema", "Guest House"],
           owner: "Confidential Family Office",
           notes: "Ultra-premium coastal estate with strong off-market appetite and family-office interest.",
-          image: defaultImages[1],
+          image: propertyPhotos[1],
           linkedClientIds: [101, 102],
           addedBy: "saDT",
           createdAt: "2026-03-25T11:00:00Z",
@@ -2245,6 +2713,7 @@
           id: 3,
           addr: "Tel Aviv Sky Penthouse",
           location: "Tel Aviv",
+          intent: "BUY",
           price: 9750000,
           currency: "$",
           status: "ACTIVE",
@@ -2252,8 +2721,8 @@
           size: 540,
           amenities: ["City View", "Rooftop Terrace", "Smart Home"],
           owner: "Urban Holdings",
-          notes: "High-floor penthouse for finance and tech buyers who want clean architecture and privacy.",
-          image: defaultImages[2],
+          notes: "High-floor penthouse designed for finance and tech buyers who want clean architecture and privacy.",
+          image: propertyPhotos[2],
           linkedClientIds: [],
           addedBy: "saDT",
           createdAt: "2026-03-23T14:20:00Z",
@@ -2265,21 +2734,63 @@
           id: 4,
           addr: "Netanya Beachfront Villa",
           location: "Netanya",
+          intent: "RENT",
           price: 14200000,
           currency: "$",
-          status: "RENTED",
+          status: "ACTIVE",
           type: "Villa",
           size: 960,
           amenities: ["Beachfront", "Pool", "Spa"],
           owner: "Private Owner",
-          notes: "Luxury rental profile with executive and relocation appeal.",
-          image: defaultImages[3],
+          notes: "Executive-grade beachfront rental profile with hospitality-level finishes.",
+          image: propertyPhotos[3],
           linkedClientIds: [103],
           addedBy: "saDT",
           createdAt: "2026-03-19T09:05:00Z",
           history: [
-            "Listed by saDT on Mar 19, 2026.",
-            "Updated to RENTED after contract signature."
+            "Listed by saDT on Mar 19, 2026."
+          ]
+        },
+        {
+          id: 5,
+          addr: "Athens Riviera Residence",
+          location: "Athens Riviera",
+          intent: "RENT",
+          price: 6800000,
+          currency: "$",
+          status: "PENDING",
+          type: "Apartment",
+          size: 420,
+          amenities: ["Sea View", "Terrace", "Concierge"],
+          owner: "Aegean Holdings",
+          notes: "Mediterranean residence with strong seasonal appeal for private lifestyle tenants.",
+          image: propertyPhotos[4],
+          linkedClientIds: [],
+          addedBy: "saDT",
+          createdAt: "2026-03-17T12:10:00Z",
+          history: [
+            "Listed by saDT on Mar 17, 2026."
+          ]
+        },
+        {
+          id: 6,
+          addr: "Jaffa Courtyard Loft",
+          location: "Tel Aviv",
+          intent: "BUY",
+          price: 3900000,
+          currency: "$",
+          status: "ACTIVE",
+          type: "Apartment",
+          size: 240,
+          amenities: ["Private Patio", "Designer Kitchen"],
+          owner: "Private Seller",
+          notes: "Warm architectural loft with boutique-luxury character and strong cultural appeal.",
+          image: propertyPhotos[5],
+          linkedClientIds: [],
+          addedBy: "saDT",
+          createdAt: "2026-03-15T08:40:00Z",
+          history: [
+            "Listed by saDT on Mar 15, 2026."
           ]
         }
       ],
@@ -2301,24 +2812,25 @@
     };
 
     let db = loadDB();
-    let publicSearchType = "BUY";
+    let currentPublicPage = "home";
+    let heroSearchMode = "BUY";
+    let collectionMode = "BUY";
     let featuredIndex = 0;
     let inventorySort = { field: "createdAt", dir: "desc" };
     let inventoryPage = 1;
     let editingPropertyId = null;
-    let selectedPropertyId = null;
-    let selectedPropertyArchived = false;
     let lastArchivedPropertyId = null;
     let confirmHandler = null;
 
     function normalizeProperty(property, index = 0) {
       if (!property.currency) property.currency = "$";
+      if (!property.intent) property.intent = "BUY";
       if (!property.type) property.type = "Villa";
       if (!property.location) property.location = "Unknown";
       if (!property.size) property.size = 0;
       if (!property.owner) property.owner = "Private Owner";
       if (!property.notes) property.notes = "";
-      if (!property.image) property.image = defaultImages[index % defaultImages.length];
+      if (!property.image) property.image = propertyPhotos[index % propertyPhotos.length];
       if (!Array.isArray(property.amenities)) {
         property.amenities = typeof property.amenities === "string" && property.amenities.trim()
           ? property.amenities.split(",").map(item => item.trim()).filter(Boolean)
@@ -2410,6 +2922,389 @@
       db.activity = db.activity.slice(0, 20);
     }
 
+    function showPublicPage(target) {
+      if (target === "buy") {
+        currentPublicPage = "collection";
+        collectionMode = "BUY";
+      } else if (target === "rent") {
+        currentPublicPage = "collection";
+        collectionMode = "RENT";
+      } else if (target === "sell") {
+        currentPublicPage = "sell";
+      } else if (target === "portfolio") {
+        currentPublicPage = "portfolio";
+      } else if (target === "insights") {
+        currentPublicPage = "insights";
+      } else {
+        currentPublicPage = "home";
+      }
+
+      document.getElementById("publicHome").classList.toggle("active", currentPublicPage === "home");
+      document.getElementById("publicCollection").classList.toggle("active", currentPublicPage === "collection");
+      document.getElementById("publicSell").classList.toggle("active", currentPublicPage === "sell");
+      document.getElementById("publicPortfolio").classList.toggle("active", currentPublicPage === "portfolio");
+      document.getElementById("publicInsights").classList.toggle("active", currentPublicPage === "insights");
+
+      document.querySelectorAll(".site-link").forEach(link => link.classList.remove("active"));
+      const activeMap = {
+        home: "home",
+        collection: collectionMode === "BUY" ? "buy" : "rent",
+        sell: "sell",
+        portfolio: "portfolio",
+        insights: "insights"
+      };
+      const navKey = activeMap[currentPublicPage];
+      const activeLink = document.querySelector(`.site-link[data-nav="${navKey}"]`);
+      if (activeLink) activeLink.classList.add("active");
+
+      renderCollectionPage();
+      renderPortfolioPage();
+      renderInsightsPage();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function setHeroSearchMode(mode, button) {
+      heroSearchMode = mode;
+      document.querySelectorAll("[data-hero-tab]").forEach(tab => tab.classList.remove("active"));
+      button.classList.add("active");
+    }
+
+    function runHeroSearch() {
+      if (heroSearchMode === "SELL") {
+        document.getElementById("sellerArea").value = document.getElementById("heroLocation").value || "";
+        showPublicPage("sell");
+        return;
+      }
+
+      collectionMode = heroSearchMode;
+      document.getElementById("collectionLocation").value = document.getElementById("heroLocation").value || "ALL";
+      document.getElementById("collectionBudget").value = document.getElementById("heroBudget").value || "ALL";
+      document.getElementById("collectionType").value = document.getElementById("heroType").value || "ALL";
+      document.getElementById("collectionSort").value = "featured";
+      showPublicPage(heroSearchMode === "BUY" ? "buy" : "rent");
+    }
+
+    function getPublicListings() {
+      return db.houses.filter(property => {
+        return property.status === "ACTIVE" || property.status === "UNDER OFFER" || property.status === "PENDING";
+      });
+    }
+
+    function renderHomeMetrics() {
+      const activeListings = db.houses.filter(item => item.status === "ACTIVE").length;
+      const aum = db.houses.reduce((sum, item) => sum + item.price, 0);
+      const closedDeals = db.deals.length;
+      const clientCount = db.clients.length;
+
+      document.getElementById("homeMetricsGrid").innerHTML = `
+        <div class="metric-card">
+          <strong>${activeListings}</strong>
+          <span>Active luxury listings</span>
+        </div>
+        <div class="metric-card">
+          <strong>${money(aum)}</strong>
+          <span>Current inventory valuation</span>
+        </div>
+        <div class="metric-card">
+          <strong>${clientCount}</strong>
+          <span>Tracked private relationships</span>
+        </div>
+        <div class="metric-card">
+          <strong>${closedDeals}</strong>
+          <span>Closed deals logged</span>
+        </div>
+      `;
+    }
+
+    function propertyCardMarkup(property) {
+      return `
+        <article class="property-card">
+          <div class="property-media">
+            <img src="${escapeHtml(property.image)}" alt="${escapeHtml(property.addr)}">
+            <div class="property-price">${money(property.price, property.currency)}</div>
+            <div class="property-flag">${escapeHtml(property.status)}</div>
+          </div>
+          <div class="property-body">
+            <h3 class="property-title">${escapeHtml(property.addr)}</h3>
+            <div class="property-meta">${escapeHtml(property.type)} • ${escapeHtml(property.location)} • ${escapeHtml(property.intent)}</div>
+            <div class="property-copy">${escapeHtml(property.notes || "Luxury listing positioned for private buyers and curated viewings.")}</div>
+            <div class="property-actions">
+              <button class="ghost-chip" onclick="openPublicProperty(${property.id})">View Residence</button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderHomeFeatured() {
+      const listings = getPublicListings();
+      const maxIndex = Math.max(0, listings.length - 4);
+      if (featuredIndex > maxIndex) featuredIndex = 0;
+      const visible = listings.slice(featuredIndex, featuredIndex + 4);
+      const items = visible.length ? visible : listings.slice(0, 4);
+      document.getElementById("homeFeaturedGrid").innerHTML = items.map(propertyCardMarkup).join("");
+    }
+
+    function shiftFeatured(direction) {
+      const listings = getPublicListings();
+      const maxIndex = Math.max(0, listings.length - 4);
+      featuredIndex += direction;
+      if (featuredIndex < 0) featuredIndex = maxIndex;
+      if (featuredIndex > maxIndex) featuredIndex = 0;
+      renderHomeFeatured();
+    }
+
+    function renderCollectionLocationOptions() {
+      const select = document.getElementById("collectionLocation");
+      const current = select.value || "ALL";
+      const locations = Array.from(new Set(db.houses.map(item => item.location))).sort();
+      select.innerHTML = `<option value="ALL">All Locations</option>` + locations.map(location => `
+        <option value="${escapeHtml(location)}">${escapeHtml(location)}</option>
+      `).join("");
+      select.value = locations.includes(current) ? current : "ALL";
+    }
+
+    function renderCollectionPage() {
+      renderCollectionLocationOptions();
+
+      const copy = {
+        BUY: {
+          eyebrow: "Buy Collection",
+          title: "Buy Exceptional Residences",
+          subtitle: "Curated homes for buyers seeking privacy, architectural quality, and stronger brand trust."
+        },
+        RENT: {
+          eyebrow: "Rent Collection",
+          title: "Rent Signature Homes",
+          subtitle: "Premium rental opportunities presented with the same discretion and design quality as sales inventory."
+        }
+      }[collectionMode];
+
+      document.getElementById("collectionEyebrow").innerText = copy.eyebrow;
+      document.getElementById("collectionTitle").innerText = copy.title;
+      document.getElementById("collectionSubtitle").innerText = copy.subtitle;
+
+      const location = document.getElementById("collectionLocation").value;
+      const type = document.getElementById("collectionType").value;
+      const budget = document.getElementById("collectionBudget").value;
+      const sort = document.getElementById("collectionSort").value;
+
+      let items = db.houses.filter(property => {
+        return property.intent === collectionMode && (property.status === "ACTIVE" || property.status === "UNDER OFFER" || property.status === "PENDING");
+      });
+
+      if (location !== "ALL") items = items.filter(item => item.location === location);
+      if (type !== "ALL") items = items.filter(item => item.type === type);
+      if (budget !== "ALL") {
+        const [min, max] = budget.split("-").map(Number);
+        items = items.filter(item => item.price >= min && item.price <= max);
+      }
+
+      if (sort === "newest") {
+        items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      } else if (sort === "price-desc") {
+        items.sort((a, b) => b.price - a.price);
+      } else if (sort === "price-asc") {
+        items.sort((a, b) => a.price - b.price);
+      }
+
+      const grid = document.getElementById("collectionGrid");
+      if (!items.length) {
+        grid.innerHTML = `<div class="empty-block" style="grid-column: 1 / -1;">No properties match your current filters.</div>`;
+      } else {
+        grid.innerHTML = items.map(propertyCardMarkup).join("");
+      }
+    }
+
+    function resetCollectionFilters() {
+      document.getElementById("collectionLocation").value = "ALL";
+      document.getElementById("collectionType").value = "ALL";
+      document.getElementById("collectionBudget").value = "ALL";
+      document.getElementById("collectionSort").value = "featured";
+      renderCollectionPage();
+    }
+
+    function renderPortfolioPage() {
+      const totalValue = db.deals.reduce((sum, deal) => sum + deal.profit, 0);
+      const soldCount = db.deals.length;
+      const activeListings = db.houses.filter(item => item.status === "ACTIVE").length;
+      const vipCount = db.clients.filter(client => client.type === "VIP").length;
+
+      document.getElementById("portfolioStats").innerHTML = `
+        <div class="portfolio-stat">
+          <strong>${soldCount}</strong>
+          <span>Closed placements</span>
+        </div>
+        <div class="portfolio-stat">
+          <strong>${money(totalValue)}</strong>
+          <span>Logged commission value</span>
+        </div>
+        <div class="portfolio-stat">
+          <strong>${activeListings}</strong>
+          <span>Current live inventory</span>
+        </div>
+        <div class="portfolio-stat">
+          <strong>${vipCount}</strong>
+          <span>VIP client relationships</span>
+        </div>
+      `;
+
+      document.getElementById("portfolioGrid").innerHTML = portfolioStories.map(story => `
+        <article class="story-card">
+          <div class="story-image">
+            <img src="${escapeHtml(story.image)}" alt="${escapeHtml(story.title)}">
+          </div>
+          <span class="story-badge">${escapeHtml(story.badge)}</span>
+          <h3 class="story-title">${escapeHtml(story.title)}</h3>
+          <div class="story-meta">${escapeHtml(story.meta)}</div>
+          <p class="story-text">${escapeHtml(story.text)}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderInsightsPage() {
+      document.getElementById("insightsGrid").innerHTML = insightArticles.map(article => `
+        <article class="article-card">
+          <div class="article-image">
+            <img src="${escapeHtml(article.image)}" alt="${escapeHtml(article.title)}">
+          </div>
+          <span class="article-badge">${escapeHtml(article.badge)}</span>
+          <h3 class="article-title">${escapeHtml(article.title)}</h3>
+          <p class="article-text">${escapeHtml(article.text)}</p>
+        </article>
+      `).join("");
+    }
+
+    function openPublicProperty(id) {
+      const property = db.houses.find(item => item.id === id);
+      if (!property) return;
+
+      document.getElementById("publicModalImage").innerHTML = `
+        <img src="${escapeHtml(property.image)}" alt="${escapeHtml(property.addr)}">
+      `;
+
+      document.getElementById("publicModalContent").innerHTML = `
+        <div class="public-modal-head">
+          <div>
+            <h3>${escapeHtml(property.addr)}</h3>
+            <p>${escapeHtml(property.type)} • ${escapeHtml(property.location)} • ${escapeHtml(property.intent)} • ${property.size ? property.size + " sqm" : "Luxury scale"}</p>
+          </div>
+          <button class="public-close" onclick="closePublicProperty()">Close</button>
+        </div>
+
+        <div class="drawer-grid">
+          <div class="detail-card">
+            <strong>Valuation</strong>
+            <span>${money(property.price, property.currency)}</span>
+          </div>
+          <div class="detail-card">
+            <strong>Status</strong>
+            <span><span class="status-badge status-${statusClass(property.status)}">${escapeHtml(property.status)}</span></span>
+          </div>
+          <div class="detail-card">
+            <strong>Property Type</strong>
+            <span>${escapeHtml(property.type)}</span>
+          </div>
+          <div class="detail-card">
+            <strong>Location</strong>
+            <span>${escapeHtml(property.location)}</span>
+          </div>
+        </div>
+
+        <div class="drawer-section">
+          <h4>Overview</h4>
+          <p>${escapeHtml(property.notes || "Private-viewing luxury listing with premium brand positioning.")}</p>
+        </div>
+
+        <div class="drawer-section">
+          <h4>Amenities</h4>
+          <p>${property.amenities.length ? escapeHtml(property.amenities.join(", ")) : "Amenities available upon private inquiry."}</p>
+        </div>
+
+        <div class="drawer-section">
+          <h4>Request Private Viewing</h4>
+          <p>Submitting this form will create a live lead in the internal CRM and link it to this residence.</p>
+
+          <div class="lead-form">
+            <div class="lead-grid">
+              <input id="leadName" type="text" placeholder="Your Name">
+              <input id="leadPhone" type="text" placeholder="Phone">
+            </div>
+            <button class="gold-btn" onclick="capturePropertyLead(${property.id})">Request Private Viewing</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("publicModalOverlay").classList.add("open");
+    }
+
+    function closePublicProperty() {
+      document.getElementById("publicModalOverlay").classList.remove("open");
+    }
+
+    function capturePropertyLead(propertyId) {
+      const property = db.houses.find(item => item.id === propertyId);
+      if (!property) return;
+
+      const name = document.getElementById("leadName").value.trim();
+      const phone = document.getElementById("leadPhone").value.trim();
+
+      if (!name) {
+        showToast("Missing Name", "Please enter a name to request the viewing.");
+        return;
+      }
+
+      const leadId = Date.now();
+      const leadType = property.intent === "RENT" ? "RENTER" : "BUYER";
+
+      db.clients.unshift({
+        id: leadId,
+        name,
+        type: leadType,
+        note: `Website inquiry for ${property.addr}`,
+        phone: phone || "-"
+      });
+
+      if (!property.linkedClientIds.includes(leadId)) {
+        property.linkedClientIds.push(leadId);
+      }
+
+      property.history.unshift(`${name} requested a private viewing via the public site.`);
+      addActivity("Website Lead", `${name} requested a viewing for ${property.addr}.`);
+      closePublicProperty();
+      saveDB();
+      showToast("Lead Captured", "Viewing request added to CRM.");
+    }
+
+    function captureSellerLead() {
+      const name = document.getElementById("sellerName").value.trim();
+      const phone = document.getElementById("sellerPhone").value.trim();
+      const area = document.getElementById("sellerArea").value.trim();
+      const propertyType = document.getElementById("sellerPropertyType").value;
+
+      if (!name) {
+        showToast("Missing Name", "Please enter a name for the seller consultation.");
+        return;
+      }
+
+      db.clients.unshift({
+        id: Date.now(),
+        name,
+        type: "SELLER",
+        note: `Requested private valuation for ${propertyType} in ${area || "unspecified area"}`,
+        phone: phone || "-"
+      });
+
+      document.getElementById("sellerName").value = "";
+      document.getElementById("sellerPhone").value = "";
+      document.getElementById("sellerArea").value = "";
+      document.getElementById("sellerPropertyType").value = "Villa";
+
+      addActivity("Seller Inquiry", `${name} requested a private valuation${area ? " in " + area : ""}.`);
+      saveDB();
+      showToast("Seller Lead Added", "The consultation request is now in the CRM.");
+    }
+
     function openConfirm(options) {
       document.getElementById("confirmTitle").innerText = options.title || "Confirm";
       document.getElementById("confirmText").innerText = options.text || "Are you sure?";
@@ -2440,67 +3335,6 @@
       const inputValue = document.getElementById("confirmInput").value;
       if (typeof confirmHandler === "function") confirmHandler(inputValue);
       closeConfirm();
-    }
-
-    function getPublicListings() {
-      const filtered = db.houses.filter(item => item.status !== "SOLD");
-      return filtered.length ? filtered : db.houses;
-    }
-
-    function renderFeatured() {
-      const grid = document.getElementById("featuredGrid");
-      const listings = getPublicListings();
-      if (!listings.length) {
-        grid.innerHTML = "";
-        return;
-      }
-
-      const visible = listings.slice(featuredIndex, featuredIndex + 4);
-      const items = visible.length ? visible : listings.slice(0, 4);
-
-      grid.innerHTML = items.map(item => `
-        <article class="listing-card">
-          <div class="listing-media">
-            <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.addr)}">
-            <div class="price-badge">${money(item.price, item.currency)}</div>
-            <div class="listing-flag">${escapeHtml(item.status)}</div>
-          </div>
-          <div class="listing-body">
-            <h3 class="listing-title">${escapeHtml(item.addr)}</h3>
-            <div class="listing-meta">${escapeHtml(item.type)} • ${escapeHtml(item.location)} • ${publicSearchType}</div>
-            <div class="listing-copy">${escapeHtml(item.notes || "Private-viewing luxury listing with premium positioning.")}</div>
-          </div>
-        </article>
-      `).join("");
-    }
-
-    function shiftFeatured(direction) {
-      const listings = getPublicListings();
-      const maxIndex = Math.max(0, listings.length - 4);
-      featuredIndex += direction;
-      if (featuredIndex < 0) featuredIndex = maxIndex;
-      if (featuredIndex > maxIndex) featuredIndex = 0;
-      renderFeatured();
-    }
-
-    function setSearchType(type, button) {
-      publicSearchType = type;
-      document.querySelectorAll(".search-tab").forEach(tab => tab.classList.remove("active"));
-      button.classList.add("active");
-      renderFeatured();
-    }
-
-    function runPublicSearch() {
-      const location = document.getElementById("publicLocation").value;
-      const priceRange = document.getElementById("publicBudget").value;
-      const propertyType = document.getElementById("publicType").value;
-
-      document.getElementById("inventoryLocationFilter").value = location || "ALL";
-      document.getElementById("inventoryPriceFilter").value = priceRange || "ALL";
-      document.getElementById("inventoryStatusFilter").value = "ALL";
-      document.getElementById("inventorySearch").value = propertyType || "";
-      inventoryPage = 1;
-      openDashboard("inventoryPage");
     }
 
     function openDashboard(pageId = "inventoryPage") {
@@ -2554,6 +3388,7 @@
       ].forEach(id => document.getElementById(id).value = "");
 
       document.getElementById("assetCurrency").value = "$";
+      document.getElementById("assetIntent").value = "BUY";
       document.getElementById("assetStatus").value = "ACTIVE";
       document.getElementById("assetType").value = "Villa";
     }
@@ -2565,6 +3400,7 @@
       document.getElementById("assetAddress").value = property.addr || "";
       document.getElementById("assetPrice").value = property.price || "";
       document.getElementById("assetCurrency").value = property.currency || "$";
+      document.getElementById("assetIntent").value = property.intent || "BUY";
       document.getElementById("assetStatus").value = property.status || "ACTIVE";
       document.getElementById("assetType").value = property.type || "Villa";
       document.getElementById("assetLocation").value = property.location || "";
@@ -2581,6 +3417,7 @@
       const addr = document.getElementById("assetAddress").value.trim();
       const price = parseFloat(document.getElementById("assetPrice").value);
       const currency = document.getElementById("assetCurrency").value;
+      const intent = document.getElementById("assetIntent").value;
       const status = document.getElementById("assetStatus").value;
       const type = document.getElementById("assetType").value;
       const location = document.getElementById("assetLocation").value.trim() || "Unknown";
@@ -2603,9 +3440,11 @@
         if (!property) return;
 
         const previousStatus = property.status;
+
         property.addr = addr;
         property.price = price;
         property.currency = currency;
+        property.intent = intent;
         property.status = status;
         property.type = type;
         property.location = location;
@@ -2613,14 +3452,13 @@
         property.amenities = amenities;
         property.owner = owner;
         property.notes = notes;
-        property.image = image || property.image || defaultImages[editingPropertyId % defaultImages.length];
+        property.image = image || property.image || propertyPhotos[editingPropertyId % propertyPhotos.length];
         property.history.unshift(`Updated by saDT on ${formatDate(new Date().toISOString())}.`);
 
         if (previousStatus !== status) {
           property.history.unshift(`Status changed from ${previousStatus} to ${status}.`);
           addActivity("Status Updated", `${property.addr} moved from ${previousStatus} to ${status}.`);
           if (status === "SOLD" || status === "RENTED") {
-            property.history.unshift(`Ready to be tracked in Settlements after ${status.toLowerCase()} update.`);
             addActivity("Deal Progression", `${property.addr} is now marked ${status} and is ready for settlement tracking.`);
           }
         }
@@ -2631,6 +3469,7 @@
           id: Date.now(),
           addr,
           location,
+          intent,
           price,
           currency,
           status,
@@ -2639,7 +3478,7 @@
           amenities,
           owner,
           notes,
-          image: image || defaultImages[db.houses.length % defaultImages.length],
+          image: image || propertyPhotos[db.houses.length % propertyPhotos.length],
           linkedClientIds: [],
           addedBy: "saDT",
           createdAt: new Date().toISOString(),
@@ -2678,23 +3517,20 @@
       renderInventoryPage();
     }
 
-    function getInventorySource() {
-      const statusFilter = document.getElementById("inventoryStatusFilter").value;
-      return statusFilter === "ARCHIVED" ? db.archivedHouses : db.houses;
-    }
-
-    function renderLocationFilterOptions() {
+    function renderInventoryLocationOptions() {
       const select = document.getElementById("inventoryLocationFilter");
       const current = select.value || "ALL";
-      const allLocations = Array.from(new Set(
-        db.houses.concat(db.archivedHouses).map(item => item.location).filter(Boolean)
-      )).sort();
+      const locations = Array.from(new Set(db.houses.concat(db.archivedHouses).map(item => item.location))).sort();
 
-      select.innerHTML = `<option value="ALL">All Locations</option>` + allLocations.map(location => `
+      select.innerHTML = `<option value="ALL">All Locations</option>` + locations.map(location => `
         <option value="${escapeHtml(location)}">${escapeHtml(location)}</option>
       `).join("");
 
-      select.value = allLocations.includes(current) ? current : "ALL";
+      select.value = locations.includes(current) ? current : "ALL";
+    }
+
+    function getInventorySource() {
+      return document.getElementById("inventoryStatusFilter").value === "ARCHIVED" ? db.archivedHouses : db.houses;
     }
 
     function getFilteredInventory() {
@@ -2726,6 +3562,7 @@
             item.location,
             item.type,
             item.owner,
+            item.intent,
             item.notes,
             (item.amenities || []).join(" ")
           ].join(" ").toLowerCase().includes(search);
@@ -2753,7 +3590,7 @@
     }
 
     function renderInventoryPage() {
-      renderLocationFilterOptions();
+      renderInventoryLocationOptions();
 
       const activeCount = db.houses.filter(item => item.status === "ACTIVE").length;
       const offerCount = db.houses.filter(item => item.status === "UNDER OFFER").length;
@@ -2764,7 +3601,7 @@
       document.getElementById("inventoryAum").innerText = money(aum);
       document.getElementById("inventoryArchivedCount").innerText = db.archivedHouses.length;
 
-      const isArchivedView = document.getElementById("inventoryStatusFilter").value === "ARCHIVED";
+      const archivedView = document.getElementById("inventoryStatusFilter").value === "ARCHIVED";
       const items = getFilteredInventory();
       const rowsPerPage = Number(document.getElementById("inventoryRowsPerPage").value);
       const totalPages = Math.max(1, Math.ceil(items.length / rowsPerPage));
@@ -2777,14 +3614,12 @@
       if (!visible.length) {
         body.innerHTML = `
           <tr>
-            <td colspan="5" class="empty-state">
-              Your luxury inventory is empty. Start by listing your first asset.
-            </td>
+            <td colspan="5" class="empty-state">Your luxury inventory is empty. Start by listing your first asset.</td>
           </tr>
         `;
       } else {
         body.innerHTML = visible.map(item => `
-          <tr class="data-row" onclick="openPropertyDrawer(${item.id}, ${isArchivedView})">
+          <tr class="data-row" onclick="openPropertyDrawer(${item.id}, ${archivedView})">
             <td data-label="Thumbnail">
               <div class="thumb">
                 <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.addr)}">
@@ -2794,15 +3629,17 @@
               <div class="asset-line">
                 <div class="asset-copy">
                   <strong>${escapeHtml(item.addr)}</strong>
-                  <span>${escapeHtml(item.type)} • ${escapeHtml(item.location)}</span>
+                  <span>${escapeHtml(item.type)} • ${escapeHtml(item.location)} • ${escapeHtml(item.intent)}</span>
                 </div>
               </div>
             </td>
             <td data-label="Valuation">${money(item.price, item.currency)}</td>
-            <td data-label="Status"><span class="status-badge status-${isArchivedView ? "archived" : statusClass(item.status)}">${isArchivedView ? "ARCHIVED" : escapeHtml(item.status)}</span></td>
+            <td data-label="Status">
+              <span class="status-badge status-${archivedView ? "archived" : statusClass(item.status)}">${archivedView ? "ARCHIVED" : escapeHtml(item.status)}</span>
+            </td>
             <td data-label="Action">
               <div class="row-actions">
-                ${isArchivedView
+                ${archivedView
                   ? `<button class="tiny-btn" onclick="event.stopPropagation(); restoreProperty(${item.id});">Restore</button>`
                   : `<button class="tiny-btn" onclick="event.stopPropagation(); editProperty(${item.id});">Edit</button>
                      <button class="tiny-btn delete" onclick="event.stopPropagation(); requestArchiveProperty(${item.id});">Delete</button>`
@@ -2824,11 +3661,6 @@
       }
       buttons.push(`<button onclick="changeInventoryPage(${Math.min(totalPages, inventoryPage + 1)})">›</button>`);
       document.getElementById("inventoryPaginationButtons").innerHTML = buttons.join("");
-    }
-
-    function findPropertyById(id, archived) {
-      const source = archived ? db.archivedHouses : db.houses;
-      return source.find(item => item.id === id);
     }
 
     function editProperty(id) {
@@ -2886,15 +3718,15 @@
       property.history.unshift("Restored from archive.");
       delete property.archivedReason;
       db.houses.unshift(property);
+
       addActivity("Asset Restored", `${property.addr} returned from archive.`);
       showToast("Asset Restored", `${property.addr} is active in inventory again.`);
       saveDB();
     }
 
     function openPropertyDrawer(id, archived = false) {
-      selectedPropertyId = id;
-      selectedPropertyArchived = archived;
-      const property = findPropertyById(id, archived);
+      const source = archived ? db.archivedHouses : db.houses;
+      const property = source.find(item => item.id === id);
       if (!property) return;
 
       document.getElementById("drawerTitle").innerText = property.addr;
@@ -2905,7 +3737,7 @@
         .filter(Boolean);
 
       const availableClients = db.clients.filter(client => !property.linkedClientIds.includes(client.id));
-      const canCreateSettlement = !archived && (property.status === "SOLD" || property.status === "RENTED");
+      const settlementReady = !archived && (property.status === "SOLD" || property.status === "RENTED");
 
       document.getElementById("drawerContent").innerHTML = `
         <div class="drawer-image">
@@ -2913,19 +3745,19 @@
         </div>
 
         <div class="drawer-grid">
-          <div class="drawer-card">
+          <div class="detail-card">
             <strong>Valuation</strong>
             <span>${money(property.price, property.currency)}</span>
           </div>
-          <div class="drawer-card">
+          <div class="detail-card">
             <strong>Status</strong>
             <span><span class="status-badge status-${archived ? "archived" : statusClass(property.status)}">${archived ? "ARCHIVED" : escapeHtml(property.status)}</span></span>
           </div>
-          <div class="drawer-card">
-            <strong>Property Type</strong>
-            <span>${escapeHtml(property.type)}</span>
+          <div class="detail-card">
+            <strong>Intent</strong>
+            <span>${escapeHtml(property.intent)}</span>
           </div>
-          <div class="drawer-card">
+          <div class="detail-card">
             <strong>Size</strong>
             <span>${property.size ? escapeHtml(property.size) + " sqm" : "N/A"}</span>
           </div>
@@ -2973,7 +3805,7 @@
             : `<button class="gold-btn" onclick="editProperty(${property.id}); closePropertyDrawer();">Edit Asset</button>
                <button class="ghost-btn" onclick="requestArchiveProperty(${property.id})">Archive Asset</button>`
           }
-          ${canCreateSettlement ? `<button class="pill-btn" onclick="prepareSettlementFromProperty(${property.id})">Move to Settlements</button>` : ""}
+          ${settlementReady ? `<button class="pill-btn" onclick="prepareSettlementFromProperty(${property.id})">Move to Settlements</button>` : ""}
         </div>
       `;
 
@@ -2982,8 +3814,6 @@
 
     function closePropertyDrawer() {
       document.getElementById("propertyDrawer").classList.remove("open");
-      selectedPropertyId = null;
-      selectedPropertyArchived = false;
     }
 
     function linkSelectedClientToProperty(propertyId) {
@@ -3023,13 +3853,14 @@
     function exportInventory() {
       const items = getFilteredInventory();
       const rows = [
-        ["Address", "Location", "Type", "Valuation", "Currency", "Status", "Owner", "Size", "Amenities"]
+        ["Address", "Location", "Intent", "Type", "Valuation", "Currency", "Status", "Owner", "Size", "Amenities"]
       ];
 
       items.forEach(item => {
         rows.push([
           item.addr,
           item.location,
+          item.intent,
           item.type,
           item.price,
           item.currency,
@@ -3207,7 +4038,11 @@
     function renderAll() {
       db.houses.forEach(normalizeProperty);
       db.archivedHouses.forEach(normalizeProperty);
-      renderFeatured();
+      renderHomeMetrics();
+      renderHomeFeatured();
+      renderCollectionPage();
+      renderPortfolioPage();
+      renderInsightsPage();
       renderInventoryPage();
       renderCRMPage();
       renderSettlementsPage();
@@ -3222,8 +4057,14 @@
           closeConfirm();
           return;
         }
-        closePropertyDrawer();
-        closeDashboard();
+        if (document.getElementById("publicModalOverlay").classList.contains("open")) {
+          closePublicProperty();
+          return;
+        }
+        if (document.getElementById("dashboardOverlay").classList.contains("open")) {
+          closePropertyDrawer();
+          closeDashboard();
+        }
       }
     });
   </script>
