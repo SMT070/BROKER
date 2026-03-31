@@ -9,27 +9,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --champagne: #d8bea0;
-      --champagne-soft: #f1e3cf;
-      --paper: #f6ede1;
-      --surface: #120e0c;
-      --surface-2: #1a1411;
-      --surface-3: #241c17;
-      --panel: rgba(19, 14, 12, 0.97);
-      --panel-soft: rgba(29, 22, 18, 0.95);
-      --bronze: #c79a62;
-      --bronze-soft: #efd8b0;
-      --text: #f8f0e5;
-      --muted: #b6a999;
-      --line: rgba(199, 154, 98, 0.18);
-      --line-strong: rgba(199, 154, 98, 0.32);
+      --champagne: #d7b995;
+      --champagne-soft: #efddc4;
+      --paper: #f4eadb;
+      --espresso: #120e0b;
+      --espresso-2: #1a1410;
+      --espresso-3: #241c17;
+      --panel: rgba(18, 14, 11, 0.97);
+      --panel-soft: rgba(28, 22, 18, 0.95);
+      --bronze: #c79457;
+      --bronze-soft: #f0d7aa;
+      --text: #f8efe2;
+      --muted: #b7a898;
+      --line: rgba(199, 148, 87, 0.18);
+      --line-strong: rgba(199, 148, 87, 0.3);
       --white-line: rgba(255, 255, 255, 0.08);
-      --success: #bad6c0;
-      --warning: #ffd7ac;
-      --info: #c9d7ea;
-      --stone: #d5c8b8;
+      --success: #b9d3be;
+      --warning: #f0d0a2;
+      --info: #c9d4e4;
+      --stone: #d1c6b8;
       --danger: #ffb8b8;
-      --shadow: 0 32px 90px rgba(0, 0, 0, 0.25);
+      --shadow: 0 30px 90px rgba(0, 0, 0, 0.26);
       --radius-xl: 28px;
       --radius-lg: 20px;
       --radius-md: 14px;
@@ -48,12 +48,12 @@
     body {
       min-height: 100vh;
       overflow-x: hidden;
-      color: var(--text);
-      font-family: "Plus Jakarta Sans", sans-serif;
       background:
         radial-gradient(circle at top left, rgba(255,255,255,0.14), transparent 16%),
-        radial-gradient(circle at bottom right, rgba(112, 78, 41, 0.12), transparent 18%),
-        linear-gradient(180deg, #cfb48d 0%, #dec6a3 44%, #c9aa7d 100%);
+        radial-gradient(circle at bottom right, rgba(113, 76, 36, 0.11), transparent 18%),
+        linear-gradient(180deg, #cfb18a 0%, #dcc29d 46%, #c6a779 100%);
+      color: var(--text);
+      font-family: "Plus Jakarta Sans", sans-serif;
     }
 
     a {
@@ -75,7 +75,7 @@
     .site-shell {
       min-height: 100vh;
       width: 100%;
-      background: linear-gradient(180deg, #130f0c 0%, #17120f 100%);
+      background: linear-gradient(180deg, #120e0b 0%, #18120f 100%);
       position: relative;
       overflow: hidden;
     }
@@ -86,19 +86,10 @@
       inset: 0;
       pointer-events: none;
       background:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
       background-size: 130px 130px;
       opacity: 0.08;
-    }
-
-    .site-nav {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(18, 14, 12, 0.98);
-      border-bottom: 1px solid var(--white-line);
-      backdrop-filter: blur(12px);
     }
 
     .nav-inner,
@@ -106,6 +97,15 @@
     .footer-inner {
       width: min(1380px, calc(100% - 44px));
       margin: 0 auto;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: rgba(18, 14, 11, 0.98);
+      border-bottom: 1px solid var(--white-line);
+      backdrop-filter: blur(12px);
     }
 
     .nav-inner {
@@ -191,7 +191,12 @@
     .tiny-btn,
     .toast-btn,
     .confirm-btn,
-    .carousel-btn {
+    .carousel-btn,
+    .floating-consult,
+    .assistant-trigger,
+    .quick-chip,
+    .tab-chip,
+    .notif-btn {
       transition: 0.25s ease;
       cursor: pointer;
     }
@@ -206,7 +211,12 @@
     .tiny-btn:hover,
     .toast-btn:hover,
     .confirm-btn:hover,
-    .carousel-btn:hover {
+    .carousel-btn:hover,
+    .floating-consult:hover,
+    .assistant-trigger:hover,
+    .quick-chip:hover,
+    .tab-chip:hover,
+    .notif-btn:hover {
       transform: translateY(-2px);
     }
 
@@ -216,7 +226,10 @@
     .close-btn,
     .icon-btn,
     .tiny-btn,
-    .carousel-btn {
+    .carousel-btn,
+    .quick-chip,
+    .tab-chip,
+    .notif-btn {
       background: transparent;
       color: var(--text);
       border: 1px solid rgba(255,255,255,0.14);
@@ -236,12 +249,14 @@
     .search-btn,
     .action-btn,
     .toast-btn,
-    .confirm-btn.primary {
+    .confirm-btn.primary,
+    .floating-consult,
+    .assistant-trigger.active {
       border: none;
       border-radius: 12px;
       padding: 14px 18px;
-      background: linear-gradient(135deg, #f3ddb7 0%, #c79a62 100%);
-      color: #20160a;
+      background: linear-gradient(135deg, #f3ddb7 0%, #c79457 100%);
+      color: #21170b;
       font-weight: 700;
     }
 
@@ -266,9 +281,9 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 90px 24px 230px;
+      padding: 92px 24px 230px;
       background:
-        linear-gradient(180deg, rgba(18, 14, 12, 0.08) 0%, rgba(18, 14, 12, 0.18) 34%, rgba(18, 14, 12, 0.9) 100%),
+        linear-gradient(180deg, rgba(18, 14, 11, 0.08) 0%, rgba(18, 14, 11, 0.18) 34%, rgba(18, 14, 11, 0.9) 100%),
         url("https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=2000&q=80") center/cover;
     }
 
@@ -282,7 +297,7 @@
       line-height: 0.9;
       font-weight: 600;
       margin-bottom: 18px;
-      text-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      text-shadow: 0 10px 30px rgba(0,0,0,0.24);
     }
 
     .hero-sub {
@@ -291,7 +306,7 @@
     }
 
     .search-dock {
-      width: min(940px, calc(100% - 30px));
+      width: min(960px, calc(100% - 30px));
       margin: -120px auto 0;
       position: relative;
       z-index: 3;
@@ -343,23 +358,61 @@
       gap: 14px;
     }
 
-    .search-grid select {
+    .search-grid select,
+    .collection-toolbar select,
+    .field-stack input,
+    .field-stack select,
+    .field-stack textarea,
+    .filters-grid input,
+    .filters-grid select,
+    .crm-form input,
+    .crm-form select,
+    .deal-form input,
+    .drawer-linker select,
+    .seller-form input,
+    .seller-form select,
+    .lead-form input,
+    .consult-form input,
+    .consult-form select,
+    .consult-form textarea,
+    .confirm-card input,
+    .assistant-input {
       width: 100%;
-      padding: 16px 14px;
+      padding: 14px;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.1);
       outline: none;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.04);
       color: var(--text);
     }
 
-    .home-content {
+    .field-stack textarea,
+    .consult-form textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .search-grid select option,
+    .collection-toolbar select option,
+    .field-stack select option,
+    .crm-form select option,
+    .seller-form select option,
+    .consult-form select option {
+      color: #000;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #998a7a;
+    }
+
+    .section-frame {
       padding: 84px 0 44px;
     }
 
     .home-grid {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1.08fr 0.92fr;
       gap: 18px;
       margin-bottom: 38px;
     }
@@ -377,7 +430,11 @@
     .form-panel,
     .detail-card,
     .story-card,
-    .article-card {
+    .article-card,
+    .offmarket-panel,
+    .consult-card,
+    .assistant-panel,
+    .notification-panel {
       background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 22px;
@@ -386,6 +443,7 @@
 
     .editorial-panel,
     .metrics-panel,
+    .feature-panel,
     .portfolio-panel,
     .insight-panel,
     .seller-panel,
@@ -395,7 +453,9 @@
     .stat-panel,
     .form-panel,
     .story-card,
-    .article-card {
+    .article-card,
+    .offmarket-panel,
+    .consult-card {
       padding: 24px;
     }
 
@@ -419,7 +479,7 @@
     }
 
     .editorial-title {
-      font-size: 54px;
+      font-size: 56px;
       margin-bottom: 12px;
     }
 
@@ -437,10 +497,17 @@
       margin-bottom: 18px;
     }
 
-    .editorial-actions {
+    .editorial-actions,
+    .property-actions,
+    .drawer-actions,
+    .inline-actions,
+    .consult-actions {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+    }
+
+    .editorial-actions {
       margin-bottom: 16px;
     }
 
@@ -474,16 +541,20 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 14px;
+      margin-bottom: 16px;
     }
 
-    .metric-card {
+    .metric-card,
+    .portfolio-stat,
+    .process-card {
       padding: 18px;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255,255,255,0.02);
     }
 
-    .metric-card strong {
+    .metric-card strong,
+    .portfolio-stat strong {
       display: block;
       font-family: "Cormorant Garamond", serif;
       font-size: 36px;
@@ -491,9 +562,34 @@
       margin-bottom: 6px;
     }
 
-    .metric-card span {
+    .metric-card span,
+    .portfolio-stat span,
+    .process-card span {
       color: var(--muted);
       font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .private-access-box {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(120deg, rgba(239,216,176,0.12), rgba(255,255,255,0.02)),
+        rgba(255,255,255,0.02);
+    }
+
+    .private-access-box h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .private-access-box p {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 13px;
+      margin-bottom: 12px;
     }
 
     .section-head {
@@ -583,13 +679,13 @@
 
     .property-price {
       left: 14px;
-      background: linear-gradient(135deg, #f2dcaf 0%, #c79a62 100%);
+      background: linear-gradient(135deg, #f2dcaf 0%, #c79457 100%);
       color: #21170b;
     }
 
     .property-flag {
       right: 14px;
-      background: rgba(18,14,12,0.72);
+      background: rgba(18,14,11,0.72);
       color: var(--text);
       border: 1px solid rgba(255,255,255,0.12);
     }
@@ -601,8 +697,8 @@
     .property-title {
       font-family: "Cormorant Garamond", serif;
       font-size: 31px;
-      margin-bottom: 8px;
       line-height: 0.96;
+      margin-bottom: 8px;
     }
 
     .property-meta,
@@ -616,13 +712,6 @@
       margin-bottom: 10px;
     }
 
-    .property-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
     .ghost-chip {
       border: 1px solid rgba(255,255,255,0.14);
       background: transparent;
@@ -634,17 +723,13 @@
       font-weight: 700;
     }
 
-    .page-space {
-      padding: 66px 0 44px;
-    }
-
     .page-banner {
+      max-width: 960px;
       margin-bottom: 24px;
-      max-width: 940px;
     }
 
     .page-title {
-      font-size: clamp(54px, 6vw, 80px);
+      font-size: clamp(54px, 6vw, 82px);
       margin-bottom: 10px;
     }
 
@@ -655,24 +740,28 @@
       margin-bottom: 20px;
     }
 
-    .collection-toolbar select {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-      outline: none;
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
+    .offmarket-panel {
+      margin-top: 22px;
     }
 
-    .empty-block {
-      padding: 36px 18px;
-      text-align: center;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.02);
+    .offmarket-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .offmarket-head h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 36px;
+      margin-bottom: 6px;
+    }
+
+    .offmarket-head p {
       color: var(--muted);
       line-height: 1.8;
+      font-size: 14px;
     }
 
     .seller-layout {
@@ -681,18 +770,16 @@
       gap: 18px;
     }
 
+    .panel-title {
+      font-size: 42px;
+      margin-bottom: 12px;
+    }
+
     .process-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 14px;
       margin-top: 18px;
-    }
-
-    .process-card {
-      padding: 18px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.02);
     }
 
     .process-card strong {
@@ -704,27 +791,10 @@
       letter-spacing: 0.14em;
     }
 
-    .process-card span {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
     .seller-form {
       display: grid;
       gap: 12px;
       margin-top: 16px;
-    }
-
-    .seller-form input,
-    .seller-form select {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-      outline: none;
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
     }
 
     .portfolio-stats {
@@ -732,26 +802,6 @@
       grid-template-columns: repeat(4, 1fr);
       gap: 14px;
       margin-bottom: 24px;
-    }
-
-    .portfolio-stat {
-      padding: 18px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.02);
-    }
-
-    .portfolio-stat strong {
-      display: block;
-      font-family: "Cormorant Garamond", serif;
-      font-size: 36px;
-      color: var(--bronze-soft);
-      margin-bottom: 6px;
-    }
-
-    .portfolio-stat span {
-      color: var(--muted);
-      font-size: 13px;
     }
 
     .story-grid,
@@ -800,11 +850,6 @@
       margin-bottom: 10px;
     }
 
-    .story-text,
-    .article-text {
-      margin-bottom: 14px;
-    }
-
     .cta-band {
       margin-top: 26px;
       display: flex;
@@ -822,15 +867,15 @@
     .cta-band h3 {
       font-family: "Cormorant Garamond", serif;
       font-size: 40px;
-      margin-bottom: 8px;
       line-height: 0.96;
+      margin-bottom: 8px;
     }
 
     .cta-band p {
       color: var(--muted);
       line-height: 1.8;
-      max-width: 780px;
       font-size: 14px;
+      max-width: 780px;
     }
 
     .site-footer {
@@ -845,6 +890,120 @@
       gap: 16px;
       color: var(--muted);
       font-size: 13px;
+    }
+
+    .floating-consult {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      z-index: 70;
+      box-shadow: var(--shadow);
+    }
+
+    .assistant-trigger {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 70;
+      padding: 14px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: var(--shadow);
+      font-weight: 700;
+    }
+
+    .assistant-panel {
+      position: fixed;
+      right: 18px;
+      bottom: 74px;
+      width: min(380px, calc(100% - 24px));
+      z-index: 75;
+      padding: 16px;
+      display: none;
+      background: linear-gradient(180deg, rgba(28,21,17,0.99), rgba(17,13,10,0.99));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .assistant-panel.open {
+      display: block;
+    }
+
+    .assistant-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .assistant-head h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 30px;
+      line-height: 0.96;
+    }
+
+    .assistant-head p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .assistant-close {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .assistant-quick {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .quick-chip {
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .assistant-messages {
+      max-height: 300px;
+      overflow-y: auto;
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .assistant-bubble {
+      padding: 12px 14px;
+      border-radius: 14px;
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .assistant-bubble.assistant {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+
+    .assistant-bubble.user {
+      background: linear-gradient(135deg, rgba(243,221,183,0.16), rgba(199,148,87,0.16));
+      border: 1px solid rgba(199,148,87,0.18);
+      color: var(--text);
+    }
+
+    .assistant-input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
     }
 
     .dashboard-overlay {
@@ -871,7 +1030,7 @@
     .dash-sidebar {
       background:
         radial-gradient(circle at top left, rgba(239,216,176,0.1), transparent 30%),
-        linear-gradient(180deg, rgba(19, 14, 12, 0.98), rgba(14, 11, 9, 0.99));
+        linear-gradient(180deg, rgba(19,14,11,0.98), rgba(13,10,8,0.99));
       border-right: 1px solid rgba(255,255,255,0.06);
       padding: 30px 18px;
       display: flex;
@@ -945,7 +1104,7 @@
       align-items: center;
       gap: 18px;
       padding: 20px 28px;
-      background: rgba(18, 14, 12, 0.8);
+      background: rgba(18,14,11,0.8);
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
@@ -977,6 +1136,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      position: relative;
     }
 
     .icon-btn {
@@ -987,6 +1147,23 @@
       border-radius: 50%;
       background: rgba(255,255,255,0.03);
       color: var(--text);
+      position: relative;
+    }
+
+    .notif-badge {
+      position: absolute;
+      top: -4px;
+      right: -2px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f3ddb7 0%, #c79457 100%);
+      color: #20170b;
+      font-size: 10px;
+      font-weight: 800;
     }
 
     .avatar {
@@ -995,8 +1172,8 @@
       border-radius: 50%;
       display: grid;
       place-items: center;
-      background: linear-gradient(135deg, #f3ddb7 0%, #c79a62 100%);
-      color: #20170a;
+      background: linear-gradient(135deg, #f3ddb7 0%, #c79457 100%);
+      color: #20170b;
       font-weight: 800;
     }
 
@@ -1007,6 +1184,71 @@
       border-radius: 12px;
       padding: 12px 16px;
       cursor: pointer;
+    }
+
+    .notification-panel {
+      position: absolute;
+      top: 72px;
+      right: 28px;
+      width: min(360px, calc(100vw - 24px));
+      padding: 16px;
+      z-index: 20;
+      display: none;
+      background: linear-gradient(180deg, rgba(27,20,16,0.99), rgba(17,13,10,0.99));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .notification-panel.open {
+      display: block;
+    }
+
+    .notification-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .notification-head h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 28px;
+      line-height: 0.96;
+    }
+
+    .notification-list {
+      display: grid;
+      gap: 10px;
+      max-height: 340px;
+      overflow-y: auto;
+    }
+
+    .notification-item {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .notification-item.unread {
+      border-color: rgba(239,216,176,0.16);
+      background: linear-gradient(135deg, rgba(239,216,176,0.08), rgba(255,255,255,0.02));
+    }
+
+    .notification-item strong {
+      display: block;
+      color: var(--bronze-soft);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+    }
+
+    .notification-item span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13px;
     }
 
     .dash-pages {
@@ -1033,14 +1275,16 @@
     }
 
     .page-title {
-      font-size: clamp(52px, 5vw, 66px);
+      font-family: "Cormorant Garamond", serif;
+      line-height: 0.95;
+      font-weight: 600;
     }
 
     .page-actions {
       display: flex;
-      align-items: center;
       gap: 12px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .stats-grid {
@@ -1065,8 +1309,8 @@
     .stat-value {
       font-family: "Cormorant Garamond", serif;
       font-size: 40px;
-      margin-bottom: 8px;
       line-height: 0.96;
+      margin-bottom: 8px;
     }
 
     .stat-note {
@@ -1078,6 +1322,64 @@
       display: grid;
       grid-template-columns: 1.35fr 0.95fr;
       gap: 16px;
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .bar-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      gap: 6px;
+    }
+
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(135deg, #f3ddb7 0%, #c79457 100%);
+    }
+
+    .tab-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .tab-chip {
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tab-chip.active {
+      border-color: transparent;
+      background: linear-gradient(135deg, #f3ddb7 0%, #c79457 100%);
+      color: #21170b;
     }
 
     .dash-panel,
@@ -1095,6 +1397,27 @@
       display: block;
     }
 
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-head h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 31px;
+      line-height: 0.96;
+      margin-bottom: 6px;
+    }
+
+    .panel-head p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
     .field-grid {
       display: grid;
       gap: 14px;
@@ -1102,7 +1425,7 @@
     }
 
     .field-grid.primary {
-      grid-template-columns: 1.8fr 1fr 0.8fr 1fr 1fr;
+      grid-template-columns: 1.7fr 1fr 0.8fr 0.9fr 1fr;
     }
 
     .field-grid.advanced {
@@ -1125,49 +1448,6 @@
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.14em;
-    }
-
-    .field-stack input,
-    .field-stack select,
-    .field-stack textarea,
-    .filters-grid input,
-    .filters-grid select,
-    .crm-form input,
-    .crm-form select,
-    .deal-form input,
-    .drawer-linker select,
-    .lead-form input,
-    .seller-form input,
-    .seller-form select {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-      outline: none;
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-    }
-
-    .field-stack textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    .field-stack input::placeholder,
-    .field-stack textarea::placeholder,
-    .filters-grid input::placeholder,
-    .crm-form input::placeholder,
-    .deal-form input::placeholder,
-    .lead-form input::placeholder,
-    .seller-form input::placeholder {
-      color: #958777;
-    }
-
-    .inline-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 14px;
     }
 
     .filters-grid {
@@ -1305,7 +1585,12 @@
     .status-buyer,
     .status-seller,
     .status-renter,
-    .status-investor {
+    .status-investor,
+    .status-lead,
+    .status-qualified,
+    .status-viewing-scheduled,
+    .status-negotiation,
+    .status-closed {
       color: var(--info);
       background: rgba(126, 145, 177, 0.16);
       border-color: rgba(126, 145, 177, 0.24);
@@ -1363,7 +1648,7 @@
 
     .pagination-buttons button.active {
       border-color: transparent;
-      background: linear-gradient(135deg, #f3ddb7 0%, #c79a62 100%);
+      background: linear-gradient(135deg, #f3ddb7 0%, #c79457 100%);
       color: #20160a;
     }
 
@@ -1410,11 +1695,79 @@
     }
 
     .crm-form {
-      grid-template-columns: 1.2fr 1fr 1.4fr 1fr 1fr;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1fr;
     }
 
     .deal-form {
-      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+    }
+
+    .pipeline-board {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .pipeline-column {
+      min-height: 260px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .pipeline-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .pipeline-head strong {
+      font-size: 12px;
+      color: var(--bronze-soft);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .pipeline-count {
+      min-width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pipeline-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .pipeline-card {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      cursor: grab;
+    }
+
+    .pipeline-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .pipeline-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
     }
 
     .drawer {
@@ -1425,7 +1778,7 @@
       height: 100%;
       transform: translateX(100%);
       transition: transform 0.3s ease;
-      background: linear-gradient(180deg, rgba(27, 20, 16, 0.99), rgba(17, 13, 10, 0.99));
+      background: linear-gradient(180deg, rgba(27,20,16,0.99), rgba(17,13,10,0.99));
       border-left: 1px solid rgba(255,255,255,0.08);
       box-shadow: -24px 0 60px rgba(0,0,0,0.24);
       z-index: 25;
@@ -1474,17 +1827,32 @@
     }
 
     .drawer-image {
-      height: 220px;
+      height: 240px;
       border-radius: 18px;
       overflow: hidden;
       background: rgba(255,255,255,0.04);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .drawer-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    .drawer-gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .drawer-gallery img {
+      width: 100%;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
     }
 
     .drawer-grid {
@@ -1510,6 +1878,7 @@
     .detail-card span {
       color: var(--text);
       font-size: 14px;
+      line-height: 1.6;
     }
 
     .drawer-section {
@@ -1540,14 +1909,7 @@
       margin-top: 12px;
     }
 
-    .drawer-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
-    .public-modal-overlay,
+    .modal-overlay,
     .confirm-overlay {
       position: fixed;
       inset: 0;
@@ -1560,45 +1922,72 @@
       backdrop-filter: blur(8px);
     }
 
-    .public-modal-overlay.open,
+    .modal-overlay.open,
     .confirm-overlay.open {
       display: flex;
     }
 
-    .public-modal,
+    .property-modal,
+    .consult-card,
     .confirm-card {
-      width: min(1040px, 100%);
+      width: min(1080px, 100%);
       border-radius: 24px;
-      background: linear-gradient(180deg, rgba(28, 21, 17, 0.99), rgba(17, 13, 10, 0.99));
+      background: linear-gradient(180deg, rgba(28,21,17,0.99), rgba(17,13,10,0.99));
       border: 1px solid rgba(255,255,255,0.08);
       box-shadow: 0 24px 70px rgba(0,0,0,0.3);
       overflow: hidden;
     }
 
-    .public-modal {
+    .property-modal {
       display: grid;
       grid-template-columns: 1.05fr 0.95fr;
       max-height: 92vh;
     }
 
-    .public-modal-image {
+    .property-modal-media {
+      position: relative;
       min-height: 100%;
       background: rgba(255,255,255,0.04);
     }
 
-    .public-modal-image img {
+    .property-modal-main {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
 
-    .public-modal-content {
+    .property-modal-thumbs {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .property-modal-thumbs button {
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 10px;
+      overflow: hidden;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .property-modal-thumbs img {
+      width: 100%;
+      height: 68px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .property-modal-content {
       padding: 24px;
       overflow-y: auto;
     }
 
-    .public-modal-head {
+    .property-modal-head {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
@@ -1606,20 +1995,20 @@
       margin-bottom: 16px;
     }
 
-    .public-modal-head h3 {
+    .property-modal-head h3 {
       font-family: "Cormorant Garamond", serif;
       font-size: 42px;
       line-height: 0.94;
       margin-bottom: 8px;
     }
 
-    .public-modal-head p {
+    .property-modal-head p {
       color: var(--muted);
-      line-height: 1.7;
       font-size: 14px;
+      line-height: 1.75;
     }
 
-    .public-close {
+    .modal-close {
       border: 1px solid rgba(255,255,255,0.14);
       background: transparent;
       color: var(--text);
@@ -1628,16 +2017,44 @@
       cursor: pointer;
     }
 
-    .lead-form {
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .lead-form,
+    .consult-form {
       display: grid;
       gap: 12px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
     .lead-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
+    }
+
+    .consult-card {
+      width: min(620px, 100%);
+      padding: 24px;
+    }
+
+    .consult-card h3,
+    .confirm-card h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 40px;
+      line-height: 0.96;
+      margin-bottom: 10px;
+    }
+
+    .consult-card p,
+    .confirm-card p {
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 14px;
     }
 
     .toast-zone {
@@ -1653,7 +2070,7 @@
     .toast {
       padding: 14px 16px;
       border-radius: 16px;
-      background: linear-gradient(180deg, rgba(28, 21, 17, 0.99), rgba(17, 13, 10, 0.99));
+      background: linear-gradient(180deg, rgba(28,21,17,0.99), rgba(17,13,10,0.99));
       border: 1px solid rgba(239,216,176,0.14);
       box-shadow: 0 20px 50px rgba(0,0,0,0.28);
     }
@@ -1678,30 +2095,6 @@
     .confirm-card {
       width: min(480px, 100%);
       padding: 22px;
-    }
-
-    .confirm-card h3 {
-      font-family: "Cormorant Garamond", serif;
-      font-size: 36px;
-      line-height: 0.96;
-      margin-bottom: 10px;
-    }
-
-    .confirm-card p {
-      color: var(--muted);
-      line-height: 1.75;
-      margin-bottom: 14px;
-    }
-
-    .confirm-card input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-      outline: none;
-      color: var(--text);
-      background: rgba(255,255,255,0.04);
-      margin-bottom: 16px;
     }
 
     .confirm-actions {
@@ -1731,7 +2124,7 @@
       }
     }
 
-    @media (max-width: 1240px) {
+    @media (max-width: 1280px) {
       .home-grid,
       .property-grid,
       .property-grid.collection,
@@ -1747,7 +2140,10 @@
       .field-grid.advanced,
       .crm-form,
       .deal-form,
-      .lead-grid {
+      .lead-grid,
+      .modal-grid,
+      .pipeline-board,
+      .analytics-grid {
         grid-template-columns: repeat(2, 1fr);
       }
     }
@@ -1790,9 +2186,14 @@
       .crm-form,
       .deal-form,
       .lead-grid,
-      .public-modal,
+      .modal-grid,
       .dashboard-shell,
-      .drawer-grid {
+      .property-modal,
+      .pipeline-board,
+      .analytics-grid,
+      .drawer-grid,
+      .feature-strip,
+      .metrics-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1814,6 +2215,12 @@
       .carousel-nav {
         position: static;
         margin-bottom: 12px;
+      }
+
+      .property-modal-thumbs {
+        position: static;
+        padding: 12px;
+        background: rgba(0,0,0,0.3);
       }
 
       .drawer {
@@ -1878,10 +2285,20 @@
         margin-bottom: 8px;
       }
 
-      .section-frame,
       .nav-inner,
+      .section-frame,
       .footer-inner {
         width: calc(100% - 24px);
+      }
+
+      .floating-consult {
+        left: 12px;
+        bottom: 12px;
+      }
+
+      .assistant-trigger,
+      .assistant-panel {
+        right: 12px;
       }
     }
   </style>
@@ -1919,7 +2336,7 @@
           </div>
         </section>
 
-        <div class="search-dock">
+        <div class="search-dock" id="search">
           <div class="search-panel">
             <div class="search-tabs">
               <button class="search-tab active" data-hero-tab="BUY" onclick="setHeroSearchMode('BUY', this)">Buy</button>
@@ -1935,6 +2352,7 @@
                 <option>Tel Aviv</option>
                 <option>Netanya</option>
                 <option>Athens Riviera</option>
+                <option>Jerusalem</option>
               </select>
 
               <select id="heroBudget">
@@ -1958,34 +2376,34 @@
           </div>
         </div>
 
-        <div class="home-content">
-          <section class="section-frame home-grid">
+        <div class="section-frame">
+          <div class="home-grid">
             <div class="editorial-panel">
               <span class="eyebrow">Private Advisory</span>
-              <h2 class="editorial-title">A warmer, sharper luxury presence built around real estate, not generic SaaS.</h2>
+              <h2 class="editorial-title">A warmer luxury real estate experience with a real operating system behind it.</h2>
               <p class="editorial-text">
-                saDT Prestige now leans into a richer editorial mood: champagne warmth, dark espresso depth,
-                refined bronze accents, cleaner typography, and calmer spacing. The website sells aspiration in public
-                while the private dashboard runs the business behind it.
+                This version goes far beyond a simple showcase. Visitors can browse curated collections, request private viewings,
+                access off-market inventory, and submit seller consultations. Behind the scenes, your team manages properties,
+                clients, stages, settlements, and notifications from one private command center.
               </p>
 
               <div class="editorial-actions">
-                <button class="gold-btn" onclick="showPublicPage('buy')">Browse Buy Residences</button>
-                <button class="ghost-btn" onclick="openDashboard('inventoryPage')">Open Private Dashboard</button>
+                <button class="gold-btn" onclick="showPublicPage('buy')">Enter The Collection</button>
+                <button class="ghost-btn" onclick="openDashboard('opsPage')">Open Private Dashboard</button>
               </div>
 
               <div class="feature-strip">
                 <div class="feature-chip">
-                  <strong>Luxury Focus</strong>
-                  <span>Buy, rent, sell, and manage premium properties from one branded system.</span>
+                  <strong>Curated Front-End</strong>
+                  <span>Buy, rent, sell, portfolio, and insights pages all work as real sections.</span>
                 </div>
                 <div class="feature-chip">
-                  <strong>Client Flow</strong>
-                  <span>Public inquiries can be captured directly into the internal CRM.</span>
+                  <strong>Connected Workflow</strong>
+                  <span>Website viewing requests and seller consultations can feed directly into your CRM.</span>
                 </div>
                 <div class="feature-chip">
-                  <strong>Private Control</strong>
-                  <span>Inventory, settlements, statuses, archives, and activity all stay connected.</span>
+                  <strong>Quiet Prestige</strong>
+                  <span>Warmer tones, better imagery, and calmer surfaces replace the generic dashboard feel.</span>
                 </div>
               </div>
             </div>
@@ -1993,10 +2411,19 @@
             <div class="metrics-panel">
               <span class="eyebrow">Prestige Snapshot</span>
               <div class="metrics-grid" id="homeMetricsGrid"></div>
-            </div>
-          </section>
 
-          <section class="section-frame feature-panel">
+              <div class="private-access-box">
+                <h3>Private Collection</h3>
+                <p>Request access to off-market listings reserved for serious buyers and discreet introductions.</p>
+                <div class="consult-actions">
+                  <button class="gold-btn" onclick="openConsultationModal('PRIVATE COLLECTION')">Request Access</button>
+                  <button class="ghost-btn" onclick="showPublicPage('buy')">Browse Public Collection</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-panel">
             <div class="section-head">
               <h2 class="section-title">Featured Exclusive Listings</h2>
               <div class="carousel-nav">
@@ -2006,27 +2433,27 @@
             </div>
 
             <div class="property-grid" id="homeFeaturedGrid"></div>
-          </section>
+          </div>
 
-          <section class="section-frame cta-band">
+          <div class="cta-band">
             <div>
               <h3>Luxury in Public. Control in Private.</h3>
               <p>
-                Browse the front-end showroom, then step into the internal layer to manage inventory, link clients,
-                archive withdrawn listings, track settlements, and keep your team fully aligned.
+                Showcase residences elegantly on the public side, then move into the private dashboard to manage inventory,
+                drag leads through the pipeline, archive withdrawn assets, and track commissions to settlement.
               </p>
             </div>
-            <button class="gold-btn" onclick="openDashboard('opsPage')">Open Luxury Ops</button>
-          </section>
+            <button class="gold-btn" onclick="openDashboard('inventoryPage')">Open Property Inventory</button>
+          </div>
         </div>
       </section>
 
       <section class="public-page" id="publicCollection">
-        <div class="section-frame page-space">
+        <div class="section-frame">
           <div class="page-banner">
-            <span class="eyebrow" id="collectionEyebrow">Private Collection</span>
+            <span class="eyebrow" id="collectionEyebrow">Buy Collection</span>
             <h1 class="page-title" id="collectionTitle">Buy Exceptional Residences</h1>
-            <p class="page-sub" id="collectionSubtitle">Curated, high-end inventory presented with a calmer luxury tone and filtered by your current search direction.</p>
+            <p class="page-sub" id="collectionSubtitle">Curated homes for buyers seeking privacy, architectural quality, and stronger brand trust.</p>
           </div>
 
           <div class="collection-toolbar">
@@ -2061,47 +2488,50 @@
           </div>
 
           <div class="property-grid collection" id="collectionGrid"></div>
+
+          <div class="offmarket-panel" id="privateCollectionBlock"></div>
         </div>
       </section>
 
       <section class="public-page" id="publicSell">
-        <div class="section-frame page-space">
+        <div class="section-frame">
           <div class="page-banner">
             <span class="eyebrow">Seller Advisory</span>
             <h1 class="page-title">List With saDT Prestige</h1>
             <p class="page-sub">
-              For owners who want an elegant public brand, private buyer handling, and serious execution behind the scenes.
+              For owners who want an elegant public brand, controlled exposure, and serious private execution behind the scenes.
             </p>
           </div>
 
           <div class="seller-layout">
             <div class="seller-panel">
-              <h2 class="panel-title" style="font-size:42px; margin-bottom:12px;">A more discreet, more premium way to bring luxury inventory to market.</h2>
+              <h2 class="panel-title">A calmer, more premium way to bring luxury inventory to market.</h2>
               <p class="panel-text">
-                Your property is positioned through strong visual presentation, controlled exposure, and buyer-quality discipline.
-                The front end sells taste and trust. The internal platform tracks every detail once interest begins moving.
+                We position homes through stronger visual storytelling, more selective exposure, and a better internal workflow.
+                Every inquiry can become a structured lead, every property can move through a real operational system,
+                and every status change can be tracked without losing the luxury tone.
               </p>
 
               <div class="process-grid">
                 <div class="process-card">
                   <strong>1. Position</strong>
-                  <span>Editorial-grade presentation, premium storytelling, and a luxury-first online experience.</span>
+                  <span>Editorial-grade presentation and premium brand framing for the right buyer profile.</span>
                 </div>
                 <div class="process-card">
                   <strong>2. Qualify</strong>
-                  <span>Every inquiry can become a structured internal lead instead of disappearing in scattered messages.</span>
+                  <span>Every website request becomes a real CRM record instead of disappearing into scattered channels.</span>
                 </div>
                 <div class="process-card">
                   <strong>3. Close</strong>
-                  <span>Move from active to under offer to settlement with one connected internal workflow.</span>
+                  <span>Move from active to under offer to settlement in one connected internal workflow.</span>
                 </div>
               </div>
             </div>
 
             <div class="seller-form-panel">
               <span class="eyebrow">Private Valuation</span>
-              <h3 class="panel-title" style="font-size:38px; margin-bottom:12px;">Request a private selling consultation.</h3>
-              <p class="panel-text">This will create a seller lead in the internal CRM so your team can follow up immediately.</p>
+              <h3 class="panel-title" style="font-size:38px;">Request a private selling consultation.</h3>
+              <p class="panel-text">Submitting this form creates a seller lead in the internal CRM for immediate follow-up.</p>
 
               <div class="seller-form">
                 <input id="sellerName" type="text" placeholder="Full Name">
@@ -2121,12 +2551,12 @@
       </section>
 
       <section class="public-page" id="publicPortfolio">
-        <div class="section-frame page-space">
+        <div class="section-frame">
           <div class="page-banner">
             <span class="eyebrow">Portfolio</span>
             <h1 class="page-title">Track Record That Feels Private, Not Generic.</h1>
             <p class="page-sub">
-              Success stories, transaction credibility, and a luxury-facing narrative that supports your brand without feeling loud.
+              Success stories, transaction credibility, and a luxury-facing narrative that supports the brand without feeling loud.
             </p>
           </div>
 
@@ -2136,12 +2566,12 @@
       </section>
 
       <section class="public-page" id="publicInsights">
-        <div class="section-frame page-space">
+        <div class="section-frame">
           <div class="page-banner">
             <span class="eyebrow">Insights</span>
             <h1 class="page-title">Luxury Market Perspective</h1>
             <p class="page-sub">
-              Content built to support authority, trust, and premium client conversations around real estate positioning.
+              Editorial content built to support authority, trust, and premium client conversations around real estate positioning.
             </p>
           </div>
 
@@ -2156,6 +2586,33 @@
         <div>Luxury Real Estate Advisory • Israel & Greece</div>
       </div>
     </footer>
+  </div>
+
+  <button class="floating-consult" onclick="openConsultationModal('PRIVATE CONSULTATION')">Request Private Consultation</button>
+
+  <button class="assistant-trigger" id="assistantTrigger" onclick="toggleAssistant()">AI Concierge</button>
+  <div class="assistant-panel" id="assistantPanel">
+    <div class="assistant-head">
+      <div>
+        <h3>AI Concierge</h3>
+        <p>Quiet guidance for sea-view homes, off-market access, or buyer matching.</p>
+      </div>
+      <button class="assistant-close" onclick="toggleAssistant(false)">Close</button>
+    </div>
+
+    <div class="assistant-quick">
+      <button class="quick-chip" onclick="quickAssistant('Show me sea-view homes')">Sea-view</button>
+      <button class="quick-chip" onclick="quickAssistant('What can I rent in Tel Aviv?')">Rent Tel Aviv</button>
+      <button class="quick-chip" onclick="quickAssistant('How do I access off-market listings?')">Off-market</button>
+      <button class="quick-chip" onclick="quickAssistant('Open the private dashboard')">Dashboard</button>
+    </div>
+
+    <div class="assistant-messages" id="assistantMessages"></div>
+
+    <div class="assistant-input-row">
+      <input id="assistantInput" class="assistant-input" type="text" placeholder="Ask about a property, city, or private consultation...">
+      <button class="gold-btn" onclick="sendAssistantMessage()">Send</button>
+    </div>
   </div>
 
   <div class="dashboard-overlay" id="dashboardOverlay">
@@ -2175,7 +2632,7 @@
 
         <div class="dash-note">
           <strong>Internal Layer</strong>
-          Inventory, client links, archived assets, activity tracking, and settlements all live here in one connected workspace.
+          Inventory, linked clients, archived assets, stages, activity, notifications, and settlements all live here in one connected workspace.
         </div>
       </aside>
 
@@ -2192,10 +2649,21 @@
           </div>
 
           <div class="dash-top-actions">
-            <button class="icon-btn" title="Notifications">🔔</button>
+            <button class="icon-btn" onclick="toggleNotifications()" title="Notifications">
+              🔔
+              <span class="notif-badge" id="notificationBadge">0</span>
+            </button>
             <div class="avatar">S</div>
             <button class="close-btn" onclick="closeDashboard()">Close</button>
           </div>
+        </div>
+
+        <div class="notification-panel" id="notificationPanel">
+          <div class="notification-head">
+            <h3>Notifications</h3>
+            <button class="notif-btn" onclick="markAllNotificationsRead()">Mark All Read</button>
+          </div>
+          <div class="notification-list" id="notificationList"></div>
         </div>
 
         <div class="dash-pages">
@@ -2207,7 +2675,8 @@
               </div>
 
               <div class="page-actions">
-                <button class="pill-btn" onclick="exportInventory()">Export Inventory</button>
+                <button class="pill-btn" onclick="exportInventory()">Export CSV</button>
+                <button class="pill-btn" onclick="printInventoryReport()">Print Report</button>
                 <button class="gold-btn" onclick="toggleAssetForm(true)">+ List New Asset</button>
               </div>
             </div>
@@ -2239,7 +2708,7 @@
               <div class="panel-head">
                 <div>
                   <h3 id="assetFormTitle">List New Asset</h3>
-                  <p>Fast-entry inventory form with optional internal details.</p>
+                  <p>Fast-entry inventory form with optional premium and wellness details.</p>
                 </div>
                 <button class="pill-btn" onclick="toggleAssetForm(false)">Close Form</button>
               </div>
@@ -2312,8 +2781,23 @@
                 </div>
 
                 <div class="field-stack">
+                  <label for="assetBedrooms">Bedrooms</label>
+                  <input id="assetBedrooms" type="number" placeholder="5">
+                </div>
+
+                <div class="field-stack">
+                  <label for="assetBathrooms">Bathrooms</label>
+                  <input id="assetBathrooms" type="number" placeholder="6">
+                </div>
+
+                <div class="field-stack">
                   <label for="assetAmenities">Key Amenities</label>
                   <input id="assetAmenities" type="text" placeholder="Sea View, Pool, Smart Home">
+                </div>
+
+                <div class="field-stack">
+                  <label for="assetWellness">Wellness Features</label>
+                  <input id="assetWellness" type="text" placeholder="Spa Suite, Gym, Cold Plunge">
                 </div>
 
                 <div class="field-stack">
@@ -2322,8 +2806,21 @@
                 </div>
 
                 <div class="field-stack">
-                  <label for="assetImage">Image URL</label>
-                  <input id="assetImage" type="text" placeholder="https://...">
+                  <label for="assetCover">Cover Image URL</label>
+                  <input id="assetCover" type="text" placeholder="https://...">
+                </div>
+
+                <div class="field-stack">
+                  <label for="assetGallery">Gallery URLs</label>
+                  <textarea id="assetGallery" placeholder="Paste image URLs separated by commas or new lines"></textarea>
+                </div>
+
+                <div class="field-stack">
+                  <label for="assetOffMarket">Private Collection</label>
+                  <select id="assetOffMarket">
+                    <option value="NO">Public Collection</option>
+                    <option value="YES">Off-Market / Private</option>
+                  </select>
                 </div>
 
                 <div class="field-stack" style="grid-column: 1 / -1;">
@@ -2398,15 +2895,20 @@
             <div class="page-header">
               <div>
                 <h1 class="page-title">Client CRM</h1>
-                <p class="page-sub">Track buyers, sellers, renters, and investors and link them directly to inventory assets.</p>
+                <p class="page-sub">Track buyers, sellers, renters, and investors and move them visually through the pipeline.</p>
               </div>
+            </div>
+
+            <div class="tab-row">
+              <button class="tab-chip active" data-crm-view="table" onclick="switchCRMView('table', this)">Table View</button>
+              <button class="tab-chip" data-crm-view="pipeline" onclick="switchCRMView('pipeline', this)">Pipeline Board</button>
             </div>
 
             <div class="table-panel" style="margin-bottom: 16px;">
               <div class="panel-head">
                 <div>
                   <h3>Add Lead</h3>
-                  <p>Create a client record for your private workflow.</p>
+                  <p>Create a client record and place it directly into the right stage.</p>
                 </div>
               </div>
 
@@ -2419,17 +2921,36 @@
                   <option value="RENTER">RENTER</option>
                   <option value="INVESTOR">INVESTOR</option>
                 </select>
-                <input id="clientNote" type="text" placeholder="Budget / Interest">
+                <select id="clientStage">
+                  <option value="Lead">Lead</option>
+                  <option value="Qualified">Qualified</option>
+                  <option value="Viewing Scheduled">Viewing Scheduled</option>
+                  <option value="Negotiation">Negotiation</option>
+                  <option value="Under Offer">Under Offer</option>
+                  <option value="Closed">Closed</option>
+                </select>
                 <input id="clientPhone" type="text" placeholder="Phone">
+                <input id="clientValue" type="number" placeholder="Estimated Value">
                 <button class="action-btn" onclick="addClient()">Add Lead</button>
+              </div>
+
+              <div class="crm-form" style="grid-template-columns: 1.3fr 1fr 1.3fr 1fr 1fr 1fr;">
+                <input id="clientEmail" type="text" placeholder="Email">
+                <select id="clientPropertySelect">
+                  <option value="">Link Property</option>
+                </select>
+                <input id="clientNote" type="text" placeholder="Strategy / Note">
+                <input id="clientNextAction" type="text" placeholder="Next Action">
+                <input id="clientSource" type="text" placeholder="Source (Website / Referral)">
+                <div></div>
               </div>
             </div>
 
-            <div class="table-panel">
+            <div class="table-panel" id="crmTableView">
               <div class="panel-head">
                 <div>
                   <h3>Client Relationships</h3>
-                  <p>View active people records and linked property counts.</p>
+                  <p>View active people records, linked assets, next actions, and pipeline position.</p>
                 </div>
               </div>
 
@@ -2439,6 +2960,7 @@
                     <tr>
                       <th>Client</th>
                       <th>Type</th>
+                      <th>Stage</th>
                       <th>Strategy / Note</th>
                       <th>Linked Assets</th>
                       <th>Action</th>
@@ -2447,6 +2969,17 @@
                   <tbody id="crmTableBody"></tbody>
                 </table>
               </div>
+            </div>
+
+            <div class="table-panel hidden" id="crmPipelineView">
+              <div class="panel-head">
+                <div>
+                  <h3>Pipeline Board</h3>
+                  <p>Drag and drop clients between stages.</p>
+                </div>
+              </div>
+
+              <div class="pipeline-board" id="pipelineBoard"></div>
             </div>
           </div>
 
@@ -2468,9 +3001,22 @@
 
               <div class="deal-form">
                 <input id="dealTitle" type="text" placeholder="Asset Sold / Rented">
+                <select id="dealPropertySelect">
+                  <option value="">Linked Property</option>
+                </select>
+                <select id="dealClientSelect">
+                  <option value="">Linked Client</option>
+                </select>
                 <input id="dealProfit" type="number" placeholder="Commission">
-                <input id="dealDate" type="date">
                 <button class="action-btn" onclick="addDeal()">Log Deal</button>
+              </div>
+
+              <div class="deal-form">
+                <input id="dealDate" type="date">
+                <input id="dealNote" type="text" placeholder="Settlement note">
+                <div></div>
+                <div></div>
+                <div></div>
               </div>
             </div>
 
@@ -2502,7 +3048,7 @@
             <div class="page-header">
               <div>
                 <h1 class="page-title">Luxury Ops</h1>
-                <p class="page-sub">High-level performance and recent movement across the business.</p>
+                <p class="page-sub">High-level performance, client flow, and inventory movement across the operation.</p>
               </div>
             </div>
 
@@ -2563,6 +3109,28 @@
                 <div class="activity-list" id="opsActivityList"></div>
               </div>
             </div>
+
+            <div class="analytics-grid">
+              <div class="dash-panel">
+                <div class="panel-head">
+                  <div>
+                    <h3>Pipeline Value</h3>
+                    <p>Estimated value currently sitting in each client stage.</p>
+                  </div>
+                </div>
+                <div class="bar-list" id="pipelineValueBars"></div>
+              </div>
+
+              <div class="dash-panel">
+                <div class="panel-head">
+                  <div>
+                    <h3>Location Strength</h3>
+                    <p>Where your strongest current portfolio value sits.</p>
+                  </div>
+                </div>
+                <div class="bar-list" id="locationValueBars"></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2581,10 +3149,39 @@
     </div>
   </div>
 
-  <div class="public-modal-overlay" id="publicModalOverlay">
-    <div class="public-modal">
-      <div class="public-modal-image" id="publicModalImage"></div>
-      <div class="public-modal-content" id="publicModalContent"></div>
+  <div class="modal-overlay" id="propertyModalOverlay">
+    <div class="property-modal">
+      <div class="property-modal-media">
+        <img id="propertyModalMain" class="property-modal-main" src="" alt="">
+        <div class="property-modal-thumbs" id="propertyModalThumbs"></div>
+      </div>
+      <div class="property-modal-content" id="propertyModalContent"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="consultationOverlay">
+    <div class="consult-card">
+      <h3 id="consultTitle">Request Private Consultation</h3>
+      <p id="consultText">Share your details and this inquiry will be captured directly into the private CRM.</p>
+
+      <div class="consult-form">
+        <input id="consultName" type="text" placeholder="Full Name">
+        <input id="consultPhone" type="text" placeholder="Phone">
+        <input id="consultEmail" type="text" placeholder="Email">
+        <select id="consultInterest">
+          <option value="BUYER">Buyer Consultation</option>
+          <option value="RENTER">Rental Consultation</option>
+          <option value="SELLER">Seller Consultation</option>
+          <option value="INVESTOR">Investment Inquiry</option>
+          <option value="PRIVATE COLLECTION">Private Collection Access</option>
+        </select>
+        <textarea id="consultMessage" placeholder="What are you looking for?"></textarea>
+      </div>
+
+      <div class="consult-actions" style="margin-top:16px;">
+        <button class="ghost-btn" onclick="closeConsultationModal()">Cancel</button>
+        <button class="gold-btn" onclick="submitConsultation()">Submit Inquiry</button>
+      </div>
     </div>
   </div>
 
@@ -2603,15 +3200,26 @@
   <div class="toast-zone" id="toastZone"></div>
 
   <script>
-    const STORAGE_KEY = "SADT_PRESTIGE_LUXURY_FINAL_V2";
+    const STORAGE_KEY = "SADT_PRESTIGE_ULTRA_SINGLE_FILE";
 
     const propertyPhotos = [
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1400&q=80",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=80",
-      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1400&q=80",
-      "https://images.unsplash.com/photo-1600566753151-384129cf4e3e?auto=format&fit=crop&w=1400&q=80",
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1400&q=80",
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80"
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1600566753151-384129cf4e3e?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1600607687644-c7f34b5f7b5d?auto=format&fit=crop&w=1600&q=80"
+    ];
+
+    const pipelineStages = [
+      "Lead",
+      "Qualified",
+      "Viewing Scheduled",
+      "Negotiation",
+      "Under Offer",
+      "Closed"
     ];
 
     const portfolioStories = [
@@ -2623,14 +3231,14 @@
         text: "Structured as a discreet opportunity and converted through a tightly managed buyer process rather than broad public exposure."
       },
       {
-        image: propertyPhotos[2],
+        image: propertyPhotos[3],
         badge: "Rented • 2026",
         title: "Netanya Beachfront Villa",
         meta: "Executive relocation • Premium rental positioning",
         text: "Presented as a lifestyle asset first, which lifted urgency and created stronger negotiation control."
       },
       {
-        image: propertyPhotos[0],
+        image: propertyPhotos[2],
         badge: "Sold • 2025",
         title: "Tel Aviv Sky Penthouse",
         meta: "Urban prestige buyer • Multi-stage viewing flow",
@@ -2640,7 +3248,7 @@
 
     const insightArticles = [
       {
-        image: propertyPhotos[4],
+        image: propertyPhotos[0],
         badge: "Market Report",
         title: "Sea-view inventory still commands the strongest emotional premium",
         text: "Luxury buyers continue responding fastest to homes that pair direct water exposure with private entertaining architecture."
@@ -2652,7 +3260,7 @@
         text: "Minimal architecture, warm stone, and hospitality-grade finishes increasingly shape both pricing power and viewing conversion."
       },
       {
-        image: propertyPhotos[3],
+        image: propertyPhotos[7],
         badge: "Seller Strategy",
         title: "Controlled exposure is outperforming broad luxury listing noise",
         text: "At the top of the market, a quieter and more selective release often produces stronger buyers and better negotiation posture."
@@ -2664,6 +3272,7 @@
     }
 
     const seedData = {
+      privateAccessGranted: false,
       houses: [
         {
           id: 1,
@@ -2675,10 +3284,15 @@
           status: "ACTIVE",
           type: "Villa",
           size: 780,
+          bedrooms: 5,
+          bathrooms: 6,
           amenities: ["Sea View", "Pool", "Smart Home"],
+          wellnessFeatures: ["Spa Bathroom", "Sauna"],
           owner: "Private Owner",
           notes: "Clifftop family villa positioned for sunset showings and international buyers.",
-          image: propertyPhotos[0],
+          coverImage: propertyPhotos[0],
+          gallery: [propertyPhotos[0], propertyPhotos[5], propertyPhotos[6]],
+          offMarket: false,
           linkedClientIds: [101],
           addedBy: "saDT",
           createdAt: "2026-03-26T10:30:00Z",
@@ -2697,10 +3311,15 @@
           status: "UNDER OFFER",
           type: "Estate",
           size: 1280,
+          bedrooms: 7,
+          bathrooms: 8,
           amenities: ["Sea View", "Pool", "Cinema", "Guest House"],
+          wellnessFeatures: ["Gym", "Treatment Room", "Cold Plunge"],
           owner: "Confidential Family Office",
           notes: "Ultra-premium coastal estate with strong off-market appetite and family-office interest.",
-          image: propertyPhotos[1],
+          coverImage: propertyPhotos[1],
+          gallery: [propertyPhotos[1], propertyPhotos[5], propertyPhotos[7]],
+          offMarket: false,
           linkedClientIds: [101, 102],
           addedBy: "saDT",
           createdAt: "2026-03-25T11:00:00Z",
@@ -2719,10 +3338,15 @@
           status: "ACTIVE",
           type: "Penthouse",
           size: 540,
+          bedrooms: 4,
+          bathrooms: 5,
           amenities: ["City View", "Rooftop Terrace", "Smart Home"],
+          wellnessFeatures: ["Steam Shower", "Gym"],
           owner: "Urban Holdings",
           notes: "High-floor penthouse designed for finance and tech buyers who want clean architecture and privacy.",
-          image: propertyPhotos[2],
+          coverImage: propertyPhotos[2],
+          gallery: [propertyPhotos[2], propertyPhotos[6], propertyPhotos[5]],
+          offMarket: false,
           linkedClientIds: [],
           addedBy: "saDT",
           createdAt: "2026-03-23T14:20:00Z",
@@ -2740,10 +3364,15 @@
           status: "ACTIVE",
           type: "Villa",
           size: 960,
+          bedrooms: 6,
+          bathrooms: 7,
           amenities: ["Beachfront", "Pool", "Spa"],
+          wellnessFeatures: ["Spa Suite", "Massage Room"],
           owner: "Private Owner",
           notes: "Executive-grade beachfront rental profile with hospitality-level finishes.",
-          image: propertyPhotos[3],
+          coverImage: propertyPhotos[3],
+          gallery: [propertyPhotos[3], propertyPhotos[5], propertyPhotos[0]],
+          offMarket: false,
           linkedClientIds: [103],
           addedBy: "saDT",
           createdAt: "2026-03-19T09:05:00Z",
@@ -2761,10 +3390,15 @@
           status: "PENDING",
           type: "Apartment",
           size: 420,
+          bedrooms: 3,
+          bathrooms: 4,
           amenities: ["Sea View", "Terrace", "Concierge"],
+          wellnessFeatures: ["Wellness Lounge"],
           owner: "Aegean Holdings",
           notes: "Mediterranean residence with strong seasonal appeal for private lifestyle tenants.",
-          image: propertyPhotos[4],
+          coverImage: propertyPhotos[4],
+          gallery: [propertyPhotos[4], propertyPhotos[0], propertyPhotos[6]],
+          offMarket: false,
           linkedClientIds: [],
           addedBy: "saDT",
           createdAt: "2026-03-17T12:10:00Z",
@@ -2782,45 +3416,173 @@
           status: "ACTIVE",
           type: "Apartment",
           size: 240,
+          bedrooms: 2,
+          bathrooms: 3,
           amenities: ["Private Patio", "Designer Kitchen"],
+          wellnessFeatures: ["Meditation Room"],
           owner: "Private Seller",
           notes: "Warm architectural loft with boutique-luxury character and strong cultural appeal.",
-          image: propertyPhotos[5],
+          coverImage: propertyPhotos[6],
+          gallery: [propertyPhotos[6], propertyPhotos[2], propertyPhotos[5]],
+          offMarket: false,
           linkedClientIds: [],
           addedBy: "saDT",
           createdAt: "2026-03-15T08:40:00Z",
           history: [
             "Listed by saDT on Mar 15, 2026."
           ]
+        },
+        {
+          id: 7,
+          addr: "Carmel Ridge Estate",
+          location: "Caesarea",
+          intent: "BUY",
+          price: 22400000,
+          currency: "$",
+          status: "ACTIVE",
+          type: "Estate",
+          size: 1460,
+          bedrooms: 8,
+          bathrooms: 9,
+          amenities: ["Private Grove", "Pool", "Wine Room"],
+          wellnessFeatures: ["Indoor Pool", "Gym Pavilion", "Treatment Suite"],
+          owner: "Private Family Office",
+          notes: "Private-collection estate for qualified buyers seeking security, land, and low public exposure.",
+          coverImage: propertyPhotos[7],
+          gallery: [propertyPhotos[7], propertyPhotos[1], propertyPhotos[5]],
+          offMarket: true,
+          linkedClientIds: [],
+          addedBy: "saDT",
+          createdAt: "2026-03-12T13:10:00Z",
+          history: [
+            "Added to the private collection on Mar 12, 2026."
+          ]
+        },
+        {
+          id: 8,
+          addr: "Desert Wellness Retreat",
+          location: "Jerusalem",
+          intent: "RENT",
+          price: 8900000,
+          currency: "$",
+          status: "ACTIVE",
+          type: "Villa",
+          size: 880,
+          bedrooms: 5,
+          bathrooms: 6,
+          amenities: ["Privacy Court", "Outdoor Kitchen", "Stone Courtyard"],
+          wellnessFeatures: ["Cold Plunge", "Yoga Pavilion", "Steam Room"],
+          owner: "Private Owner",
+          notes: "A private-rental retreat reserved for selected introductions and long-stay lifestyle clients.",
+          coverImage: propertyPhotos[5],
+          gallery: [propertyPhotos[5], propertyPhotos[4], propertyPhotos[7]],
+          offMarket: true,
+          linkedClientIds: [],
+          addedBy: "saDT",
+          createdAt: "2026-03-11T09:20:00Z",
+          history: [
+            "Added to the private collection on Mar 11, 2026."
+          ]
         }
       ],
       archivedHouses: [],
       clients: [
-        { id: 101, name: "Daniel Harari", type: "VIP", note: "Sea-view buyer up to $14M", phone: "+972-50-111-2222" },
-        { id: 102, name: "Noa Levi", type: "INVESTOR", note: "Investor seeking luxury rentals", phone: "+972-50-333-4444" },
-        { id: 103, name: "Mr. Cohen", type: "RENTER", note: "Corporate relocation lead", phone: "+972-50-555-6666" }
+        {
+          id: 101,
+          name: "Daniel Harari",
+          type: "VIP",
+          stage: "Negotiation",
+          nextAction: "Confirm private follow-up call",
+          estimatedValue: 14000000,
+          linkedPropertyIds: [1, 2],
+          note: "Sea-view buyer up to $14M",
+          source: "Referral",
+          phone: "+972-50-111-2222",
+          email: "daniel@example.com",
+          createdAt: "2026-03-20T10:00:00Z"
+        },
+        {
+          id: 102,
+          name: "Noa Levi",
+          type: "INVESTOR",
+          stage: "Qualified",
+          nextAction: "Send off-market shortlist",
+          estimatedValue: 18000000,
+          linkedPropertyIds: [2],
+          note: "Investor seeking luxury rentals",
+          source: "Website",
+          phone: "+972-50-333-4444",
+          email: "noa@example.com",
+          createdAt: "2026-03-21T12:00:00Z"
+        },
+        {
+          id: 103,
+          name: "Mr. Cohen",
+          type: "RENTER",
+          stage: "Viewing Scheduled",
+          nextAction: "Host beachfront villa tour",
+          estimatedValue: 14200000,
+          linkedPropertyIds: [4],
+          note: "Corporate relocation lead",
+          source: "Direct",
+          phone: "+972-50-555-6666",
+          email: "cohen@example.com",
+          createdAt: "2026-03-22T09:30:00Z"
+        }
       ],
       deals: [
-        { id: 301, title: "Athens Riviera Penthouse", profit: 96000, currency: "$", closedDate: "2026-03-16" },
-        { id: 302, title: "Jerusalem Crown Residence", profit: 215000, currency: "$", closedDate: "2026-03-10" }
+        {
+          id: 301,
+          title: "Athens Riviera Penthouse",
+          propertyId: null,
+          clientId: null,
+          profit: 96000,
+          currency: "$",
+          closedDate: "2026-03-16",
+          note: "Closed on referral pipeline"
+        },
+        {
+          id: 302,
+          title: "Jerusalem Crown Residence",
+          propertyId: null,
+          clientId: null,
+          profit: 215000,
+          currency: "$",
+          closedDate: "2026-03-10",
+          note: "Private closing with direct buyer"
+        }
       ],
       activity: [
         { id: 401, title: "Newest Listing", text: "Eretria Villa, Herzliya entered inventory at $2,400,000.", timestamp: "2026-03-26T10:30:00Z" },
         { id: 402, title: "Offer Movement", text: "Caesarea Horizon Estate moved to UNDER OFFER.", timestamp: "2026-03-25T16:40:00Z" },
         { id: 403, title: "Settlement Logged", text: "Jerusalem Crown Residence added $215,000 in commission.", timestamp: "2026-03-10T18:00:00Z" }
+      ],
+      notifications: [
+        { id: 501, title: "New Website Lead", text: "Noa Levi entered CRM through the website.", timestamp: "2026-03-21T12:00:00Z", read: false },
+        { id: 502, title: "Status Change", text: "Caesarea Horizon Estate moved to UNDER OFFER.", timestamp: "2026-03-25T16:40:00Z", read: false },
+        { id: 503, title: "Commission Logged", text: "Jerusalem Crown Residence settlement was recorded.", timestamp: "2026-03-10T18:00:00Z", read: true }
       ]
     };
 
     let db = loadDB();
     let currentPublicPage = "home";
-    let heroSearchMode = "BUY";
     let collectionMode = "BUY";
+    let heroSearchMode = "BUY";
     let featuredIndex = 0;
     let inventorySort = { field: "createdAt", dir: "desc" };
     let inventoryPage = 1;
     let editingPropertyId = null;
     let lastArchivedPropertyId = null;
     let confirmHandler = null;
+    let currentPropertyModalId = null;
+    let currentPropertyModalImageIndex = 0;
+    let draggedClientId = null;
+    let assistantMessages = [
+      {
+        role: "assistant",
+        text: "Welcome to the AI Concierge. Ask for sea-view residences, off-market options, rental suggestions, or private consultation guidance."
+      }
+    ];
 
     function normalizeProperty(property, index = 0) {
       if (!property.currency) property.currency = "$";
@@ -2828,18 +3590,40 @@
       if (!property.type) property.type = "Villa";
       if (!property.location) property.location = "Unknown";
       if (!property.size) property.size = 0;
+      if (!property.bedrooms) property.bedrooms = 0;
+      if (!property.bathrooms) property.bathrooms = 0;
       if (!property.owner) property.owner = "Private Owner";
       if (!property.notes) property.notes = "";
-      if (!property.image) property.image = propertyPhotos[index % propertyPhotos.length];
+      if (!property.coverImage) property.coverImage = propertyPhotos[index % propertyPhotos.length];
+      if (!Array.isArray(property.gallery) || !property.gallery.length) property.gallery = [property.coverImage];
       if (!Array.isArray(property.amenities)) {
         property.amenities = typeof property.amenities === "string" && property.amenities.trim()
           ? property.amenities.split(",").map(item => item.trim()).filter(Boolean)
           : [];
       }
+      if (!Array.isArray(property.wellnessFeatures)) {
+        property.wellnessFeatures = typeof property.wellnessFeatures === "string" && property.wellnessFeatures.trim()
+          ? property.wellnessFeatures.split(",").map(item => item.trim()).filter(Boolean)
+          : [];
+      }
       if (!Array.isArray(property.linkedClientIds)) property.linkedClientIds = [];
       if (!Array.isArray(property.history)) property.history = [];
+      if (typeof property.offMarket !== "boolean") property.offMarket = false;
       if (!property.addedBy) property.addedBy = "saDT";
       if (!property.createdAt) property.createdAt = new Date().toISOString();
+    }
+
+    function normalizeClient(client) {
+      if (!client.type) client.type = "BUYER";
+      if (!client.stage) client.stage = "Lead";
+      if (!client.nextAction) client.nextAction = "Follow up";
+      if (!client.estimatedValue) client.estimatedValue = 0;
+      if (!Array.isArray(client.linkedPropertyIds)) client.linkedPropertyIds = [];
+      if (!client.note) client.note = "";
+      if (!client.source) client.source = "Manual";
+      if (!client.phone) client.phone = "-";
+      if (!client.email) client.email = "-";
+      if (!client.createdAt) client.createdAt = new Date().toISOString();
     }
 
     function loadDB() {
@@ -2848,13 +3632,16 @@
 
       try {
         const parsed = JSON.parse(raw);
+        parsed.privateAccessGranted = Boolean(parsed.privateAccessGranted);
         parsed.houses = Array.isArray(parsed.houses) ? parsed.houses : clone(seedData.houses);
         parsed.archivedHouses = Array.isArray(parsed.archivedHouses) ? parsed.archivedHouses : [];
         parsed.clients = Array.isArray(parsed.clients) ? parsed.clients : clone(seedData.clients);
         parsed.deals = Array.isArray(parsed.deals) ? parsed.deals : clone(seedData.deals);
         parsed.activity = Array.isArray(parsed.activity) ? parsed.activity : clone(seedData.activity);
+        parsed.notifications = Array.isArray(parsed.notifications) ? parsed.notifications : clone(seedData.notifications);
         parsed.houses.forEach(normalizeProperty);
         parsed.archivedHouses.forEach(normalizeProperty);
+        parsed.clients.forEach(normalizeClient);
         return parsed;
       } catch (error) {
         return clone(seedData);
@@ -2913,27 +3700,38 @@
     }
 
     function addActivity(title, text) {
+      const timestamp = new Date().toISOString();
       db.activity.unshift({
         id: Date.now() + Math.floor(Math.random() * 1000),
         title,
         text,
-        timestamp: new Date().toISOString()
+        timestamp
       });
-      db.activity = db.activity.slice(0, 20);
+
+      db.notifications.unshift({
+        id: Date.now() + Math.floor(Math.random() * 1000) + 2000,
+        title,
+        text,
+        timestamp,
+        read: false
+      });
+
+      db.activity = db.activity.slice(0, 24);
+      db.notifications = db.notifications.slice(0, 30);
     }
 
-    function showPublicPage(target) {
-      if (target === "buy") {
+    function showPublicPage(page) {
+      if (page === "buy") {
         currentPublicPage = "collection";
         collectionMode = "BUY";
-      } else if (target === "rent") {
+      } else if (page === "rent") {
         currentPublicPage = "collection";
         collectionMode = "RENT";
-      } else if (target === "sell") {
+      } else if (page === "sell") {
         currentPublicPage = "sell";
-      } else if (target === "portfolio") {
+      } else if (page === "portfolio") {
         currentPublicPage = "portfolio";
-      } else if (target === "insights") {
+      } else if (page === "insights") {
         currentPublicPage = "insights";
       } else {
         currentPublicPage = "home";
@@ -2946,15 +3744,15 @@
       document.getElementById("publicInsights").classList.toggle("active", currentPublicPage === "insights");
 
       document.querySelectorAll(".site-link").forEach(link => link.classList.remove("active"));
-      const activeMap = {
+      const activeKeyMap = {
         home: "home",
         collection: collectionMode === "BUY" ? "buy" : "rent",
         sell: "sell",
         portfolio: "portfolio",
         insights: "insights"
       };
-      const navKey = activeMap[currentPublicPage];
-      const activeLink = document.querySelector(`.site-link[data-nav="${navKey}"]`);
+      const activeKey = activeKeyMap[currentPublicPage];
+      const activeLink = document.querySelector(`.site-link[data-nav="${activeKey}"]`);
       if (activeLink) activeLink.classList.add("active");
 
       renderCollectionPage();
@@ -2986,15 +3784,25 @@
 
     function getPublicListings() {
       return db.houses.filter(property => {
-        return property.status === "ACTIVE" || property.status === "UNDER OFFER" || property.status === "PENDING";
+        return !property.offMarket && ["ACTIVE", "UNDER OFFER", "PENDING"].includes(property.status);
       });
+    }
+
+    function getPropertyById(id, archived) {
+      const source = archived ? db.archivedHouses : db.houses;
+      return source.find(item => item.id === id);
+    }
+
+    function getGallery(property) {
+      const gallery = Array.isArray(property.gallery) && property.gallery.length ? property.gallery : [property.coverImage];
+      return gallery.filter(Boolean);
     }
 
     function renderHomeMetrics() {
       const activeListings = db.houses.filter(item => item.status === "ACTIVE").length;
       const aum = db.houses.reduce((sum, item) => sum + item.price, 0);
-      const closedDeals = db.deals.length;
-      const clientCount = db.clients.length;
+      const pipelineValue = db.clients.reduce((sum, client) => sum + Number(client.estimatedValue || 0), 0);
+      const unreadNotifications = db.notifications.filter(item => !item.read).length;
 
       document.getElementById("homeMetricsGrid").innerHTML = `
         <div class="metric-card">
@@ -3006,12 +3814,12 @@
           <span>Current inventory valuation</span>
         </div>
         <div class="metric-card">
-          <strong>${clientCount}</strong>
-          <span>Tracked private relationships</span>
+          <strong>${money(pipelineValue)}</strong>
+          <span>Pipeline value in CRM</span>
         </div>
         <div class="metric-card">
-          <strong>${closedDeals}</strong>
-          <span>Closed deals logged</span>
+          <strong>${unreadNotifications}</strong>
+          <span>Unread operational alerts</span>
         </div>
       `;
     }
@@ -3020,14 +3828,14 @@
       return `
         <article class="property-card">
           <div class="property-media">
-            <img src="${escapeHtml(property.image)}" alt="${escapeHtml(property.addr)}">
+            <img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.addr)}">
             <div class="property-price">${money(property.price, property.currency)}</div>
             <div class="property-flag">${escapeHtml(property.status)}</div>
           </div>
           <div class="property-body">
             <h3 class="property-title">${escapeHtml(property.addr)}</h3>
             <div class="property-meta">${escapeHtml(property.type)} • ${escapeHtml(property.location)} • ${escapeHtml(property.intent)}</div>
-            <div class="property-copy">${escapeHtml(property.notes || "Luxury listing positioned for private buyers and curated viewings.")}</div>
+            <div class="property-copy">${escapeHtml(property.notes)}</div>
             <div class="property-actions">
               <button class="ghost-chip" onclick="openPublicProperty(${property.id})">View Residence</button>
             </div>
@@ -3057,7 +3865,7 @@
     function renderCollectionLocationOptions() {
       const select = document.getElementById("collectionLocation");
       const current = select.value || "ALL";
-      const locations = Array.from(new Set(db.houses.map(item => item.location))).sort();
+      const locations = Array.from(new Set(db.houses.filter(item => item.intent === collectionMode).map(item => item.location))).sort();
       select.innerHTML = `<option value="ALL">All Locations</option>` + locations.map(location => `
         <option value="${escapeHtml(location)}">${escapeHtml(location)}</option>
       `).join("");
@@ -3090,7 +3898,7 @@
       const sort = document.getElementById("collectionSort").value;
 
       let items = db.houses.filter(property => {
-        return property.intent === collectionMode && (property.status === "ACTIVE" || property.status === "UNDER OFFER" || property.status === "PENDING");
+        return property.intent === collectionMode && !property.offMarket && ["ACTIVE", "UNDER OFFER", "PENDING"].includes(property.status);
       });
 
       if (location !== "ALL") items = items.filter(item => item.location === location);
@@ -3110,9 +3918,43 @@
 
       const grid = document.getElementById("collectionGrid");
       if (!items.length) {
-        grid.innerHTML = `<div class="empty-block" style="grid-column: 1 / -1;">No properties match your current filters.</div>`;
+        grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">No properties match your current filters.</div>`;
       } else {
         grid.innerHTML = items.map(propertyCardMarkup).join("");
+      }
+
+      const privateProperties = db.houses.filter(property => {
+        return property.intent === collectionMode && property.offMarket && ["ACTIVE", "UNDER OFFER", "PENDING"].includes(property.status);
+      });
+
+      const block = document.getElementById("privateCollectionBlock");
+      if (!privateProperties.length) {
+        block.innerHTML = "";
+        return;
+      }
+
+      if (db.privateAccessGranted) {
+        block.innerHTML = `
+          <div class="offmarket-head">
+            <div>
+              <h3>Private Collection</h3>
+              <p>Restricted off-market residences now visible inside your collection access.</p>
+            </div>
+          </div>
+          <div class="property-grid collection">
+            ${privateProperties.map(propertyCardMarkup).join("")}
+          </div>
+        `;
+      } else {
+        block.innerHTML = `
+          <div class="offmarket-head">
+            <div>
+              <h3>Private Collection</h3>
+              <p>Reserved for qualified introductions and discreet buyer requests.</p>
+            </div>
+            <button class="gold-btn" onclick="openConsultationModal('PRIVATE COLLECTION')">Request Access</button>
+          </div>
+        `;
       }
     }
 
@@ -3125,22 +3967,22 @@
     }
 
     function renderPortfolioPage() {
-      const totalValue = db.deals.reduce((sum, deal) => sum + deal.profit, 0);
-      const soldCount = db.deals.length;
-      const activeListings = db.houses.filter(item => item.status === "ACTIVE").length;
+      const totalCommission = db.deals.reduce((sum, deal) => sum + deal.profit, 0);
+      const closedCount = db.deals.length;
+      const activeCount = db.houses.filter(item => item.status === "ACTIVE").length;
       const vipCount = db.clients.filter(client => client.type === "VIP").length;
 
       document.getElementById("portfolioStats").innerHTML = `
         <div class="portfolio-stat">
-          <strong>${soldCount}</strong>
+          <strong>${closedCount}</strong>
           <span>Closed placements</span>
         </div>
         <div class="portfolio-stat">
-          <strong>${money(totalValue)}</strong>
+          <strong>${money(totalCommission)}</strong>
           <span>Logged commission value</span>
         </div>
         <div class="portfolio-stat">
-          <strong>${activeListings}</strong>
+          <strong>${activeCount}</strong>
           <span>Current live inventory</span>
         </div>
         <div class="portfolio-stat">
@@ -3176,23 +4018,49 @@
     }
 
     function openPublicProperty(id) {
-      const property = db.houses.find(item => item.id === id);
+      currentPropertyModalId = id;
+      currentPropertyModalImageIndex = 0;
+      renderPropertyModal();
+      document.getElementById("propertyModalOverlay").classList.add("open");
+    }
+
+    function closePublicProperty() {
+      document.getElementById("propertyModalOverlay").classList.remove("open");
+      currentPropertyModalId = null;
+      currentPropertyModalImageIndex = 0;
+    }
+
+    function setPropertyModalImage(index) {
+      currentPropertyModalImageIndex = index;
+      renderPropertyModal();
+    }
+
+    function renderPropertyModal() {
+      const property = db.houses.find(item => item.id === currentPropertyModalId);
       if (!property) return;
 
-      document.getElementById("publicModalImage").innerHTML = `
-        <img src="${escapeHtml(property.image)}" alt="${escapeHtml(property.addr)}">
-      `;
+      const gallery = getGallery(property);
+      const currentImage = gallery[currentPropertyModalImageIndex] || property.coverImage;
 
-      document.getElementById("publicModalContent").innerHTML = `
-        <div class="public-modal-head">
+      document.getElementById("propertyModalMain").src = currentImage;
+      document.getElementById("propertyModalMain").alt = property.addr;
+
+      document.getElementById("propertyModalThumbs").innerHTML = gallery.map((image, index) => `
+        <button onclick="setPropertyModalImage(${index})">
+          <img src="${escapeHtml(image)}" alt="${escapeHtml(property.addr)}">
+        </button>
+      `).join("");
+
+      document.getElementById("propertyModalContent").innerHTML = `
+        <div class="property-modal-head">
           <div>
             <h3>${escapeHtml(property.addr)}</h3>
             <p>${escapeHtml(property.type)} • ${escapeHtml(property.location)} • ${escapeHtml(property.intent)} • ${property.size ? property.size + " sqm" : "Luxury scale"}</p>
           </div>
-          <button class="public-close" onclick="closePublicProperty()">Close</button>
+          <button class="modal-close" onclick="closePublicProperty()">Close</button>
         </div>
 
-        <div class="drawer-grid">
+        <div class="modal-grid">
           <div class="detail-card">
             <strong>Valuation</strong>
             <span>${money(property.price, property.currency)}</span>
@@ -3202,18 +4070,18 @@
             <span><span class="status-badge status-${statusClass(property.status)}">${escapeHtml(property.status)}</span></span>
           </div>
           <div class="detail-card">
-            <strong>Property Type</strong>
-            <span>${escapeHtml(property.type)}</span>
+            <strong>Bedrooms</strong>
+            <span>${property.bedrooms || "N/A"}</span>
           </div>
           <div class="detail-card">
-            <strong>Location</strong>
-            <span>${escapeHtml(property.location)}</span>
+            <strong>Bathrooms</strong>
+            <span>${property.bathrooms || "N/A"}</span>
           </div>
         </div>
 
         <div class="drawer-section">
           <h4>Overview</h4>
-          <p>${escapeHtml(property.notes || "Private-viewing luxury listing with premium brand positioning.")}</p>
+          <p>${escapeHtml(property.notes)}</p>
         </div>
 
         <div class="drawer-section">
@@ -3222,24 +4090,26 @@
         </div>
 
         <div class="drawer-section">
-          <h4>Request Private Viewing</h4>
-          <p>Submitting this form will create a live lead in the internal CRM and link it to this residence.</p>
+          <h4>Wellness & Premium Features</h4>
+          <p>${property.wellnessFeatures.length ? escapeHtml(property.wellnessFeatures.join(", ")) : "Private specification available on request."}</p>
+        </div>
 
+        <div class="drawer-section">
+          <h4>Request Private Viewing</h4>
+          <p>This inquiry is captured directly into the internal CRM and linked to this property.</p>
           <div class="lead-form">
             <div class="lead-grid">
               <input id="leadName" type="text" placeholder="Your Name">
               <input id="leadPhone" type="text" placeholder="Phone">
             </div>
+            <div class="lead-grid">
+              <input id="leadEmail" type="text" placeholder="Email">
+              <input id="leadNote" type="text" placeholder="What matters most to you?">
+            </div>
             <button class="gold-btn" onclick="capturePropertyLead(${property.id})">Request Private Viewing</button>
           </div>
         </div>
       `;
-
-      document.getElementById("publicModalOverlay").classList.add("open");
-    }
-
-    function closePublicProperty() {
-      document.getElementById("publicModalOverlay").classList.remove("open");
     }
 
     function capturePropertyLead(propertyId) {
@@ -3248,32 +4118,100 @@
 
       const name = document.getElementById("leadName").value.trim();
       const phone = document.getElementById("leadPhone").value.trim();
+      const email = document.getElementById("leadEmail").value.trim();
+      const note = document.getElementById("leadNote").value.trim();
 
       if (!name) {
         showToast("Missing Name", "Please enter a name to request the viewing.");
         return;
       }
 
-      const leadId = Date.now();
-      const leadType = property.intent === "RENT" ? "RENTER" : "BUYER";
+      const newClientId = Date.now();
+      const type = property.intent === "RENT" ? "RENTER" : "BUYER";
 
       db.clients.unshift({
-        id: leadId,
+        id: newClientId,
         name,
-        type: leadType,
-        note: `Website inquiry for ${property.addr}`,
-        phone: phone || "-"
+        type,
+        stage: "Lead",
+        nextAction: "Follow up on private viewing request",
+        estimatedValue: property.price,
+        linkedPropertyIds: [property.id],
+        note: note || `Website inquiry for ${property.addr}`,
+        source: "Website",
+        phone: phone || "-",
+        email: email || "-",
+        createdAt: new Date().toISOString()
       });
 
-      if (!property.linkedClientIds.includes(leadId)) {
-        property.linkedClientIds.push(leadId);
+      if (!property.linkedClientIds.includes(newClientId)) {
+        property.linkedClientIds.push(newClientId);
       }
 
-      property.history.unshift(`${name} requested a private viewing via the public site.`);
+      property.history.unshift(`${name} requested a private viewing via the public website.`);
       addActivity("Website Lead", `${name} requested a viewing for ${property.addr}.`);
       closePublicProperty();
       saveDB();
       showToast("Lead Captured", "Viewing request added to CRM.");
+    }
+
+    function openConsultationModal(presetInterest) {
+      document.getElementById("consultationOverlay").classList.add("open");
+      if (presetInterest) document.getElementById("consultInterest").value = presetInterest;
+      if (presetInterest === "PRIVATE COLLECTION") {
+        document.getElementById("consultTitle").innerText = "Request Private Collection Access";
+        document.getElementById("consultText").innerText = "This will create a qualified inquiry in the CRM and unlock the off-market collection for this local demo.";
+      } else {
+        document.getElementById("consultTitle").innerText = "Request Private Consultation";
+        document.getElementById("consultText").innerText = "Share your details and this inquiry will be captured directly into the private CRM.";
+      }
+    }
+
+    function closeConsultationModal() {
+      document.getElementById("consultationOverlay").classList.remove("open");
+    }
+
+    function submitConsultation() {
+      const name = document.getElementById("consultName").value.trim();
+      const phone = document.getElementById("consultPhone").value.trim();
+      const email = document.getElementById("consultEmail").value.trim();
+      const interest = document.getElementById("consultInterest").value;
+      const message = document.getElementById("consultMessage").value.trim();
+
+      if (!name) {
+        showToast("Missing Name", "Please enter your name.");
+        return;
+      }
+
+      db.clients.unshift({
+        id: Date.now(),
+        name,
+        type: interest === "PRIVATE COLLECTION" ? "VIP" : interest,
+        stage: interest === "SELLER" ? "Qualified" : "Lead",
+        nextAction: interest === "SELLER" ? "Schedule valuation call" : "Respond to website consultation",
+        estimatedValue: 0,
+        linkedPropertyIds: [],
+        note: message || `${interest} inquiry from website consultation form.`,
+        source: "Website Consultation",
+        phone: phone || "-",
+        email: email || "-",
+        createdAt: new Date().toISOString()
+      });
+
+      if (interest === "PRIVATE COLLECTION") {
+        db.privateAccessGranted = true;
+      }
+
+      addActivity("Consultation Request", `${name} submitted a ${interest.toLowerCase()} inquiry.`);
+      closeConsultationModal();
+
+      ["consultName", "consultPhone", "consultEmail", "consultMessage"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("consultInterest").value = "BUYER";
+
+      saveDB();
+      showToast("Inquiry Added", "The request is now in the CRM.");
     }
 
     function captureSellerLead() {
@@ -3291,18 +4229,100 @@
         id: Date.now(),
         name,
         type: "SELLER",
-        note: `Requested private valuation for ${propertyType} in ${area || "unspecified area"}`,
-        phone: phone || "-"
+        stage: "Qualified",
+        nextAction: "Schedule valuation call",
+        estimatedValue: 0,
+        linkedPropertyIds: [],
+        note: `Requested private valuation for ${propertyType} in ${area || "unspecified area"}.`,
+        source: "Website Seller Form",
+        phone: phone || "-",
+        email: "-",
+        createdAt: new Date().toISOString()
       });
 
-      document.getElementById("sellerName").value = "";
-      document.getElementById("sellerPhone").value = "";
-      document.getElementById("sellerArea").value = "";
+      ["sellerName", "sellerPhone", "sellerArea"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
       document.getElementById("sellerPropertyType").value = "Villa";
 
       addActivity("Seller Inquiry", `${name} requested a private valuation${area ? " in " + area : ""}.`);
       saveDB();
       showToast("Seller Lead Added", "The consultation request is now in the CRM.");
+    }
+
+    function toggleAssistant(force) {
+      const panel = document.getElementById("assistantPanel");
+      const trigger = document.getElementById("assistantTrigger");
+      const open = typeof force === "boolean" ? force : !panel.classList.contains("open");
+      panel.classList.toggle("open", open);
+      trigger.classList.toggle("active", open);
+      renderAssistantMessages();
+    }
+
+    function renderAssistantMessages() {
+      const box = document.getElementById("assistantMessages");
+      box.innerHTML = assistantMessages.map(message => `
+        <div class="assistant-bubble ${message.role}">
+          ${escapeHtml(message.text)}
+        </div>
+      `).join("");
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function quickAssistant(prompt) {
+      document.getElementById("assistantInput").value = prompt;
+      sendAssistantMessage();
+    }
+
+    function sendAssistantMessage() {
+      const input = document.getElementById("assistantInput");
+      const message = input.value.trim();
+      if (!message) return;
+
+      assistantMessages.push({ role: "user", text: message });
+      input.value = "";
+
+      const response = buildAssistantResponse(message);
+      assistantMessages.push({ role: "assistant", text: response });
+      renderAssistantMessages();
+    }
+
+    function buildAssistantResponse(message) {
+      const text = message.toLowerCase();
+
+      if (text.includes("dashboard")) {
+        openDashboard("opsPage");
+        return "Opening the private dashboard now. You can manage inventory, CRM, settlements, and luxury operations there.";
+      }
+
+      if (text.includes("off market") || text.includes("private collection")) {
+        if (db.privateAccessGranted) {
+          return "Your local demo already has Private Collection access enabled. Open the Buy or Rent collection and scroll to the Private Collection section.";
+        }
+        return "Private Collection access is currently restricted. Use the Request Private Consultation button and choose Private Collection to unlock it in this demo.";
+      }
+
+      let matches = db.houses.filter(property => !property.offMarket);
+
+      if (text.includes("rent")) matches = matches.filter(property => property.intent === "RENT");
+      if (text.includes("buy")) matches = matches.filter(property => property.intent === "BUY");
+      if (text.includes("sea") || text.includes("beach") || text.includes("water")) {
+        matches = matches.filter(property => {
+          const hay = property.amenities.join(" ").toLowerCase() + " " + property.notes.toLowerCase();
+          return hay.includes("sea") || hay.includes("beach");
+        });
+      }
+      if (text.includes("tel aviv")) matches = matches.filter(property => property.location.toLowerCase().includes("tel aviv"));
+      if (text.includes("caesarea")) matches = matches.filter(property => property.location.toLowerCase().includes("caesarea"));
+      if (text.includes("herzliya")) matches = matches.filter(property => property.location.toLowerCase().includes("herzliya"));
+
+      matches = matches.filter(property => ["ACTIVE", "UNDER OFFER", "PENDING"].includes(property.status)).slice(0, 3);
+
+      if (matches.length) {
+        return "I recommend: " + matches.map(property => `${property.addr} (${money(property.price, property.currency)})`).join(" • ");
+      }
+
+      return "I can help with buy or rent recommendations, sea-view properties, off-market access, or opening the private dashboard. Try asking for a specific city or lifestyle feature.";
     }
 
     function openConfirm(options) {
@@ -3348,6 +4368,7 @@
     function closeDashboard() {
       document.getElementById("dashboardOverlay").classList.remove("open");
       closePropertyDrawer();
+      document.getElementById("notificationPanel").classList.remove("open");
     }
 
     function switchDashPage(pageId, button) {
@@ -3356,6 +4377,37 @@
       document.getElementById(pageId).classList.add("active");
       button.classList.add("active");
       if (pageId !== "inventoryPage") closePropertyDrawer();
+    }
+
+    function toggleNotifications(force) {
+      const panel = document.getElementById("notificationPanel");
+      const open = typeof force === "boolean" ? force : !panel.classList.contains("open");
+      panel.classList.toggle("open", open);
+      if (open) renderNotifications();
+    }
+
+    function markAllNotificationsRead() {
+      db.notifications.forEach(item => item.read = true);
+      saveDB();
+      toggleNotifications(true);
+    }
+
+    function renderNotifications() {
+      const unread = db.notifications.filter(item => !item.read).length;
+      document.getElementById("notificationBadge").innerText = unread;
+
+      const list = document.getElementById("notificationList");
+      if (!db.notifications.length) {
+        list.innerHTML = `<div class="empty-state">No notifications yet.</div>`;
+        return;
+      }
+
+      list.innerHTML = db.notifications.slice(0, 12).map(item => `
+        <div class="notification-item ${item.read ? "" : "unread"}">
+          <strong>${escapeHtml(item.title)}</strong>
+          <span>${escapeHtml(item.text)}</span>
+        </div>
+      `).join("");
     }
 
     function toggleAssetForm(forceOpen) {
@@ -3372,31 +4424,45 @@
       document.getElementById("advancedAssetFields").classList.toggle("open");
     }
 
+    function parseListInput(value) {
+      return value
+        .split(/[\n,]+/)
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+
     function resetAssetForm() {
       editingPropertyId = null;
       document.getElementById("assetFormTitle").innerText = "List New Asset";
       document.getElementById("assetSubmitButton").innerText = "List Asset";
+
       [
         "assetAddress",
         "assetPrice",
         "assetLocation",
         "assetSize",
+        "assetBedrooms",
+        "assetBathrooms",
         "assetAmenities",
+        "assetWellness",
         "assetOwner",
-        "assetNotes",
-        "assetImage"
+        "assetCover",
+        "assetGallery",
+        "assetNotes"
       ].forEach(id => document.getElementById(id).value = "");
 
       document.getElementById("assetCurrency").value = "$";
       document.getElementById("assetIntent").value = "BUY";
       document.getElementById("assetStatus").value = "ACTIVE";
       document.getElementById("assetType").value = "Villa";
+      document.getElementById("assetOffMarket").value = "NO";
     }
 
     function fillAssetForm(property) {
       editingPropertyId = property.id;
       document.getElementById("assetFormTitle").innerText = "Edit Asset";
       document.getElementById("assetSubmitButton").innerText = "Update Asset";
+
       document.getElementById("assetAddress").value = property.addr || "";
       document.getElementById("assetPrice").value = property.price || "";
       document.getElementById("assetCurrency").value = property.currency || "$";
@@ -3405,10 +4471,16 @@
       document.getElementById("assetType").value = property.type || "Villa";
       document.getElementById("assetLocation").value = property.location || "";
       document.getElementById("assetSize").value = property.size || "";
+      document.getElementById("assetBedrooms").value = property.bedrooms || "";
+      document.getElementById("assetBathrooms").value = property.bathrooms || "";
       document.getElementById("assetAmenities").value = (property.amenities || []).join(", ");
+      document.getElementById("assetWellness").value = (property.wellnessFeatures || []).join(", ");
       document.getElementById("assetOwner").value = property.owner || "";
+      document.getElementById("assetCover").value = property.coverImage || "";
+      document.getElementById("assetGallery").value = (property.gallery || []).join("\n");
+      document.getElementById("assetOffMarket").value = property.offMarket ? "YES" : "NO";
       document.getElementById("assetNotes").value = property.notes || "";
-      document.getElementById("assetImage").value = property.image || "";
+
       document.getElementById("advancedAssetFields").classList.add("open");
       toggleAssetForm(true);
     }
@@ -3422,13 +4494,16 @@
       const type = document.getElementById("assetType").value;
       const location = document.getElementById("assetLocation").value.trim() || "Unknown";
       const size = parseFloat(document.getElementById("assetSize").value) || 0;
-      const amenities = document.getElementById("assetAmenities").value
-        .split(",")
-        .map(item => item.trim())
-        .filter(Boolean);
+      const bedrooms = parseFloat(document.getElementById("assetBedrooms").value) || 0;
+      const bathrooms = parseFloat(document.getElementById("assetBathrooms").value) || 0;
+      const amenities = parseListInput(document.getElementById("assetAmenities").value);
+      const wellnessFeatures = parseListInput(document.getElementById("assetWellness").value);
       const owner = document.getElementById("assetOwner").value.trim() || "Private Owner";
+      const coverImage = document.getElementById("assetCover").value.trim() || propertyPhotos[db.houses.length % propertyPhotos.length];
+      const galleryInput = parseListInput(document.getElementById("assetGallery").value);
+      const gallery = galleryInput.length ? galleryInput : [coverImage];
+      const offMarket = document.getElementById("assetOffMarket").value === "YES";
       const notes = document.getElementById("assetNotes").value.trim();
-      const image = document.getElementById("assetImage").value.trim();
 
       if (!addr || !price) {
         showToast("Missing Fields", "Property address and valuation are required.");
@@ -3438,7 +4513,6 @@
       if (editingPropertyId) {
         const property = db.houses.find(item => item.id === editingPropertyId);
         if (!property) return;
-
         const previousStatus = property.status;
 
         property.addr = addr;
@@ -3449,17 +4523,22 @@
         property.type = type;
         property.location = location;
         property.size = size;
+        property.bedrooms = bedrooms;
+        property.bathrooms = bathrooms;
         property.amenities = amenities;
+        property.wellnessFeatures = wellnessFeatures;
         property.owner = owner;
+        property.coverImage = coverImage;
+        property.gallery = gallery;
+        property.offMarket = offMarket;
         property.notes = notes;
-        property.image = image || property.image || propertyPhotos[editingPropertyId % propertyPhotos.length];
         property.history.unshift(`Updated by saDT on ${formatDate(new Date().toISOString())}.`);
 
         if (previousStatus !== status) {
           property.history.unshift(`Status changed from ${previousStatus} to ${status}.`);
           addActivity("Status Updated", `${property.addr} moved from ${previousStatus} to ${status}.`);
           if (status === "SOLD" || status === "RENTED") {
-            addActivity("Deal Progression", `${property.addr} is now marked ${status} and is ready for settlement tracking.`);
+            addActivity("Deal Progression", `${property.addr} is ready for settlement tracking.`);
           }
         }
 
@@ -3475,16 +4554,19 @@
           status,
           type,
           size,
+          bedrooms,
+          bathrooms,
           amenities,
+          wellnessFeatures,
           owner,
           notes,
-          image: image || propertyPhotos[db.houses.length % propertyPhotos.length],
+          coverImage,
+          gallery,
+          offMarket,
           linkedClientIds: [],
           addedBy: "saDT",
           createdAt: new Date().toISOString(),
-          history: [
-            `Listed by saDT on ${formatDate(new Date().toISOString())}.`
-          ]
+          history: [`Listed by saDT on ${formatDate(new Date().toISOString())}.`]
         };
 
         db.houses.unshift(property);
@@ -3495,26 +4577,6 @@
       resetAssetForm();
       toggleAssetForm(false);
       saveDB();
-    }
-
-    function onInventoryFiltersChanged() {
-      inventoryPage = 1;
-      renderInventoryPage();
-    }
-
-    function sortInventory(field) {
-      if (inventorySort.field === field) {
-        inventorySort.dir = inventorySort.dir === "asc" ? "desc" : "asc";
-      } else {
-        inventorySort.field = field;
-        inventorySort.dir = field === "price" ? "desc" : "asc";
-      }
-      renderInventoryPage();
-    }
-
-    function changeInventoryPage(page) {
-      inventoryPage = page;
-      renderInventoryPage();
     }
 
     function renderInventoryLocationOptions() {
@@ -3561,10 +4623,12 @@
             item.addr,
             item.location,
             item.type,
-            item.owner,
             item.intent,
+            item.owner,
             item.notes,
-            (item.amenities || []).join(" ")
+            item.offMarket ? "private collection" : "public collection",
+            (item.amenities || []).join(" "),
+            (item.wellnessFeatures || []).join(" ")
           ].join(" ").toLowerCase().includes(search);
         });
       }
@@ -3589,6 +4653,26 @@
       return items;
     }
 
+    function onInventoryFiltersChanged() {
+      inventoryPage = 1;
+      renderInventoryPage();
+    }
+
+    function sortInventory(field) {
+      if (inventorySort.field === field) {
+        inventorySort.dir = inventorySort.dir === "asc" ? "desc" : "asc";
+      } else {
+        inventorySort.field = field;
+        inventorySort.dir = field === "price" ? "desc" : "asc";
+      }
+      renderInventoryPage();
+    }
+
+    function changeInventoryPage(page) {
+      inventoryPage = page;
+      renderInventoryPage();
+    }
+
     function renderInventoryPage() {
       renderInventoryLocationOptions();
 
@@ -3605,8 +4689,8 @@
       const items = getFilteredInventory();
       const rowsPerPage = Number(document.getElementById("inventoryRowsPerPage").value);
       const totalPages = Math.max(1, Math.ceil(items.length / rowsPerPage));
-      if (inventoryPage > totalPages) inventoryPage = totalPages;
 
+      if (inventoryPage > totalPages) inventoryPage = totalPages;
       const start = (inventoryPage - 1) * rowsPerPage;
       const visible = items.slice(start, start + rowsPerPage);
       const body = document.getElementById("inventoryTableBody");
@@ -3622,14 +4706,14 @@
           <tr class="data-row" onclick="openPropertyDrawer(${item.id}, ${archivedView})">
             <td data-label="Thumbnail">
               <div class="thumb">
-                <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.addr)}">
+                <img src="${escapeHtml(item.coverImage)}" alt="${escapeHtml(item.addr)}">
               </div>
             </td>
             <td data-label="Asset Address">
               <div class="asset-line">
                 <div class="asset-copy">
                   <strong>${escapeHtml(item.addr)}</strong>
-                  <span>${escapeHtml(item.type)} • ${escapeHtml(item.location)} • ${escapeHtml(item.intent)}</span>
+                  <span>${escapeHtml(item.type)} • ${escapeHtml(item.location)} • ${escapeHtml(item.intent)}${item.offMarket ? " • Private Collection" : ""}</span>
                 </div>
               </div>
             </td>
@@ -3642,6 +4726,7 @@
                 ${archivedView
                   ? `<button class="tiny-btn" onclick="event.stopPropagation(); restoreProperty(${item.id});">Restore</button>`
                   : `<button class="tiny-btn" onclick="event.stopPropagation(); editProperty(${item.id});">Edit</button>
+                     <button class="tiny-btn" onclick="event.stopPropagation(); printPropertySheet(${item.id}, false);">PDF</button>
                      <button class="tiny-btn delete" onclick="event.stopPropagation(); requestArchiveProperty(${item.id});">Delete</button>`
                 }
               </div>
@@ -3724,136 +4809,110 @@
       saveDB();
     }
 
-    function openPropertyDrawer(id, archived = false) {
-      const source = archived ? db.archivedHouses : db.houses;
-      const property = source.find(item => item.id === id);
-      if (!property) return;
-
-      document.getElementById("drawerTitle").innerText = property.addr;
-      document.getElementById("drawerSubtitle").innerText = `${property.type} • ${property.location} • Added by ${property.addedBy}`;
-
-      const linkedClients = property.linkedClientIds
-        .map(clientId => db.clients.find(client => client.id === clientId))
-        .filter(Boolean);
-
-      const availableClients = db.clients.filter(client => !property.linkedClientIds.includes(client.id));
-      const settlementReady = !archived && (property.status === "SOLD" || property.status === "RENTED");
-
-      document.getElementById("drawerContent").innerHTML = `
-        <div class="drawer-image">
-          <img src="${escapeHtml(property.image)}" alt="${escapeHtml(property.addr)}">
-        </div>
-
-        <div class="drawer-grid">
-          <div class="detail-card">
-            <strong>Valuation</strong>
-            <span>${money(property.price, property.currency)}</span>
-          </div>
-          <div class="detail-card">
-            <strong>Status</strong>
-            <span><span class="status-badge status-${archived ? "archived" : statusClass(property.status)}">${archived ? "ARCHIVED" : escapeHtml(property.status)}</span></span>
-          </div>
-          <div class="detail-card">
-            <strong>Intent</strong>
-            <span>${escapeHtml(property.intent)}</span>
-          </div>
-          <div class="detail-card">
-            <strong>Size</strong>
-            <span>${property.size ? escapeHtml(property.size) + " sqm" : "N/A"}</span>
-          </div>
-        </div>
-
-        <div class="drawer-section">
-          <h4>Description</h4>
-          <p>${escapeHtml(property.notes || "No internal description added yet.")}</p>
-        </div>
-
-        <div class="drawer-section">
-          <h4>Amenities</h4>
-          <p>${property.amenities.length ? escapeHtml(property.amenities.join(", ")) : "No amenities recorded yet."}</p>
-        </div>
-
-        <div class="drawer-section">
-          <h4>Linked Clients</h4>
-          ${linkedClients.length
-            ? `<ul>${linkedClients.map(client => `<li>${escapeHtml(client.name)} • ${escapeHtml(client.type)}</li>`).join("")}</ul>`
-            : `<p>No linked clients yet.</p>`
-          }
-
-          ${archived ? "" : `
-            <div class="drawer-linker">
-              <select id="drawerClientSelect">
-                <option value="">Attach client from CRM</option>
-                ${availableClients.map(client => `<option value="${client.id}">${escapeHtml(client.name)} • ${escapeHtml(client.type)}</option>`).join("")}
-              </select>
-              <button class="action-btn" onclick="linkSelectedClientToProperty(${property.id})">Attach</button>
-            </div>
-          `}
-        </div>
-
-        <div class="drawer-section">
-          <h4>History Log</h4>
-          ${property.history.length
-            ? `<ul>${property.history.map(entry => `<li>${escapeHtml(entry)}</li>`).join("")}</ul>`
-            : `<p>No history yet.</p>`
-          }
-        </div>
-
-        <div class="drawer-actions">
-          ${archived
-            ? `<button class="gold-btn" onclick="restoreProperty(${property.id}); closePropertyDrawer();">Restore Asset</button>`
-            : `<button class="gold-btn" onclick="editProperty(${property.id}); closePropertyDrawer();">Edit Asset</button>
-               <button class="ghost-btn" onclick="requestArchiveProperty(${property.id})">Archive Asset</button>`
-          }
-          ${settlementReady ? `<button class="pill-btn" onclick="prepareSettlementFromProperty(${property.id})">Move to Settlements</button>` : ""}
-        </div>
-      `;
-
-      document.getElementById("propertyDrawer").classList.add("open");
-    }
-
-    function closePropertyDrawer() {
-      document.getElementById("propertyDrawer").classList.remove("open");
-    }
-
-    function linkSelectedClientToProperty(propertyId) {
-      const select = document.getElementById("drawerClientSelect");
-      const clientId = Number(select.value);
-      if (!clientId) return;
-
-      const property = db.houses.find(item => item.id === propertyId);
-      const client = db.clients.find(item => item.id === clientId);
-      if (!property || !client) return;
-
-      if (!property.linkedClientIds.includes(clientId)) {
-        property.linkedClientIds.push(clientId);
-        property.history.unshift(`Linked to client ${client.name}.`);
-        addActivity("Client Linked", `${client.name} attached to ${property.addr}.`);
-        showToast("Client Attached", `${client.name} linked to property.`);
-        saveDB();
-        openPropertyDrawer(propertyId, false);
+    function copyPrivateLink(propertyId) {
+      const text = `${location.href.split("#")[0]}#property-${propertyId}`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text);
       }
+      showToast("Private Link Copied", "A private reference link has been copied to your clipboard.");
     }
 
-    function prepareSettlementFromProperty(propertyId) {
-      const property = db.houses.find(item => item.id === propertyId);
+    function printPropertySheet(propertyId, archived) {
+      const property = getPropertyById(propertyId, archived);
       if (!property) return;
 
-      document.getElementById("dealTitle").value = property.addr;
-      document.getElementById("dealDate").value = new Date().toISOString().slice(0, 10);
-      closePropertyDrawer();
+      const printWindow = window.open("", "_blank", "width=1100,height=900");
+      if (!printWindow) return;
 
-      const targetButton = Array.from(document.querySelectorAll(".dash-nav button"))
-        .find(btn => btn.getAttribute("onclick").includes("settlementsPage"));
-      if (targetButton) switchDashPage("settlementsPage", targetButton);
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>${escapeHtml(property.addr)} | saDT Prestige</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 30px; color: #111; }
+              h1 { font-size: 34px; margin-bottom: 8px; }
+              p { line-height: 1.7; }
+              .meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
+              .card { border: 1px solid #ddd; padding: 14px; border-radius: 12px; }
+              img { width: 100%; max-height: 400px; object-fit: cover; border-radius: 14px; margin-bottom: 18px; }
+            </style>
+          </head>
+          <body>
+            <h1>${escapeHtml(property.addr)}</h1>
+            <p>${escapeHtml(property.type)} • ${escapeHtml(property.location)} • ${money(property.price, property.currency)}</p>
+            <img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.addr)}" />
+            <div class="meta">
+              <div class="card"><strong>Status:</strong><br>${escapeHtml(property.status)}</div>
+              <div class="card"><strong>Intent:</strong><br>${escapeHtml(property.intent)}</div>
+              <div class="card"><strong>Size:</strong><br>${property.size ? property.size + " sqm" : "N/A"}</div>
+              <div class="card"><strong>Owner:</strong><br>${escapeHtml(property.owner)}</div>
+            </div>
+            <p><strong>Description</strong><br>${escapeHtml(property.notes)}</p>
+            <p><strong>Amenities</strong><br>${escapeHtml(property.amenities.join(", "))}</p>
+            <p><strong>Wellness Features</strong><br>${escapeHtml(property.wellnessFeatures.join(", "))}</p>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
 
-      showToast("Settlement Ready", `${property.addr} has been prepared for settlement logging.`);
+    function printInventoryReport() {
+      const items = getFilteredInventory();
+      const printWindow = window.open("", "_blank", "width=1200,height=900");
+      if (!printWindow) return;
+
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Inventory Report | saDT Prestige</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 30px; color: #111; }
+              h1 { font-size: 34px; margin-bottom: 6px; }
+              p { margin-bottom: 24px; color: #555; }
+              table { width: 100%; border-collapse: collapse; }
+              th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+              th { background: #f4f4f4; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+            </style>
+          </head>
+          <body>
+            <h1>saDT Prestige Inventory Report</h1>
+            <p>${new Date().toLocaleString()}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Address</th>
+                  <th>Location</th>
+                  <th>Intent</th>
+                  <th>Valuation</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items.map(item => `
+                  <tr>
+                    <td>${escapeHtml(item.addr)}</td>
+                    <td>${escapeHtml(item.location)}</td>
+                    <td>${escapeHtml(item.intent)}</td>
+                    <td>${money(item.price, item.currency)}</td>
+                    <td>${escapeHtml(document.getElementById("inventoryStatusFilter").value === "ARCHIVED" ? "ARCHIVED" : item.status)}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
     }
 
     function exportInventory() {
       const items = getFilteredInventory();
       const rows = [
-        ["Address", "Location", "Intent", "Type", "Valuation", "Currency", "Status", "Owner", "Size", "Amenities"]
+        ["Address", "Location", "Intent", "Type", "Valuation", "Currency", "Status", "Owner", "Bedrooms", "Bathrooms", "Size", "Amenities", "Wellness Features"]
       ];
 
       items.forEach(item => {
@@ -3866,8 +4925,11 @@
           item.currency,
           document.getElementById("inventoryStatusFilter").value === "ARCHIVED" ? "ARCHIVED" : item.status,
           item.owner,
+          item.bedrooms,
+          item.bathrooms,
           item.size,
-          (item.amenities || []).join(" | ")
+          (item.amenities || []).join(" | "),
+          (item.wellnessFeatures || []).join(" | ")
         ]);
       });
 
@@ -3882,75 +4944,209 @@
       showToast("Export Ready", "Inventory exported as CSV.");
     }
 
+    function renderCRMPropertyOptions() {
+      const clientPropertySelect = document.getElementById("clientPropertySelect");
+      const dealPropertySelect = document.getElementById("dealPropertySelect");
+
+      const options = db.houses.map(property => `
+        <option value="${property.id}">${escapeHtml(property.addr)}</option>
+      `).join("");
+
+      clientPropertySelect.innerHTML = `<option value="">Link Property</option>` + options;
+      dealPropertySelect.innerHTML = `<option value="">Linked Property</option>` + options;
+
+      const closedClients = db.clients.filter(client => client.stage === "Closed");
+      document.getElementById("dealClientSelect").innerHTML = `<option value="">Linked Client</option>` + closedClients.map(client => `
+        <option value="${client.id}">${escapeHtml(client.name)}</option>
+      `).join("");
+    }
+
     function addClient() {
       const name = document.getElementById("clientName").value.trim();
       const type = document.getElementById("clientType").value;
-      const note = document.getElementById("clientNote").value.trim();
+      const stage = document.getElementById("clientStage").value;
       const phone = document.getElementById("clientPhone").value.trim();
+      const estimatedValue = parseFloat(document.getElementById("clientValue").value) || 0;
+      const email = document.getElementById("clientEmail").value.trim();
+      const propertyId = Number(document.getElementById("clientPropertySelect").value);
+      const note = document.getElementById("clientNote").value.trim();
+      const nextAction = document.getElementById("clientNextAction").value.trim();
+      const source = document.getElementById("clientSource").value.trim();
 
       if (!name) {
         showToast("Missing Fields", "Client name is required.");
         return;
       }
 
+      const id = Date.now();
+      const linkedPropertyIds = propertyId ? [propertyId] : [];
+
       db.clients.unshift({
-        id: Date.now(),
+        id,
         name,
         type,
+        stage,
+        nextAction: nextAction || "Follow up",
+        estimatedValue,
+        linkedPropertyIds,
         note: note || "No note added",
-        phone: phone || "-"
+        source: source || "Manual",
+        phone: phone || "-",
+        email: email || "-",
+        createdAt: new Date().toISOString()
       });
 
-      document.getElementById("clientName").value = "";
-      document.getElementById("clientNote").value = "";
-      document.getElementById("clientPhone").value = "";
+      if (propertyId) {
+        const property = db.houses.find(item => item.id === propertyId);
+        if (property && !property.linkedClientIds.includes(id)) {
+          property.linkedClientIds.push(id);
+          property.history.unshift(`Linked to client ${name}.`);
+        }
+      }
+
+      [
+        "clientName",
+        "clientPhone",
+        "clientValue",
+        "clientEmail",
+        "clientNote",
+        "clientNextAction",
+        "clientSource"
+      ].forEach(id => document.getElementById(id).value = "");
       document.getElementById("clientType").value = "VIP";
+      document.getElementById("clientStage").value = "Lead";
+      document.getElementById("clientPropertySelect").value = "";
 
       addActivity("Client Added", `${name} entered CRM as ${type}.`);
       saveDB();
     }
 
     function deleteClient(id) {
-      const linkedCount = db.houses.filter(property => property.linkedClientIds.includes(id)).length;
-      if (linkedCount > 0) {
-        showToast("Client In Use", "Unlink this client from properties before deleting.");
-        return;
-      }
-
+      db.houses.forEach(property => {
+        property.linkedClientIds = property.linkedClientIds.filter(clientId => clientId !== id);
+      });
       db.clients = db.clients.filter(client => client.id !== id);
       addActivity("Client Removed", "A client record was removed from CRM.");
       saveDB();
     }
 
+    function getClientLinkedPropertyNames(client) {
+      return client.linkedPropertyIds
+        .map(propertyId => db.houses.find(property => property.id === propertyId))
+        .filter(Boolean)
+        .map(property => property.addr);
+    }
+
     function renderCRMPage() {
+      renderCRMPropertyOptions();
+
       const body = document.getElementById("crmTableBody");
       if (!db.clients.length) {
-        body.innerHTML = `<tr><td colspan="5" class="empty-state">No client records yet.</td></tr>`;
-        return;
+        body.innerHTML = `<tr><td colspan="6" class="empty-state">No client records yet.</td></tr>`;
+      } else {
+        body.innerHTML = db.clients.map(client => {
+          const linkedAssets = getClientLinkedPropertyNames(client);
+          return `
+            <tr>
+              <td data-label="Client">${escapeHtml(client.name)}</td>
+              <td data-label="Type"><span class="status-badge status-${statusClass(client.type)}">${escapeHtml(client.type)}</span></td>
+              <td data-label="Stage"><span class="status-badge status-${statusClass(client.stage)}">${escapeHtml(client.stage)}</span></td>
+              <td data-label="Strategy / Note">${escapeHtml(client.note)}<br><span style="color: var(--muted); font-size: 12px;">Next: ${escapeHtml(client.nextAction)}</span></td>
+              <td data-label="Linked Assets">${linkedAssets.length ? escapeHtml(linkedAssets.join(", ")) : "None"}</td>
+              <td data-label="Action">
+                <div class="row-actions">
+                  <button class="tiny-btn delete" onclick="deleteClient(${client.id})">Delete</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join("");
       }
 
-      body.innerHTML = db.clients.map(client => {
-        const linkedAssets = db.houses.filter(property => property.linkedClientIds.includes(client.id)).length;
+      renderPipelineBoard();
+    }
+
+    function switchCRMView(view, button) {
+      document.querySelectorAll("[data-crm-view]").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+      document.getElementById("crmTableView").classList.toggle("hidden", view !== "table");
+      document.getElementById("crmPipelineView").classList.toggle("hidden", view !== "pipeline");
+    }
+
+    function startClientDrag(event, clientId) {
+      draggedClientId = clientId;
+      event.dataTransfer.setData("text/plain", String(clientId));
+    }
+
+    function allowPipelineDrop(event) {
+      event.preventDefault();
+    }
+
+    function dropClientCard(event, stage) {
+      event.preventDefault();
+      const id = Number(event.dataTransfer.getData("text/plain")) || draggedClientId;
+      if (!id) return;
+      moveClientStage(id, stage);
+      draggedClientId = null;
+    }
+
+    function moveClientStage(id, stage) {
+      const client = db.clients.find(item => item.id === id);
+      if (!client) return;
+
+      const previous = client.stage;
+      client.stage = stage;
+      client.nextAction = stage === "Viewing Scheduled"
+        ? "Confirm schedule"
+        : stage === "Negotiation"
+        ? "Prepare offer strategy"
+        : stage === "Under Offer"
+        ? "Coordinate legal review"
+        : stage === "Closed"
+        ? "Request testimonial"
+        : client.nextAction;
+
+      addActivity("Pipeline Moved", `${client.name} moved from ${previous} to ${stage}.`);
+      saveDB();
+    }
+
+    function renderPipelineBoard() {
+      const board = document.getElementById("pipelineBoard");
+
+      board.innerHTML = pipelineStages.map(stage => {
+        const stageClients = db.clients.filter(client => client.stage === stage);
         return `
-          <tr>
-            <td data-label="Client">${escapeHtml(client.name)}</td>
-            <td data-label="Type"><span class="status-badge status-${statusClass(client.type)}">${escapeHtml(client.type)}</span></td>
-            <td data-label="Strategy / Note">${escapeHtml(client.note)}</td>
-            <td data-label="Linked Assets">${linkedAssets}</td>
-            <td data-label="Action">
-              <div class="row-actions">
-                <button class="tiny-btn delete" onclick="deleteClient(${client.id})">Delete</button>
-              </div>
-            </td>
-          </tr>
+          <div class="pipeline-column" ondragover="allowPipelineDrop(event)" ondrop="dropClientCard(event, '${stage.replace(/'/g, "\\'")}')">
+            <div class="pipeline-head">
+              <strong>${escapeHtml(stage)}</strong>
+              <div class="pipeline-count">${stageClients.length}</div>
+            </div>
+
+            <div class="pipeline-stack">
+              ${stageClients.map(client => {
+                const linked = getClientLinkedPropertyNames(client);
+                return `
+                  <div class="pipeline-card" draggable="true" ondragstart="startClientDrag(event, ${client.id})">
+                    <strong>${escapeHtml(client.name)}</strong>
+                    <span>${escapeHtml(client.type)} • ${money(client.estimatedValue || 0)}</span>
+                    <span>${linked.length ? escapeHtml(linked[0]) : "No linked property"}</span>
+                    <span>${escapeHtml(client.nextAction || "Follow up")}</span>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
         `;
       }).join("");
     }
 
     function addDeal() {
       const title = document.getElementById("dealTitle").value.trim();
+      const propertyId = Number(document.getElementById("dealPropertySelect").value) || null;
+      const clientId = Number(document.getElementById("dealClientSelect").value) || null;
       const profit = parseFloat(document.getElementById("dealProfit").value);
       const closedDate = document.getElementById("dealDate").value;
+      const note = document.getElementById("dealNote").value.trim();
 
       if (!title || !profit) {
         showToast("Missing Fields", "Asset title and commission are required.");
@@ -3960,14 +5156,35 @@
       db.deals.unshift({
         id: Date.now(),
         title,
+        propertyId,
+        clientId,
         profit,
         currency: "$",
-        closedDate: closedDate || new Date().toISOString().slice(0, 10)
+        closedDate: closedDate || new Date().toISOString().slice(0, 10),
+        note: note || ""
       });
 
-      document.getElementById("dealTitle").value = "";
-      document.getElementById("dealProfit").value = "";
-      document.getElementById("dealDate").value = "";
+      if (propertyId) {
+        const property = db.houses.find(item => item.id === propertyId);
+        if (property) {
+          property.status = property.intent === "RENT" ? "RENTED" : "SOLD";
+          property.history.unshift(`Settlement logged on ${formatDate(closedDate || new Date().toISOString())}.`);
+        }
+      }
+
+      if (clientId) {
+        const client = db.clients.find(item => item.id === clientId);
+        if (client) {
+          client.stage = "Closed";
+          client.nextAction = "Request testimonial";
+        }
+      }
+
+      ["dealTitle", "dealProfit", "dealDate", "dealNote"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("dealPropertySelect").value = "";
+      document.getElementById("dealClientSelect").value = "";
 
       addActivity("Settlement Logged", `${title} added ${money(profit)} in commission.`);
       saveDB();
@@ -3983,21 +5200,20 @@
       const body = document.getElementById("settlementsTableBody");
       if (!db.deals.length) {
         body.innerHTML = `<tr><td colspan="4" class="empty-state">No settlements logged yet.</td></tr>`;
-        return;
+      } else {
+        body.innerHTML = db.deals.map(deal => `
+          <tr>
+            <td data-label="Closed Asset">${escapeHtml(deal.title)}</td>
+            <td data-label="Commission"><span class="status-badge status-sold">${money(deal.profit, deal.currency || "$")}</span></td>
+            <td data-label="Closed Date">${formatDate(deal.closedDate)}</td>
+            <td data-label="Action">
+              <div class="row-actions">
+                <button class="tiny-btn delete" onclick="deleteDeal(${deal.id})">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join("");
       }
-
-      body.innerHTML = db.deals.map(deal => `
-        <tr>
-          <td data-label="Closed Asset">${escapeHtml(deal.title)}</td>
-          <td data-label="Commission"><span class="status-badge status-sold">${money(deal.profit, deal.currency || "$")}</span></td>
-          <td data-label="Closed Date">${formatDate(deal.closedDate)}</td>
-          <td data-label="Action">
-            <div class="row-actions">
-              <button class="tiny-btn delete" onclick="deleteDeal(${deal.id})">Delete</button>
-            </div>
-          </td>
-        </tr>
-      `).join("");
     }
 
     function renderOpsPage() {
@@ -4033,11 +5249,230 @@
           </div>
         `).join("");
       }
+
+      renderAnalytics();
+    }
+
+    function renderAnalytics() {
+      const pipelineTotals = pipelineStages.map(stage => {
+        const total = db.clients
+          .filter(client => client.stage === stage)
+          .reduce((sum, client) => sum + Number(client.estimatedValue || 0), 0);
+        return { label: stage, value: total };
+      });
+
+      const maxPipeline = Math.max(1, ...pipelineTotals.map(item => item.value));
+      document.getElementById("pipelineValueBars").innerHTML = pipelineTotals.map(item => `
+        <div class="bar-row">
+          <div class="bar-meta">
+            <span>${escapeHtml(item.label)}</span>
+            <span>${money(item.value)}</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${(item.value / maxPipeline) * 100}%"></div>
+          </div>
+        </div>
+      `).join("");
+
+      const locationMap = {};
+      db.houses.forEach(property => {
+        locationMap[property.location] = (locationMap[property.location] || 0) + property.price;
+      });
+
+      const locationTotals = Object.keys(locationMap)
+        .map(location => ({ label: location, value: locationMap[location] }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 6);
+
+      const maxLocation = Math.max(1, ...locationTotals.map(item => item.value));
+      document.getElementById("locationValueBars").innerHTML = locationTotals.map(item => `
+        <div class="bar-row">
+          <div class="bar-meta">
+            <span>${escapeHtml(item.label)}</span>
+            <span>${money(item.value)}</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${(item.value / maxLocation) * 100}%"></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function openPropertyDrawer(id, archived = false) {
+      const property = getPropertyById(id, archived);
+      if (!property) return;
+
+      const linkedClients = property.linkedClientIds
+        .map(clientId => db.clients.find(client => client.id === clientId))
+        .filter(Boolean);
+
+      const availableClients = db.clients.filter(client => !property.linkedClientIds.includes(client.id));
+      const settlementReady = !archived && (property.status === "SOLD" || property.status === "RENTED");
+
+      document.getElementById("drawerTitle").innerText = property.addr;
+      document.getElementById("drawerSubtitle").innerText = `${property.type} • ${property.location} • Added by ${property.addedBy}`;
+
+      document.getElementById("drawerContent").innerHTML = `
+        <div class="drawer-image">
+          <img src="${escapeHtml(property.coverImage)}" alt="${escapeHtml(property.addr)}">
+        </div>
+
+        <div class="drawer-gallery">
+          ${getGallery(property).slice(0, 8).map(image => `<img src="${escapeHtml(image)}" alt="${escapeHtml(property.addr)}">`).join("")}
+        </div>
+
+        <div class="drawer-grid">
+          <div class="detail-card">
+            <strong>Valuation</strong>
+            <span>${money(property.price, property.currency)}</span>
+          </div>
+          <div class="detail-card">
+            <strong>Status</strong>
+            <span><span class="status-badge status-${archived ? "archived" : statusClass(property.status)}">${archived ? "ARCHIVED" : escapeHtml(property.status)}</span></span>
+          </div>
+          <div class="detail-card">
+            <strong>Intent</strong>
+            <span>${escapeHtml(property.intent)}</span>
+          </div>
+          <div class="detail-card">
+            <strong>Size</strong>
+            <span>${property.size ? property.size + " sqm" : "N/A"}</span>
+          </div>
+          <div class="detail-card">
+            <strong>Bedrooms</strong>
+            <span>${property.bedrooms || "N/A"}</span>
+          </div>
+          <div class="detail-card">
+            <strong>Bathrooms</strong>
+            <span>${property.bathrooms || "N/A"}</span>
+          </div>
+        </div>
+
+        <div class="drawer-section">
+          <h4>Description</h4>
+          <p>${escapeHtml(property.notes)}</p>
+        </div>
+
+        <div class="drawer-section">
+          <h4>Amenities</h4>
+          <p>${property.amenities.length ? escapeHtml(property.amenities.join(", ")) : "No amenities recorded yet."}</p>
+        </div>
+
+        <div class="drawer-section">
+          <h4>Wellness & Premium Features</h4>
+          <p>${property.wellnessFeatures.length ? escapeHtml(property.wellnessFeatures.join(", ")) : "No wellness features recorded yet."}</p>
+        </div>
+
+        <div class="drawer-section">
+          <h4>Linked Clients</h4>
+          ${linkedClients.length
+            ? `<ul>${linkedClients.map(client => `<li>${escapeHtml(client.name)} • ${escapeHtml(client.type)} • ${escapeHtml(client.stage)}</li>`).join("")}</ul>`
+            : `<p>No linked clients yet.</p>`
+          }
+
+          ${archived ? "" : `
+            <div class="drawer-linker">
+              <select id="drawerClientSelect">
+                <option value="">Attach client from CRM</option>
+                ${availableClients.map(client => `<option value="${client.id}">${escapeHtml(client.name)} • ${escapeHtml(client.type)}</option>`).join("")}
+              </select>
+              <button class="action-btn" onclick="linkSelectedClientToProperty(${property.id})">Attach</button>
+            </div>
+          `}
+        </div>
+
+        <div class="drawer-section">
+          <h4>History Log</h4>
+          ${property.history.length
+            ? `<ul>${property.history.map(entry => `<li>${escapeHtml(entry)}</li>`).join("")}</ul>`
+            : `<p>No history yet.</p>`
+          }
+        </div>
+
+        <div class="drawer-actions">
+          ${archived
+            ? `<button class="gold-btn" onclick="restoreProperty(${property.id}); closePropertyDrawer();">Restore Asset</button>`
+            : `<button class="gold-btn" onclick="editProperty(${property.id}); closePropertyDrawer();">Edit Asset</button>
+               <button class="ghost-btn" onclick="requestArchiveProperty(${property.id})">Archive Asset</button>
+               <button class="pill-btn" onclick="printPropertySheet(${property.id}, false)">Generate PDF</button>
+               <button class="pill-btn" onclick="copyPrivateLink(${property.id})">Share Private Link</button>`
+          }
+          ${settlementReady ? `<button class="pill-btn" onclick="prepareSettlementFromProperty(${property.id})">Move to Settlements</button>` : ""}
+        </div>
+      `;
+
+      document.getElementById("propertyDrawer").classList.add("open");
+    }
+
+    function closePropertyDrawer() {
+      document.getElementById("propertyDrawer").classList.remove("open");
+    }
+
+    function linkSelectedClientToProperty(propertyId) {
+      const select = document.getElementById("drawerClientSelect");
+      const clientId = Number(select.value);
+      if (!clientId) return;
+
+      const property = db.houses.find(item => item.id === propertyId);
+      const client = db.clients.find(item => item.id === clientId);
+      if (!property || !client) return;
+
+      if (!property.linkedClientIds.includes(clientId)) {
+        property.linkedClientIds.push(clientId);
+      }
+      if (!client.linkedPropertyIds.includes(propertyId)) {
+        client.linkedPropertyIds.push(propertyId);
+      }
+
+      property.history.unshift(`Linked to client ${client.name}.`);
+      addActivity("Client Linked", `${client.name} attached to ${property.addr}.`);
+      saveDB();
+      openPropertyDrawer(propertyId, false);
+    }
+
+    function prepareSettlementFromProperty(propertyId) {
+      const property = db.houses.find(item => item.id === propertyId);
+      if (!property) return;
+
+      document.getElementById("dealTitle").value = property.addr;
+      document.getElementById("dealPropertySelect").value = property.id;
+      document.getElementById("dealDate").value = new Date().toISOString().slice(0, 10);
+
+      const linkedClientId = property.linkedClientIds[0];
+      if (linkedClientId) document.getElementById("dealClientSelect").value = linkedClientId;
+
+      closePropertyDrawer();
+
+      const targetButton = Array.from(document.querySelectorAll(".dash-nav button"))
+        .find(btn => btn.getAttribute("onclick").includes("settlementsPage"));
+      if (targetButton) switchDashPage("settlementsPage", targetButton);
+
+      showToast("Settlement Ready", `${property.addr} has been prepared for settlement logging.`);
+    }
+
+    function renderNotifications() {
+      const unread = db.notifications.filter(item => !item.read).length;
+      document.getElementById("notificationBadge").innerText = unread;
+
+      const list = document.getElementById("notificationList");
+      if (!db.notifications.length) {
+        list.innerHTML = `<div class="empty-state">No notifications yet.</div>`;
+        return;
+      }
+
+      list.innerHTML = db.notifications.slice(0, 12).map(item => `
+        <div class="notification-item ${item.read ? "" : "unread"}">
+          <strong>${escapeHtml(item.title)}</strong>
+          <span>${escapeHtml(item.text)}</span>
+        </div>
+      `).join("");
     }
 
     function renderAll() {
       db.houses.forEach(normalizeProperty);
       db.archivedHouses.forEach(normalizeProperty);
+      db.clients.forEach(normalizeClient);
+
       renderHomeMetrics();
       renderHomeFeatured();
       renderCollectionPage();
@@ -4047,6 +5482,8 @@
       renderCRMPage();
       renderSettlementsPage();
       renderOpsPage();
+      renderNotifications();
+      renderAssistantMessages();
     }
 
     renderAll();
@@ -4057,14 +5494,26 @@
           closeConfirm();
           return;
         }
-        if (document.getElementById("publicModalOverlay").classList.contains("open")) {
+        if (document.getElementById("consultationOverlay").classList.contains("open")) {
+          closeConsultationModal();
+          return;
+        }
+        if (document.getElementById("propertyModalOverlay").classList.contains("open")) {
           closePublicProperty();
+          return;
+        }
+        if (document.getElementById("assistantPanel").classList.contains("open")) {
+          toggleAssistant(false);
           return;
         }
         if (document.getElementById("dashboardOverlay").classList.contains("open")) {
           closePropertyDrawer();
           closeDashboard();
         }
+      }
+
+      if (event.key === "Enter" && document.activeElement && document.activeElement.id === "assistantInput") {
+        sendAssistantMessage();
       }
     });
   </script>
