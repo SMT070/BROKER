@@ -3,245 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BrokerFlow — RE Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>SMT070 | Private Client Group</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #05080f; /* Your Obsidian Blue */
-            --surface: #0b121f;
-            --border: #1e293b;
-            --accent: #6366f1;
-            --text: #f1f5f9;
-            --muted: #64748b;
-            --green: #00FFBB;
-            --red: #ff3b5c;
+            --bg: #05080f; /* Your Obsidian Black */
+            --surface: #0d1117;
+            --border: #1c2128;
+            --gold: #d4af37; /* Champagne Gold */
+            --gold-muted: #997a1d;
+            --text: #ffffff;
+            --muted: #8b949e;
+            --white-glass: rgba(255, 255, 255, 0.03);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            padding: 20px;
-            padding-bottom: 100px;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            letter-spacing: -0.01em;
         }
 
-        header { margin-bottom: 30px; }
-        h1 { font-size: 28px; font-weight: 800; margin: 0; }
-        h1 span { color: var(--accent); }
-        p.subtitle { color: var(--muted); margin-top: 4px; font-size: 14px; }
-
-        /* Stats Row */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
+        h1, h2, h3, .luxury-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
         }
 
-        .stat-card {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
+        /* Luxury Navigation */
+        nav { 
+            display: flex; 
+            background: rgba(13, 17, 23, 0.8); 
+            backdrop-filter: blur(15px);
+            padding: 15px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            border-bottom: 1px solid var(--border); 
+            overflow-x: auto; 
+            gap: 12px; 
         }
 
-        .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-        .stat-value { font-size: 22px; font-weight: 800; margin-top: 5px; }
-
-        /* Input Section */
-        .form-container {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            margin-bottom: 30px;
+        nav button { 
+            background: transparent; 
+            border: 1px solid transparent; 
+            color: var(--muted); 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            font-size: 13px;
+            font-weight: 600; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap; 
+            cursor: pointer; 
+            transition: 0.3s ease;
         }
 
-        input, select {
-            width: 100%;
-            padding: 14px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: white;
-            margin-bottom: 12px;
-            font-size: 14px;
-            outline: none;
+        nav button.active { 
+            color: var(--gold); 
+            border-bottom: 1px solid var(--gold);
+            border-radius: 0;
         }
 
-        input:focus { border-color: var(--accent); }
+        .container { padding: 25px; max-width: 900px; margin: auto; }
 
-        .btn-add {
-            width: 100%;
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-weight: 800;
-            cursor: pointer;
-            font-size: 14px;
+        /* Dashboard Stats - Minimalist Luxury */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 35px; }
+        .stat-card { 
+            background: var(--surface); 
+            padding: 25px; 
+            border-radius: 2px; /* Sharp edges for luxury look */
+            border-left: 2px solid var(--gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .stat-label { font-size: 10px; color: var(--gold-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 2px; }
+        .stat-val { font-size: 28px; font-family: 'Cormorant Garamond', serif; font-weight: 700; margin-top: 8px; }
+
+        /* Sections */
+        .page { display: none; animation: fadeIn 0.6s ease; }
+        .page.active { display: block; }
+
+        /* Luxury Forms */
+        .form-box { 
+            background: var(--surface); 
+            padding: 25px; 
+            border-radius: 0; 
+            border: 1px solid var(--border); 
+            margin-bottom: 30px; 
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 15px; 
+            background: var(--bg); 
+            border: 1px solid var(--border); 
+            border-radius: 0; 
+            color: white; 
+            margin-bottom: 15px; 
+            font-size: 15px;
+        }
+        input:focus { border-color: var(--gold); }
+
+        .btn-add { 
+            width: 100%; 
+            background: var(--gold); 
+            color: black; 
+            border: none; 
+            padding: 18px; 
+            border-radius: 0; 
+            font-weight: 800; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer; 
         }
 
-        /* Property Grid */
-        .property-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+        /* Property Cards */
+        .card { 
+            background: var(--surface); 
+            border-bottom: 1px solid var(--border); 
+            padding: 25px 0; 
+            margin-bottom: 5px; 
+            position: relative; 
         }
-
-        .prop-card {
-            background: var(--surface);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .prop-info { padding: 20px; }
-        .prop-type { 
+        
+        .badge { 
             font-size: 10px; 
             font-weight: 800; 
+            letter-spacing: 1px;
+            color: var(--gold);
             text-transform: uppercase; 
-            background: rgba(99, 102, 241, 0.1); 
-            color: var(--accent);
-            padding: 4px 8px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 10px; 
         }
 
-        .prop-price { font-size: 24px; font-weight: 800; color: var(--green); margin-bottom: 5px; }
-        .prop-addr { font-size: 14px; color: var(--text); font-weight: 500; opacity: 0.9; }
+        .card-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; margin-bottom: 5px; }
+        .card-sub { font-size: 14px; color: var(--muted); }
+        .card-price { font-size: 22px; font-weight: 400; color: var(--gold); margin-top: 12px; }
+        .delete-icon { position: absolute; top: 25px; right: 0; color: var(--muted); cursor: pointer; font-size: 20px; }
 
-        .btn-delete {
-            margin-top: 15px;
-            background: none;
-            border: 1px solid #ff3b5c33;
-            color: var(--red);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Mobile Specific */
-        @media (max-width: 600px) {
-            .property-grid { grid-template-columns: 1fr; }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Broker<span>Flow</span></h1>
-        <p class="subtitle">Real Estate Portfolio Management</p>
-    </header>
+    <nav id="mainNav">
+        <button onclick="showPage('dash')" class="active">At a Glance</button>
+        <button onclick="showPage('portfolio')">The Collection</button>
+        <button onclick="showPage('clients')">Private Clients</button>
+        <button onclick="showPage('deals')">Settlements</button>
+    </nav>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-label">Properties</div>
-            <div class="stat-value" id="stat-count">0</div>
+    <div class="container">
+        
+        <div id="dash" class="page active">
+            <h1 style="font-size: 42px; margin-bottom: 5px;">Estate Command</h1>
+            <p style="color:var(--gold-muted); text-transform: uppercase; letter-spacing: 3px; font-size: 10px; margin-bottom: 40px;">Private Portfolio Management</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Portfolio Value</div>
+                    <div id="totalPortfolio" class="stat-val">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Commission</div>
+                    <div id="totalRevenue" class="stat-val">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Mandates</div>
+                    <div id="clientCount" class="stat-val">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Closed Assets</div>
+                    <div id="dealCount" class="stat-val">0</div>
+                </div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-label">Total Value</div>
-            <div class="stat-value" id="stat-value" style="color: var(--green);">$0</div>
+
+        <div id="portfolio" class="page">
+            <h2 style="font-size: 32px;">The Collection</h2>
+            <div class="form-box">
+                <input type="text" id="h-address" placeholder="Property Name or Address">
+                <input type="number" id="h-price" placeholder="Evaluation Price ($)">
+                <select id="h-status">
+                    <option value="For Acquisition">For Acquisition</option>
+                    <option value="Exclusive Lease">Exclusive Lease</option>
+                </select>
+                <button class="btn-add" onclick="addHouse()">Register Asset</button>
+            </div>
+            <div id="houseList"></div>
         </div>
+
+        <div id="clients" class="page">
+            <h2 style="font-size: 32px;">Private Clients</h2>
+            <div class="form-box">
+                <input type="text" id="c-name" placeholder="Full Name">
+                <input type="text" id="c-phone" placeholder="Direct Contact Line">
+                <input type="text" id="c-budget" placeholder="Investment Profile / Notes">
+                <button class="btn-add" onclick="addClient()">Add Client</button>
+            </div>
+            <div id="clientList"></div>
+        </div>
+
+        <div id="deals" class="page">
+            <h2 style="font-size: 32px;">Settlements</h2>
+            <div class="form-box">
+                <input type="text" id="d-title" placeholder="Asset Sold/Leased">
+                <input type="number" id="d-profit" placeholder="Settled Commission ($)">
+                <button class="btn-add" onclick="addDeal()">Record Settlement</button>
+            </div>
+            <div id="dealList"></div>
+        </div>
+
     </div>
-
-    <div class="form-container">
-        <h3 style="margin-top: 0; font-size: 16px;">Add New Listing</h3>
-        <input type="text" id="address" placeholder="Address (e.g., Eretria, Greece)">
-        <input type="number" id="price" placeholder="Price ($)">
-        <select id="type">
-            <option value="For Sale">For Sale</option>
-            <option value="Rental">Long-term Rental</option>
-            <option value="Airbnb">Airbnb Property</option>
-        </select>
-        <button class="btn-add" onclick="addProperty()">Add Property to List</button>
-    </div>
-
-    <div class="property-grid" id="grid">
-        </div>
 
     <script>
-        let properties = JSON.parse(localStorage.getItem('broker_data')) || [];
+        let db = JSON.parse(localStorage.getItem('broker_luxury_db')) || {
+            houses: [], clients: [], deals: []
+        };
 
-        function addProperty() {
-            const addr = document.getElementById('address').value;
-            const price = document.getElementById('price').value;
-            const type = document.getElementById('type').value;
-
-            if (!addr || !price) {
-                alert("Please enter address and price");
-                return;
-            }
-
-            const item = {
-                id: Date.now(),
-                address: addr,
-                price: parseFloat(price),
-                type: type
-            };
-
-            properties.unshift(item);
-            save();
-            
-            // Clear inputs
-            document.getElementById('address').value = '';
-            document.getElementById('price').value = '';
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            render();
         }
 
-        function deleteProperty(id) {
-            properties = properties.filter(p => p.id !== id);
+        function addHouse() {
+            const addr = document.getElementById('h-address').value;
+            const price = document.getElementById('h-price').value;
+            const status = document.getElementById('h-status').value;
+            if(!addr || !price) return;
+            db.houses.unshift({ id: Date.now(), addr, price: parseFloat(price), status });
+            save();
+            document.getElementById('h-address').value = ''; document.getElementById('h-price').value = '';
+        }
+
+        function addClient() {
+            const name = document.getElementById('c-name').value;
+            const phone = document.getElementById('c-phone').value;
+            const budget = document.getElementById('c-budget').value;
+            if(!name) return;
+            db.clients.unshift({ id: Date.now(), name, phone, budget });
+            save();
+            document.getElementById('c-name').value = ''; document.getElementById('c-phone').value = ''; document.getElementById('c-budget').value = '';
+        }
+
+        function addDeal() {
+            const title = document.getElementById('d-title').value;
+            const profit = document.getElementById('d-profit').value;
+            if(!title || !profit) return;
+            db.deals.unshift({ id: Date.now(), title, profit: parseFloat(profit) });
+            save();
+            document.getElementById('d-title').value = ''; document.getElementById('d-profit').value = '';
+        }
+
+        function remove(cat, id) {
+            db[cat] = db[cat].filter(i => i.id !== id);
             save();
         }
 
         function save() {
-            localStorage.setItem('broker_data', JSON.stringify(properties));
+            localStorage.setItem('broker_luxury_db', JSON.stringify(db));
             render();
         }
 
         function render() {
-            const grid = document.getElementById('grid');
-            const statCount = document.getElementById('stat-count');
-            const statValue = document.getElementById('stat-value');
-            
-            let totalVal = 0;
-            statCount.innerText = properties.length;
+            const pSum = db.houses.reduce((a, b) => a + b.price, 0);
+            const rSum = db.deals.reduce((a, b) => a + b.profit, 0);
+            document.getElementById('totalPortfolio').innerText = '$' + pSum.toLocaleString();
+            document.getElementById('totalRevenue').innerText = '$' + rSum.toLocaleString();
+            document.getElementById('clientCount').innerText = db.clients.length;
+            document.getElementById('dealCount').innerText = db.deals.length;
 
-            grid.innerHTML = properties.map(p => {
-                totalVal += p.price;
-                return `
-                    <div class="prop-card">
-                        <div class="prop-info">
-                            <div class="prop-type">${p.type}</div>
-                            <div class="prop-price">$${p.price.toLocaleString()}</div>
-                            <div class="prop-addr">${p.address}</div>
-                            <button class="btn-delete" onclick="deleteProperty(${p.id})">REMOVE LISTING</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            document.getElementById('houseList').innerHTML = db.houses.map(h => `
+                <div class="card">
+                    <div class="badge">${h.status}</div>
+                    <div class="card-title">${h.addr}</div>
+                    <div class="card-price">$${h.price.toLocaleString()}</div>
+                    <div class="delete-icon" onclick="remove('houses', ${h.id})">×</div>
+                </div>
+            `).join('');
 
-            statValue.innerText = `$${totalVal.toLocaleString()}`;
+            document.getElementById('clientList').innerHTML = db.clients.map(c => `
+                <div class="card">
+                    <div class="badge">PRIVATE CLIENT</div>
+                    <div class="card-title">${c.name}</div>
+                    <div class="card-sub">${c.phone}</div>
+                    <div class="card-sub" style="margin-top:10px; color:var(--gold)">${c.budget}</div>
+                    <div class="delete-icon" onclick="remove('clients', ${c.id})">×</div>
+                </div>
+            `).join('');
+
+            document.getElementById('dealList').innerHTML = db.deals.map(d => `
+                <div class="card">
+                    <div class="badge" style="color:var(--text)">SETTLED DEAL</div>
+                    <div class="card-title">${d.title}</div>
+                    <div class="card-price" style="color:var(--gold)">$${d.profit.toLocaleString()}</div>
+                    <div class="delete-icon" onclick="remove('deals', ${d.id})">×</div>
+                </div>
+            `).join('');
         }
 
-        // Initial Load
         render();
-
-        // Refresh sensor: If you add on one tab, it updates the other
-        window.addEventListener('storage', render);
     </script>
 </body>
 </html>
