@@ -808,6 +808,151 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 /* ─── MONO TAG ─── */
 .mono{font-family:"DM Mono",monospace;font-size:12px;color:var(--gold2);}
 
+/* ─── HAMBURGER / MOBILE SIDEBAR ─── */
+.hamburger{
+  display:none;
+  width:40px;height:40px;border-radius:var(--r3);
+  border:1px solid var(--white-line);
+  background:rgba(255,255,255,0.02);
+  place-items:center;font-size:18px;color:var(--text2);
+  transition:0.2s;flex-shrink:0;
+}
+.hamburger:hover{border-color:var(--gold-line);color:var(--gold2);}
+.sidebar-mobile-overlay{
+  display:none;position:fixed;inset:0;z-index:150;
+  background:rgba(5,4,3,0.75);backdrop-filter:blur(4px);
+}
+.sidebar-mobile-overlay.open{display:block;}
+.sidebar.mobile-open{display:flex!important;position:fixed;top:0;left:0;bottom:0;z-index:151;width:280px;animation:slideFromLeft 0.28s cubic-bezier(0.16,1,0.3,1);}
+@keyframes slideFromLeft{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+
+/* ─── GLOBAL SEARCH ─── */
+.global-search-wrap{
+  position:relative;
+  flex:1;max-width:340px;
+}
+.global-search{
+  width:100%;padding:10px 14px 10px 38px;
+  border-radius:var(--r3);
+  border:1px solid rgba(255,255,255,0.09);
+  background:rgba(255,255,255,0.025);
+  color:var(--text);outline:none;font-size:13px;
+  transition:0.2s;
+}
+.global-search:focus{border-color:var(--gold);background:rgba(201,144,62,0.04);}
+.global-search::placeholder{color:var(--muted2);}
+.search-icon{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-size:14px;color:var(--muted2);pointer-events:none;
+}
+.search-results-drop{
+  position:absolute;top:calc(100% + 8px);left:0;right:0;
+  background:linear-gradient(180deg,#1c1610,#140f0c);
+  border:1px solid var(--gold-line);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  z-index:200;
+  max-height:360px;overflow-y:auto;
+  display:none;
+}
+.search-results-drop.open{display:block;}
+.search-result-section{padding:10px 16px 6px;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold2);border-bottom:1px solid var(--white-line);}
+.search-result-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 16px;cursor:pointer;transition:0.15s;border-bottom:1px solid var(--white-line);
+}
+.search-result-item:last-child{border-bottom:none;}
+.search-result-item:hover{background:rgba(201,144,62,0.06);}
+.search-result-icon{
+  width:32px;height:32px;border-radius:8px;
+  border:1px solid var(--white-line);overflow:hidden;flex-shrink:0;
+  display:grid;place-items:center;font-size:14px;background:rgba(255,255,255,0.02);
+}
+.search-result-icon img{width:100%;height:100%;object-fit:cover;}
+.search-result-info strong{display:block;font-size:12.5px;color:var(--text);}
+.search-result-info span{font-size:11px;color:var(--muted);}
+.search-result-tag{
+  margin-left:auto;padding:3px 8px;border-radius:999px;
+  font-size:9.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  background:var(--gold4);color:var(--gold2);border:1px solid var(--gold-line2);
+  flex-shrink:0;
+}
+.search-empty{padding:24px;text-align:center;color:var(--muted);font-size:13px;}
+
+/* ─── DATA SAFETY BANNER ─── */
+.data-warning{
+  background:linear-gradient(90deg,rgba(201,74,62,0.12),rgba(201,74,62,0.04));
+  border:1px solid rgba(201,74,62,0.25);
+  border-radius:var(--r3);
+  padding:12px 16px;
+  display:none;align-items:center;gap:12px;
+  margin-bottom:18px;font-size:12.5px;color:var(--text2);
+}
+.data-warning.show{display:flex;}
+
+/* ─── COMMISSION CALCULATOR ─── */
+.comm-calc{
+  background:linear-gradient(135deg,rgba(201,144,62,0.07),rgba(201,144,62,0.02));
+  border:1px solid var(--gold-line2);
+  border-radius:var(--r);
+  padding:18px 20px;
+  margin-bottom:18px;
+}
+.comm-calc h4{font-family:"Playfair Display",serif;font-size:18px;color:var(--cream);margin-bottom:14px;}
+.comm-result{
+  display:flex;align-items:center;gap:20px;
+  padding:14px 18px;
+  border-radius:var(--r3);
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--white-line);
+  margin-top:12px;
+}
+.comm-result-val{
+  font-family:"Playfair Display",serif;
+  font-size:28px;color:var(--gold2);
+}
+.comm-result-label{font-size:11px;color:var(--muted);}
+
+/* ─── SHOWING LOG ─── */
+.showing-log-item{
+  padding:12px 14px;border-radius:var(--r3);
+  background:rgba(255,255,255,0.02);border:1px solid var(--white-line);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  margin-bottom:8px;
+}
+.showing-log-item:last-child{margin-bottom:0;}
+.showing-log-info strong{display:block;font-size:12.5px;color:var(--text);margin-bottom:2px;}
+.showing-log-info span{font-size:11px;color:var(--muted);}
+.showing-log-meta{text-align:right;flex-shrink:0;}
+.showing-log-meta .date{font-size:11px;color:var(--gold2);}
+.showing-log-meta .outcome{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* ─── STAT TREND ─── */
+.stat-trend{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:600;margin-top:6px;
+}
+.stat-trend.up{color:var(--green);}
+.stat-trend.down{color:var(--red);}
+.stat-trend.neutral{color:var(--muted);}
+
+/* ─── CLIENT MATCH ─── */
+.match-score{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 9px;border-radius:999px;font-size:10px;font-weight:700;
+}
+.match-high{background:var(--green2);color:#7dd4a0;border:1px solid rgba(78,158,108,0.25);}
+.match-mid{background:var(--amber2);color:#e8b96a;border:1px solid rgba(201,140,62,0.25);}
+.match-low{background:rgba(80,70,60,0.3);color:var(--muted);border:1px solid rgba(80,70,60,0.4);}
+
+/* ─── PREF TAGS ─── */
+.pref-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 9px;border-radius:6px;font-size:11px;
+  background:rgba(255,255,255,0.04);border:1px solid var(--white-line);
+  color:var(--text2);
+}
+
 /* ─── RESPONSIVE ─── */
 @media(max-width:1100px){
   .stats-grid{grid-template-columns:repeat(2,1fr);}
@@ -821,12 +966,16 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 @media(max-width:780px){
   .app-shell{grid-template-columns:1fr;}
   .sidebar{display:none;}
-  .content{padding:20px;}
+  .hamburger{display:grid;}
+  .global-search-wrap{max-width:none;flex:1;}
+  .content{padding:16px;}
   .stats-grid,.prop-grid,.fg2,.fg3,.split-2,.split-equal,.grid-2,.grid-3-1{grid-template-columns:1fr;}
   .pipeline-board{grid-template-columns:repeat(2,1fr);}
   .filters-5{grid-template-columns:1fr;}
   .page-header{flex-direction:column;align-items:flex-start;}
   .overview-hero{flex-direction:column;}
+  .topbar{padding:12px 16px;gap:10px;}
+  .topbar-left h1{font-size:18px;}
 }
 @media(max-width:900px){
   thead{display:none;}
@@ -841,10 +990,13 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 </head>
 <body>
 
+<!-- ─── MOBILE SIDEBAR OVERLAY ─── -->
+<div class="sidebar-mobile-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
 <div class="app-shell">
 
   <!-- ─── SIDEBAR ─── -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="mainSidebar">
     <div class="brand">
       <div class="brand-line">
         <div class="brand-gem">S</div>
@@ -895,11 +1047,20 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
   <section class="stage">
 
     <div class="topbar">
+      <button class="hamburger" onclick="openMobileSidebar()" title="Menu">☰</button>
       <div class="topbar-left">
         <h1 id="pageTitle">Dashboard</h1>
         <p id="pageSubtitle">Global Luxury Operations</p>
       </div>
+      <div class="global-search-wrap">
+        <span class="search-icon">⌕</span>
+        <input class="global-search" id="globalSearch" type="text" placeholder="Search properties, clients…" oninput="onGlobalSearch()" onfocus="onGlobalSearch()" onblur="setTimeout(()=>closeSearchDrop(),200)">
+        <div class="search-results-drop" id="searchDrop"></div>
+      </div>
       <div class="topbar-right" style="position:relative;">
+        <button class="icon-btn" onclick="exportJSON()" title="Backup Data">💾</button>
+        <button class="icon-btn" onclick="triggerImport()" title="Restore Backup">↑</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importJSON(event)">
         <button class="icon-btn" onclick="toggleNotifPanel()" title="Notifications">
           🔔
           <span class="notif-dot" id="notifDot" style="display:none;"></span>
@@ -919,6 +1080,7 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 
       <!-- ─── OVERVIEW ─── -->
       <div class="page active" id="page-overview">
+        <div class="data-warning" id="storageWarn"></div>
         <div class="overview-hero">
           <div>
             <h2>Good morning,<br>saDT Prestige.</h2>
@@ -939,21 +1101,25 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
             <div class="stat-label">Portfolio AUM</div>
             <div class="stat-val" id="ovAum">$0</div>
             <div class="stat-note">Full inventory valuation</div>
+            <div class="stat-trend up" id="ovAumTrend"></div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Active Listings</div>
             <div class="stat-val" id="ovActive">0</div>
             <div class="stat-note">Live in market</div>
+            <div class="stat-trend neutral" id="ovActiveTrend"></div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Pipeline Leads</div>
             <div class="stat-val" id="ovLeads">0</div>
             <div class="stat-note">CRM relationships</div>
+            <div class="stat-trend up" id="ovLeadsTrend"></div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Total Commission</div>
             <div class="stat-val" id="ovRevenue">$0</div>
             <div class="stat-note">Logged settlements</div>
+            <div class="stat-trend up" id="ovRevTrend"></div>
           </div>
         </div>
 
@@ -1044,27 +1210,29 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
           <div class="form-panel-inner">
             <div class="form-grid fg5" style="margin-bottom:14px;">
               <div class="field"><label>Property Address</label><input id="fAddr" type="text" placeholder="Eretria Villa, Herzliya"></div>
-              <div class="field"><label>Valuation</label><input id="fPrice" type="number" placeholder="2400000"></div>
+              <div class="field"><label>Valuation</label><input id="fPrice" type="number" placeholder="2400000" oninput="calcPricePerSqm()"></div>
               <div class="field"><label>Currency</label><select id="fCurrency"><option value="$">USD ($)</option><option value="₪">ILS (₪)</option><option value="€">EUR (€)</option></select></div>
               <div class="field"><label>Intent</label><select id="fIntent"><option value="BUY">BUY</option><option value="RENT">RENT</option></select></div>
               <div class="field"><label>Status</label><select id="fStatus"><option>ACTIVE</option><option>UNDER OFFER</option><option>RENTED</option><option>SOLD</option><option>PENDING</option></select></div>
             </div>
-            <div style="display:flex;gap:10px;margin-bottom:14px;">
+            <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center;">
               <button class="btn-outline btn-sm" onclick="toggleAdvFields()">⊕ More Fields</button>
               <button class="btn-gold" id="assetSubmitBtn" onclick="submitAsset()">List Asset</button>
               <button class="btn-ghost btn-sm" onclick="resetAssetForm()">Reset</button>
+              <span id="pricePerSqm" style="margin-left:auto;font-size:12px;color:var(--muted);display:none;">— <span id="pricePerSqmVal" style="color:var(--gold2);"></span> per sqm</span>
             </div>
             <div class="form-grid fg3 adv-fields" id="advFields">
               <div class="field"><label>Property Type</label><select id="fType"><option>Villa</option><option>Penthouse</option><option>Estate</option><option>Apartment</option></select></div>
               <div class="field"><label>Location / City</label><input id="fLocation" type="text" placeholder="Herzliya"></div>
-              <div class="field"><label>Size (sqm)</label><input id="fSize" type="number" placeholder="780"></div>
+              <div class="field"><label>Size (sqm)</label><input id="fSize" type="number" placeholder="780" oninput="calcPricePerSqm()"></div>
               <div class="field"><label>Bedrooms</label><input id="fBed" type="number" placeholder="5"></div>
               <div class="field"><label>Bathrooms</label><input id="fBath" type="number" placeholder="6"></div>
               <div class="field"><label>Owner / Seller</label><input id="fOwner" type="text" placeholder="Private Owner"></div>
               <div class="field"><label>Amenities</label><input id="fAmen" type="text" placeholder="Sea View, Pool, Smart Home"></div>
               <div class="field"><label>Wellness Features</label><input id="fWell" type="text" placeholder="Spa, Gym, Cold Plunge"></div>
               <div class="field"><label>Visibility</label><select id="fOffMarket"><option value="NO">Public Collection</option><option value="YES">Off-Market / Private</option></select></div>
-              <div class="field"><label>Cover Image URL</label><input id="fCover" type="text" placeholder="https://..."></div>
+              <div class="field"><label>Cover Image URL</label><input id="fCover" type="text" placeholder="https://..." oninput="previewCoverImg()"></div>
+              <div id="coverPreviewWrap" style="display:none;"><img id="coverPreview" src="" alt="Preview" style="width:100%;height:120px;object-fit:cover;border-radius:var(--r3);border:1px solid var(--white-line);margin-top:4px;"></div>
               <div class="field" style="grid-column:2/-1;"><label>Gallery URLs (comma or line separated)</label><textarea id="fGallery" placeholder="Paste multiple image URLs..."></textarea></div>
               <div class="field" style="grid-column:1/-1;"><label>Internal Notes</label><textarea id="fNotes" placeholder="Showing instructions, seller notes, strategy..."></textarea></div>
             </div>
@@ -1166,6 +1334,10 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
               <div class="field"><label>Next Action</label><input id="cNext" type="text" placeholder="Follow-up call"></div>
               <div class="field"><label>Source</label><input id="cSrc" type="text" placeholder="Referral"></div>
             </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+              <div class="field"><label>Must-Have Features</label><input id="cMustHave" type="text" placeholder="Sea View, Pool, 5+ Beds"></div>
+              <div class="field"><label>Nice-to-Have Features</label><input id="cNiceHave" type="text" placeholder="Gym, Cinema, Wine Room"></div>
+            </div>
             <button class="btn-gold" onclick="addClient()">Add Lead to CRM</button>
           </div>
         </div>
@@ -1202,6 +1374,28 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
       <div class="page" id="page-settlements">
         <div class="page-header">
           <div><h1>Settlements</h1><p>Closed deals, logged commission, full transaction history.</p></div>
+        </div>
+
+        <!-- Commission Calculator -->
+        <div class="comm-calc" style="margin-bottom:18px;">
+          <h4>⚖ Commission Calculator</h4>
+          <div class="form-grid fg4" style="margin-bottom:0;">
+            <div class="field"><label>Property Value</label><input id="calcVal" type="number" placeholder="18500000" oninput="calcCommission()"></div>
+            <div class="field"><label>Commission %</label><input id="calcPct" type="number" placeholder="2.5" step="0.1" value="2" oninput="calcCommission()"></div>
+            <div class="field"><label>Agent Split %</label><input id="calcSplit" type="number" placeholder="50" step="5" value="100" oninput="calcCommission()"></div>
+            <div class="field"><label>Currency</label><select id="calcCurr" onchange="calcCommission()"><option>$</option><option>₪</option><option>€</option></select></div>
+          </div>
+          <div class="comm-result" id="commResult" style="display:none;">
+            <div>
+              <div class="comm-result-val" id="commResultVal">$0</div>
+              <div class="comm-result-label">Your net commission</div>
+            </div>
+            <div style="margin-left:auto;text-align:right;">
+              <div style="font-size:12px;color:var(--muted);">Total deal: <span id="commResultTotal" style="color:var(--text2);"></span></div>
+              <div style="font-size:12px;color:var(--muted);">Co-agent share: <span id="commResultCo" style="color:var(--text2);"></span></div>
+            </div>
+            <button class="btn-outline btn-sm" onclick="useCalcResult()" style="flex-shrink:0;">Use This →</button>
+          </div>
         </div>
 
         <div class="panel" style="margin-bottom:18px;">
@@ -1334,9 +1528,14 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
   </div>
   <div class="drawer-scroll" id="drawerBody"></div>
   <div class="drawer-foot" id="drawerFoot"></div>
+  <div id="showingLogWrap" style="padding:0 22px 20px;display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <h4 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--cream);">Showing Log</h4>
+      <button class="btn-outline btn-sm" onclick="openAddShowing()">+ Log Showing</button>
+    </div>
+    <div id="showingLogList"></div>
+  </div>
 </aside>
-
-<!-- ─── PROPERTY MODAL (public view) ─── -->
 <div class="modal-overlay" id="propModalOverlay">
   <div class="modal-card property-modal">
     <div class="modal-media">
@@ -1364,7 +1563,7 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 <button class="ai-trigger" id="aiTrigger" onclick="toggleAI()">✦ AI Concierge</button>
 <div class="ai-panel" id="aiPanel">
   <div class="ai-head">
-    <div><h3>AI Concierge</h3><p>Inventory search, off-market access, pipeline insights.</p></div>
+    <div><h3>AI Concierge</h3><p>Powered by Claude — real intelligence for your portfolio.</p></div>
     <button class="btn-ghost btn-sm" onclick="toggleAI(false)">✕</button>
   </div>
   <div class="ai-chips">
@@ -1373,8 +1572,10 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
     <button class="ai-chip" onclick="quickAI('Show off-market assets')">Off-market</button>
     <button class="ai-chip" onclick="quickAI('Pipeline summary')">Pipeline</button>
     <button class="ai-chip" onclick="quickAI('Total AUM')">AUM</button>
+    <button class="ai-chip" onclick="quickAI('Match clients to properties')">Match Clients</button>
   </div>
   <div class="ai-msgs" id="aiMsgs"></div>
+  <div id="aiTyping" style="display:none;padding:6px 16px 0;font-size:12px;color:var(--muted);">✦ Thinking…</div>
   <div class="ai-input-row">
     <input class="ai-input" id="aiInput" type="text" placeholder="Ask anything about your portfolio...">
     <button class="btn-gold btn-sm" onclick="sendAI()">Send</button>
@@ -1481,6 +1682,7 @@ function normC(c){
   if(!c.estimatedValue)c.estimatedValue=0;if(!Array.isArray(c.linkedPropertyIds))c.linkedPropertyIds=[];
   if(!c.note)c.note="";if(!c.source)c.source="Manual";
   if(!c.phone)c.phone="-";if(!c.email)c.email="-";
+  if(!c.mustHave)c.mustHave="";if(!c.niceHave)c.niceHave="";
   if(!c.createdAt)c.createdAt=new Date().toISOString();
 }
 
@@ -1574,6 +1776,14 @@ function renderOverview(){
   $("ovActive").textContent=active;
   $("ovLeads").textContent=db.clients.length;
   $("ovRevenue").textContent=money(rev);
+
+  // Trend indicators (compare to rough baseline from seed data)
+  const prevAum=db._prevAum||aum;const prevActive=db._prevActive||active;
+  const prevLeads=db._prevLeads||db.clients.length;const prevRev=db._prevRev||rev;
+  setTrend("ovAumTrend",aum,prevAum);
+  setTrend("ovActiveTrend",active,prevActive);
+  setTrend("ovLeadsTrend",db.clients.length,prevLeads);
+  setTrend("ovRevTrend",rev,prevRev);
 
   const invB=$("ovInventoryBody");
   const slice=db.houses.slice(0,6);
@@ -1857,11 +2067,14 @@ function renderPropModal(){
 
 // ─────────────── DRAWER ───────────────
 function openDrawer(id,archived=false){
+  currentDrawerPropId=id;
   const h=archived?db.archived.find(x=>x.id===id):db.houses.find(x=>x.id===id);if(!h)return;
   const linkedC=h.linkedClientIds.map(cid=>db.clients.find(c=>c.id===cid)).filter(Boolean);
   const avail=db.clients.filter(c=>!h.linkedClientIds.includes(c.id));
+  // Find clients with preferences and score them
+  const matchingClients=db.clients.filter(c=>c.mustHave||c.niceHave).map(c=>({c,score:getMatchScore(c,h)})).filter(x=>x.score!==null).sort((a,b)=>b.score-a.score).slice(0,4);
   $("drawerTitle").textContent=h.addr;
-  $("drawerSub").textContent=`${h.type} · ${h.location} · Added by ${h.addedBy}`;
+  $("drawerSub").textContent=`${h.type} · ${h.location} · ${money(h.price,h.currency)} · Added by ${h.addedBy}`;
   $("drawerBody").innerHTML=`
     <div class="drawer-image"><img src="${esc(h.coverImage)}" alt="${esc(h.addr)}"></div>
     <div class="drawer-gallery">${getGallery(h).slice(0,8).map(s=>`<img src="${esc(s)}" alt="">`).join("")}</div>
@@ -1869,13 +2082,23 @@ function openDrawer(id,archived=false){
       <div class="detail-cell"><strong>Valuation</strong><span>${money(h.price,h.currency)}</span></div>
       <div class="detail-cell"><strong>Status</strong><span><span class="badge badge-${archived?"archived":sc(h.status)}">${archived?"ARCHIVED":esc(h.status)}</span></span></div>
       <div class="detail-cell"><strong>Intent</strong><span>${esc(h.intent)}</span></div>
-      <div class="detail-cell"><strong>Size</strong><span>${h.size?h.size+" sqm":"N/A"}</span></div>
+      <div class="detail-cell"><strong>Size</strong><span>${h.size?h.size+" sqm":"N/A"}${h.size&&h.price?` · <span style="color:var(--gold2);">${money(Math.round(h.price/h.size),h.currency)}/m²</span>`:""}</span></div>
       <div class="detail-cell"><strong>Bedrooms</strong><span>${h.bedrooms||"N/A"}</span></div>
       <div class="detail-cell"><strong>Bathrooms</strong><span>${h.bathrooms||"N/A"}</span></div>
     </div>
     <div class="drawer-section"><h4>Description</h4><p>${esc(h.notes)}</p></div>
     <div class="drawer-section"><h4>Amenities</h4><p>${h.amenities.length?esc(h.amenities.join(", ")):"None recorded."}</p></div>
     <div class="drawer-section"><h4>Wellness Features</h4><p>${h.wellnessFeatures.length?esc(h.wellnessFeatures.join(", ")):"None recorded."}</p></div>
+    ${matchingClients.length?`<div class="drawer-section">
+      <h4>Client Match</h4>
+      <div style="display:grid;gap:8px;">
+        ${matchingClients.map(({c,score})=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:var(--r3);border:1px solid var(--white-line);background:rgba(255,255,255,0.02);">
+            <div><strong style="font-size:12.5px;color:var(--text);">${esc(c.name)}</strong><br><span style="font-size:11px;color:var(--muted);">${esc(c.mustHave||"")||"Preference set"}</span></div>
+            ${renderMatchBadge(score)}
+          </div>`).join("")}
+      </div>
+    </div>`:""}
     <div class="drawer-section">
       <h4>Linked Clients</h4>
       ${linkedC.length?`<ul>${linkedC.map(c=>`<li>${esc(c.name)} · ${esc(c.type)} · ${esc(c.stage)}</li>`).join("")}</ul>`:`<p>No linked clients.</p>`}
@@ -1900,6 +2123,7 @@ function openDrawer(id,archived=false){
       ${h.status==="SOLD"||h.status==="RENTED"?`<button class="btn-ghost btn-sm" onclick="prepSettlement(${h.id})">→ Settlements</button>`:""}`;
   $("propertyDrawer").classList.add("open");
   $("drawerOverlay").classList.add("open");
+  renderShowingLog(h);
 }
 function closeDrawer(){$("propertyDrawer").classList.remove("open");$("drawerOverlay").classList.remove("open");}
 function linkClientToDrawerProp(propId){
@@ -1932,10 +2156,10 @@ function addClient(){
   const name=$("cName").value.trim();if(!name){showToast("Missing Fields","Client name is required.");return;}
   const propId=Number($("cProp").value)||null;
   const id=Date.now();
-  const c={id,name,type:$("cType").value,stage:$("cStage").value,nextAction:$("cNext").value.trim()||"Follow up",estimatedValue:parseFloat($("cVal").value)||0,linkedPropertyIds:propId?[propId]:[],note:$("cNote").value.trim()||"",source:$("cSrc").value.trim()||"Manual",phone:$("cPhone").value.trim()||"-",email:$("cEmail").value.trim()||"-",createdAt:new Date().toISOString()};
+  const c={id,name,type:$("cType").value,stage:$("cStage").value,nextAction:$("cNext").value.trim()||"Follow up",estimatedValue:parseFloat($("cVal").value)||0,linkedPropertyIds:propId?[propId]:[],note:$("cNote").value.trim()||"",source:$("cSrc").value.trim()||"Manual",phone:$("cPhone").value.trim()||"-",email:$("cEmail").value.trim()||"-",mustHave:$("cMustHave").value.trim()||"",niceHave:$("cNiceHave").value.trim()||"",createdAt:new Date().toISOString()};
   db.clients.unshift(c);
   if(propId){const h=db.houses.find(x=>x.id===propId);if(h&&!h.linkedClientIds.includes(id)){h.linkedClientIds.push(id);h.history.unshift(`Linked to client ${name}.`);}}
-  ["cName","cPhone","cVal","cEmail","cNote","cNext","cSrc"].forEach(id=>$(id).value="");
+  ["cName","cPhone","cVal","cEmail","cNote","cNext","cSrc","cMustHave","cNiceHave"].forEach(id=>$(id).value="");
   $("cType").value="VIP";$("cStage").value="Lead";$("cProp").value="";
   addActivity("Client Added",`${name} entered CRM as ${c.type}.`);saveDB();
 }
@@ -1952,11 +2176,12 @@ function renderCRM(){
   const body=$("crmBody");
   body.innerHTML=db.clients.length?db.clients.map(c=>{
     const linked=getCRMLinkedNames(c);
+    const prefTags=[...(c.mustHave?c.mustHave.split(",").map(s=>s.trim()).filter(Boolean):[])].slice(0,3);
     return`<tr>
       <td data-label="Client"><strong>${esc(c.name)}</strong><br><span style="font-size:11px;color:var(--muted);">${esc(c.phone)} · ${esc(c.email)}</span></td>
       <td data-label="Type"><span class="badge badge-${sc(c.type)}">${esc(c.type)}</span></td>
       <td data-label="Stage"><span class="badge badge-${sc(c.stage)}">${esc(c.stage)}</span></td>
-      <td data-label="Note"><span style="font-size:13px;">${esc(c.note)}</span><br><span style="font-size:11px;color:var(--muted);">Next: ${esc(c.nextAction)}</span></td>
+      <td data-label="Note"><span style="font-size:13px;">${esc(c.note)}</span><br><span style="font-size:11px;color:var(--muted);">Next: ${esc(c.nextAction)}</span>${prefTags.length?`<br><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;">${prefTags.map(t=>`<span class="pref-tag">★ ${esc(t)}</span>`).join("")}</div>`:""}</td>
       <td data-label="Linked">${linked.length?esc(linked.join(", ")):"None"}</td>
       <td data-label="Actions"><button class="btn-danger" onclick="deleteClient(${c.id})">Delete</button></td>
     </tr>`;
@@ -2090,7 +2315,245 @@ function exportCSV(){
   URL.revokeObjectURL(url);showToast("Export Ready","Inventory exported as CSV.");
 }
 
-// ─────────────── AI CONCIERGE ───────────────
+// ─────────────── MOBILE SIDEBAR ───────────────
+function openMobileSidebar(){
+  const sb=document.getElementById("mainSidebar");
+  const ov=document.getElementById("sidebarOverlay");
+  sb.classList.add("mobile-open");
+  ov.classList.add("open");
+}
+function closeMobileSidebar(){
+  const sb=document.getElementById("mainSidebar");
+  const ov=document.getElementById("sidebarOverlay");
+  sb.classList.remove("mobile-open");
+  ov.classList.remove("open");
+}
+
+// ─────────────── GLOBAL SEARCH ───────────────
+function onGlobalSearch(){
+  const q=$("globalSearch").value.trim().toLowerCase();
+  const drop=$("searchDrop");
+  if(!q){drop.classList.remove("open");drop.innerHTML="";return;}
+  const props=db.houses.filter(h=>h.addr.toLowerCase().includes(q)||h.location.toLowerCase().includes(q)||(h.type||"").toLowerCase().includes(q)).slice(0,4);
+  const clients=db.clients.filter(c=>c.name.toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.phone||"").toLowerCase().includes(q)).slice(0,3);
+  let html="";
+  if(props.length){
+    html+=`<div class="search-result-section">Properties</div>`;
+    props.forEach(h=>{
+      html+=`<div class="search-result-item" onclick="searchGoProperty(${h.id})">
+        <div class="search-result-icon"><img src="${esc(h.coverImage)}" alt=""></div>
+        <div class="search-result-info"><strong>${esc(h.addr)}</strong><span>${esc(h.location)} · ${money(h.price,h.currency)}</span></div>
+        <span class="search-result-tag">${esc(h.status)}</span>
+      </div>`;
+    });
+  }
+  if(clients.length){
+    html+=`<div class="search-result-section">Clients</div>`;
+    clients.forEach(c=>{
+      html+=`<div class="search-result-item" onclick="searchGoClient(${c.id})">
+        <div class="search-result-icon" style="font-size:16px;color:var(--gold2);">◻</div>
+        <div class="search-result-info"><strong>${esc(c.name)}</strong><span>${esc(c.stage)} · ${money(c.estimatedValue||0)}</span></div>
+        <span class="search-result-tag">${esc(c.type)}</span>
+      </div>`;
+    });
+  }
+  if(!html) html=`<div class="search-empty">No results for "${esc(q)}"</div>`;
+  drop.innerHTML=html;
+  drop.classList.add("open");
+}
+function closeSearchDrop(){$("searchDrop").classList.remove("open");}
+function searchGoProperty(id){
+  $("globalSearch").value="";closeSearchDrop();
+  switchPage("inventory",null);
+  setTimeout(()=>openDrawer(id,false),200);
+}
+function searchGoClient(id){
+  $("globalSearch").value="";closeSearchDrop();
+  switchPage("crm",null);
+}
+
+// ─────────────── DATA SAFETY: JSON EXPORT/IMPORT ───────────────
+function exportJSON(){
+  const data=JSON.stringify(db,null,2);
+  const blob=new Blob([data],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=`sadt-prestige-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("Backup Created","Full database exported as JSON. Keep this file safe.");
+}
+function triggerImport(){$("importFileInput").click();}
+function importJSON(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const parsed=JSON.parse(ev.target.result);
+      if(!parsed.houses&&!parsed.clients)throw new Error("Invalid backup file");
+      openConfirm({
+        title:"Restore Backup",
+        text:"This will replace all current data with the backup. This cannot be undone.",
+        btn:"Restore",
+        cb:()=>{
+          db=parsed;
+          db.houses=db.houses||[];db.archived=db.archived||[];
+          db.clients=db.clients||[];db.deals=db.deals||[];
+          db.activity=db.activity||[];db.notifications=db.notifications||[];
+          db.houses.forEach(norm);db.archived.forEach(norm);db.clients.forEach(normC);
+          saveDB();showToast("Backup Restored","Your data has been fully restored.");
+        }
+      });
+    }catch(err){showToast("Import Failed","Invalid or corrupt backup file.");}
+  };
+  reader.readAsText(file);
+  e.target.value="";
+}
+function checkStorageWarning(){
+  try{
+    const used=new Blob([localStorage.getItem(STORAGE_KEY)||""]).size;
+    const warn=$("storageWarn");
+    if(used>3*1024*1024){
+      warn.className="data-warning show";
+      warn.innerHTML=`⚠ Storage is getting large (${(used/1024/1024).toFixed(1)}MB). Consider exporting a backup. <button class="btn-outline btn-sm" onclick="exportJSON()" style="margin-left:auto;">Backup Now</button>`;
+    }
+  }catch(e){}
+}
+
+// ─────────────── COMMISSION CALCULATOR ───────────────
+function calcCommission(){
+  const val=parseFloat($("calcVal").value)||0;
+  const pct=parseFloat($("calcPct").value)||0;
+  const split=parseFloat($("calcSplit").value)||100;
+  const curr=$("calcCurr").value;
+  if(!val||!pct){$("commResult").style.display="none";return;}
+  const total=val*(pct/100);
+  const myShare=total*(split/100);
+  const coShare=total-myShare;
+  $("commResultVal").textContent=money(myShare,curr);
+  $("commResultTotal").textContent=money(total,curr);
+  $("commResultCo").textContent=money(coShare,curr);
+  $("commResult").style.display="flex";
+}
+function useCalcResult(){
+  const val=parseFloat($("calcVal").value)||0;
+  const pct=parseFloat($("calcPct").value)||0;
+  const split=parseFloat($("calcSplit").value)||100;
+  const total=val*(pct/100);
+  const myShare=total*(split/100);
+  $("dProfit").value=Math.round(myShare);
+  $("dCurr").value=$("calcCurr").value;
+  showToast("Calculator Applied","Commission amount pre-filled in the deal form below.");
+  $("dProfit").scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+// ─────────────── PRICE PER SQM ───────────────
+function calcPricePerSqm(){
+  const price=parseFloat($("fPrice").value)||0;
+  const size=parseFloat($("fSize").value)||0;
+  const el=$("pricePerSqm");
+  if(price>0&&size>0){
+    $("pricePerSqmVal").textContent=money(Math.round(price/size),$("fCurrency").value);
+    el.style.display="inline";
+  } else {el.style.display="none";}
+}
+
+// ─────────────── IMAGE PREVIEW ───────────────
+function previewCoverImg(){
+  const url=$("fCover").value.trim();
+  const wrap=$("coverPreviewWrap");
+  const img=$("coverPreview");
+  if(url){
+    img.src=url;
+    wrap.style.display="block";
+    img.onerror=()=>{wrap.style.display="none";};
+  } else {wrap.style.display="none";}
+}
+
+// ─────────────── SHOWING LOG ───────────────
+function openAddShowing(){
+  const propId=currentDrawerPropId;
+  if(!propId)return;
+  const h=db.houses.find(x=>x.id===propId)||db.archived.find(x=>x.id===propId);
+  if(!h)return;
+  const clientOpts=db.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  openConfirm({
+    title:"Log a Showing",
+    text:`Record a property showing for ${h.addr}. Enter: Client Name · Date · Outcome (e.g. "Daniel Harari · 2026-04-02 · Interested, follow up")`,
+    input:true,
+    placeholder:"Client · Date · Outcome",
+    btn:"Log Showing",
+    cb:(v)=>{
+      if(!v||!v.trim())return;
+      if(!Array.isArray(h.showings))h.showings=[];
+      const parts=v.split("·").map(s=>s.trim());
+      h.showings.unshift({id:Date.now(),client:parts[0]||v,date:parts[1]||new Date().toISOString().slice(0,10),outcome:parts[2]||"",loggedAt:new Date().toISOString()});
+      addActivity("Showing Logged",`${h.addr} — ${parts[0]||v}`);
+      saveDB();
+      renderShowingLog(h);
+    }
+  });
+}
+let currentDrawerPropId=null;
+function renderShowingLog(h){
+  const wrap=$("showingLogWrap");
+  if(!wrap)return;
+  if(!h){wrap.style.display="none";return;}
+  wrap.style.display="block";
+  const list=$("showingLogList");
+  if(!h.showings||!h.showings.length){
+    list.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:8px 0;">No showings logged yet.</div>`;
+    return;
+  }
+  list.innerHTML=h.showings.slice(0,8).map(s=>`
+    <div class="showing-log-item">
+      <div class="showing-log-info">
+        <strong>${esc(s.client)}</strong>
+        <span>${esc(s.outcome||"No outcome noted")}</span>
+      </div>
+      <div class="showing-log-meta">
+        <div class="date">${esc(s.date)}</div>
+      </div>
+    </div>`).join("");
+}
+
+// ─────────────── TREND INDICATORS ───────────────
+function getTrend(current,prev){
+  if(!prev||prev===0)return{cls:"neutral",text:"—"};
+  const pct=Math.round((current-prev)/prev*100);
+  if(pct>0)return{cls:"up",text:`↑ ${pct}% this month`};
+  if(pct<0)return{cls:"down",text:`↓ ${Math.abs(pct)}% this month`};
+  return{cls:"neutral",text:"No change"};
+}
+function setTrend(elId,current,prev){
+  const el=$(elId);if(!el)return;
+  const t=getTrend(current,prev);
+  el.className=`stat-trend ${t.cls}`;
+  el.textContent=t.text;
+}
+
+// ─────────────── CLIENT PREFERENCE MATCHING ───────────────
+function getMatchScore(client,house){
+  if(!client.mustHave&&!client.niceHave)return null;
+  const allFeatures=[...(house.amenities||[]),...(house.wellnessFeatures||[]),house.notes||""].join(" ").toLowerCase();
+  const must=(client.mustHave||"").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
+  const nice=(client.niceHave||"").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
+  if(!must.length&&!nice.length)return null;
+  const mustHits=must.filter(m=>allFeatures.includes(m)||m.split(" ").some(w=>allFeatures.includes(w)));
+  const niceHits=nice.filter(n=>allFeatures.includes(n)||n.split(" ").some(w=>allFeatures.includes(w)));
+  const mustScore=must.length?mustHits.length/must.length:1;
+  const niceScore=nice.length?niceHits.length/nice.length:0;
+  return Math.round((mustScore*0.7+niceScore*0.3)*100);
+}
+function renderMatchBadge(score){
+  if(score===null)return"";
+  if(score>=70)return`<span class="match-score match-high">★ ${score}% match</span>`;
+  if(score>=40)return`<span class="match-score match-mid">★ ${score}% match</span>`;
+  return`<span class="match-score match-low">★ ${score}% match</span>`;
+}
+
+// ─────────────── AI CONCIERGE (Real Claude API) ───────────────
 function toggleAI(force){
   const p=$("aiPanel"),t=$("aiTrigger");
   const open=typeof force==="boolean"?force:!p.classList.contains("open");
@@ -2099,32 +2562,61 @@ function toggleAI(force){
   if(open)renderAI();
 }
 function renderAI(){
-  $("aiMsgs").innerHTML=aiMsgs.map(m=>`<div class="ai-bubble ${m.role==="bot"?"bot":"user"}">${esc(m.text)}</div>`).join("");
+  $("aiMsgs").innerHTML=aiMsgs.map(m=>`<div class="ai-bubble ${m.role==="bot"?"bot":"user"}">${m.html||esc(m.text)}</div>`).join("");
   $("aiMsgs").scrollTop=$("aiMsgs").scrollHeight;
 }
 function quickAI(q){$("aiInput").value=q;sendAI();}
-function sendAI(){
+async function sendAI(){
   const inp=$("aiInput"),msg=inp.value.trim();if(!msg)return;
   aiMsgs.push({role:"user",text:msg});inp.value="";
-  aiMsgs.push({role:"bot",text:buildAIResponse(msg)});
+  renderAI();
+  $("aiTyping").style.display="block";
+  try{
+    const portfolioContext=buildPortfolioContext();
+    const response=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        system:`You are the AI Concierge for saDT PRESTIGE, a luxury real estate command center. You have full access to the agent's live portfolio data below. Answer questions about properties, clients, pipeline, AUM, commissions, and off-market assets. Be concise, professional, and luxury-focused. Format numbers clearly. When listing properties or clients, use bullet points. Never make up data not in the context.
+
+LIVE PORTFOLIO DATA:
+${portfolioContext}`,
+        messages:aiMsgs.filter(m=>m.role!=="system").map(m=>({role:m.role==="bot"?"assistant":"user",content:m.text}))
+      })
+    });
+    const data=await response.json();
+    const text=data.content?.[0]?.text||"I'm having trouble responding right now. Please try again.";
+    const html=text.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/•/g,"•");
+    aiMsgs.push({role:"bot",text,html});
+  }catch(err){
+    aiMsgs.push({role:"bot",text:"Connection issue — please check your network and try again.",html:null});
+  }
+  $("aiTyping").style.display="none";
   renderAI();
 }
-function buildAIResponse(msg){
-  const t=msg.toLowerCase();
-  if(t.includes("aum")||t.includes("total value")){const v=db.houses.reduce((s,h)=>s+h.price,0);return`Total portfolio AUM is ${money(v)}. You have ${db.houses.length} properties across ${[...new Set(db.houses.map(h=>h.location))].length} locations.`;}
-  if(t.includes("pipeline")){const s=STAGES.map(st=>{const v=db.clients.filter(c=>c.stage===st).reduce((sum,c)=>sum+Number(c.estimatedValue||0),0);return`${st}: ${money(v)}`;});return"Pipeline breakdown:\n"+s.join(" · ");}
-  if(t.includes("off-market")||t.includes("private")){const p=db.houses.filter(h=>h.offMarket);return p.length?`Off-market assets: `+p.map(h=>`${h.addr} (${money(h.price,h.currency)})`).join(" · "):"No off-market assets currently listed.";}
-  if(t.includes("under offer")){const p=db.houses.filter(h=>h.status==="UNDER OFFER");return p.length?"Under Offer: "+p.map(h=>h.addr).join(", "):"Nothing currently under offer.";}
-  let m=[...db.houses];
-  if(t.includes("rent"))m=m.filter(h=>h.intent==="RENT");
-  if(t.includes("buy"))m=m.filter(h=>h.intent==="BUY");
-  if(t.includes("sea")||t.includes("beach"))m=m.filter(h=>[...h.amenities,...h.wellnessFeatures,h.notes].join(" ").toLowerCase().match(/sea|beach/));
-  if(t.includes("tel aviv"))m=m.filter(h=>h.location.toLowerCase().includes("tel aviv"));
-  if(t.includes("caesarea"))m=m.filter(h=>h.location.toLowerCase().includes("caesarea"));
-  if(t.includes("herzliya"))m=m.filter(h=>h.location.toLowerCase().includes("herzliya"));
-  m=m.filter(h=>["ACTIVE","UNDER OFFER","PENDING"].includes(h.status)).slice(0,4);
-  if(m.length)return"Matching properties: "+m.map(h=>`${h.addr} (${money(h.price,h.currency)})`).join(" · ");
-  return"I can search inventory, summarise your pipeline, show off-market assets, check AUM, or look up any property. Try asking for a specific city, type, or status.";
+function buildPortfolioContext(){
+  const aum=db.houses.reduce((s,h)=>s+h.price,0);
+  const rev=db.deals.reduce((s,d)=>s+d.profit,0);
+  const props=db.houses.map(h=>`- ${h.addr} | ${h.location} | ${h.type} | ${money(h.price,h.currency)} | ${h.status} | ${h.intent} | ${h.bedrooms}bed/${h.bathrooms}bath | ${h.size}sqm | Amenities: ${h.amenities.join(", ")} | Off-market: ${h.offMarket?"YES":"NO"}`).join("\n");
+  const archived=db.archived.length?`Archived (${db.archived.length}): `+db.archived.map(h=>h.addr).join(", "):"";
+  const clients=db.clients.map(c=>`- ${c.name} | ${c.type} | Stage: ${c.stage} | Budget: ${money(c.estimatedValue||0)} | Note: ${c.note||""} | MustHave: ${c.mustHave||""} | NiceHave: ${c.niceHave||""}`).join("\n");
+  const deals=db.deals.map(d=>`- ${d.title} | ${money(d.profit,d.currency)} | ${d.closedDate}`).join("\n");
+  const pipeline=STAGES.map(s=>{const v=db.clients.filter(c=>c.stage===s).reduce((sum,c)=>sum+Number(c.estimatedValue||0),0);return`${s}: ${db.clients.filter(c=>c.stage===s).length} clients (${money(v)})`;}).join(" | ");
+  return `Portfolio AUM: ${money(aum)} | Total Commission: ${money(rev)} | ${db.houses.length} active properties | ${db.clients.length} clients | ${db.deals.length} closed deals
+
+PROPERTIES:
+${props}
+${archived}
+
+CLIENTS:
+${clients}
+
+DEALS:
+${deals}
+
+PIPELINE: ${pipeline}`;
 }
 
 // ─────────────── RENDER ALL ───────────────
@@ -2137,6 +2629,7 @@ function renderAll(){
   renderSettlements();
   renderOps();
   renderNotifs();
+  checkStorageWarning();
 }
 renderAll();
 
@@ -2148,6 +2641,8 @@ document.addEventListener("keydown",e=>{
     if($("propertyDrawer").classList.contains("open")){closeDrawer();return;}
     if($("aiPanel").classList.contains("open")){toggleAI(false);$("aiTrigger").style.display="block";return;}
     if($("notifPanel").classList.contains("open")){$("notifPanel").classList.remove("open");return;}
+    if($("sidebarOverlay").classList.contains("open")){closeMobileSidebar();return;}
+    if($("searchDrop").classList.contains("open")){closeSearchDrop();return;}
   }
   if(e.key==="Enter"&&document.activeElement&&document.activeElement.id==="aiInput"){sendAI();}
 });
