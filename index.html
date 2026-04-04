@@ -10,9 +10,15 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ─── PASTE YOUR SUPABASE CREDENTIALS HERE ───
-const SUPABASE_URL  = "https://YOUR_PROJECT.supabase.co";
-const SUPABASE_ANON = "YOUR_ANON_KEY";
-const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const SUPABASE_URL  = "https://gcidoukfomnmofaybvsm.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjaWRvdWtmb21ubW9mYXlidnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTYzNTgsImV4cCI6MjA5MDg3MjM1OH0.O9ux2csoRN7ltuIrlYK1mfrwbwIdyy5mSqeP14893M8";
+
+// Safe init — won't crash if credentials are placeholders
+let _sb = null;
+const _SUPABASE_READY = !SUPABASE_URL.includes("YOUR_PROJECT") && SUPABASE_ANON !== "YOUR_ANON_KEY";
+try{
+  if(_SUPABASE_READY) _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+}catch(e){ console.warn("Supabase not configured:", e); }
 </script>
 <style>
 :root{
@@ -3091,7 +3097,8 @@ function deleteClient(id){
   db.houses.forEach(h=>{h.linkedClientIds=h.linkedClientIds.filter(x=>x!==id);});
   db.clients=db.clients.filter(c=>c.id!==id);
   addActivity("Client Removed","A client was removed from CRM.");
-  _sb.from("clients").delete().eq("id",id).then(()=>renderAll());
+  if(_sb) _sb.from("clients").delete().eq("id",id).then(()=>renderAll());
+  else renderAll();
 }
 function getCRMLinkedNames(c){return c.linkedPropertyIds.map(pid=>db.houses.find(h=>h.id===pid)).filter(Boolean).map(h=>h.addr);}
 function renderCRM(){
@@ -3173,7 +3180,8 @@ function addDeal(){
 function deleteDeal(id){
   db.deals=db.deals.filter(d=>d.id!==id);
   addActivity("Deal Removed","A settlement entry was removed.");
-  _sb.from("deals").delete().eq("id",id).then(()=>renderAll());
+  if(_sb) _sb.from("deals").delete().eq("id",id).then(()=>renderAll());
+  else renderAll();
 }
 function renderSettlements(){
   renderCRMPropOpts();
@@ -3653,7 +3661,8 @@ function editTask(id){
 function deleteTask(id){
   db.tasks=db.tasks.filter(t=>t.id!==id);
   addActivity("Task Removed","A task was deleted.");
-  _sb.from("tasks").delete().eq("id",id).then(()=>renderAll());
+  if(_sb) _sb.from("tasks").delete().eq("id",id).then(()=>renderAll());
+  else renderAll();
 }
 function toggleTaskDone(id){
   const t=db.tasks.find(x=>x.id===id);if(!t)return;
@@ -4071,8 +4080,6 @@ const LOCKOUT_MS       = 5 * 60 * 1000;
 
 // Users now live in Supabase — cached in memory after first load
 let _cachedUsers = null;
-
-const _SUPABASE_READY = SUPABASE_URL.includes("YOUR_PROJECT") === false && SUPABASE_ANON !== "YOUR_ANON_KEY";
 
 async function loadUsers(){
   if(_cachedUsers) return _cachedUsers;
