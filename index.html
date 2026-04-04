@@ -10,8 +10,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ─── PASTE YOUR SUPABASE CREDENTIALS HERE ───
-const SUPABASE_URL  = "https://smt070.github.io/BROKER/";
-const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjaWRvdWtmb21ubW9mYXlidnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTYzNTgsImV4cCI6MjA5MDg3MjM1OH0.O9ux2csoRN7ltuIrlYK1mfrwbwIdyy5mSqeP14893M8";
+const SUPABASE_URL  = "https://YOUR_PROJECT.supabase.co";
+const SUPABASE_ANON = "YOUR_ANON_KEY";
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 <style>
@@ -2435,6 +2435,11 @@ let editingTaskId = null;
 
 // ─────────────── SUPABASE DB ───────────────
 async function loadDB(){
+  if(!_SUPABASE_READY){
+    db = clone(seedData);
+    db.houses.forEach(norm); db.archived.forEach(norm); db.clients.forEach(normC);
+    return;
+  }
   try{
     const [propsRes,clientsRes,dealsRes,tasksRes,actRes,profRes] = await Promise.all([
       _sb.from("properties").select("*").order("created_at",{ascending:false}),
@@ -2515,6 +2520,7 @@ async function saveDB(){
 }
 
 async function saveProp(h){
+  if(!_SUPABASE_READY){renderAll();return;}
   const row = propToRow(h);
   if(h.id && typeof h.id === "number" && h.id > 1000000000000){
     // New item (Date.now() id) — insert
@@ -2527,6 +2533,7 @@ async function saveProp(h){
   }
 }
 async function saveClient(c){
+  if(!_SUPABASE_READY){renderAll();return;}
   const row = {
     name:c.name, phone:c.phone, email:c.email, type:c.type, stage:c.stage,
     next_action:c.nextAction, budget:String(c.estimatedValue||0), notes:c.note,
@@ -2542,6 +2549,7 @@ async function saveClient(c){
   }
 }
 async function saveDeal(d){
+  if(!_SUPABASE_READY){renderAll();return;}
   const row = {title:d.title,property_id:d.propertyId||null,client_id:d.clientId||null,
     profit:d.profit,currency:d.currency,closed_date:d.closedDate,notes:d.note||""};
   if(d.id && typeof d.id === "number" && d.id > 1000000000000){
@@ -2553,6 +2561,7 @@ async function saveDeal(d){
   }
 }
 async function saveTask(t){
+  if(!_SUPABASE_READY){renderAll();return;}
   const row = {title:t.title,assignee:t.assignee,priority:t.priority,category:t.category,
     due:t.due||null,property_id:t.propId||null,client_id:t.clientId||null,notes:t.notes,done:t.done};
   if(t.id && typeof t.id === "number" && t.id > 1000000000000){
@@ -2564,9 +2573,11 @@ async function saveTask(t){
   }
 }
 async function saveActivity(title,detail){
+  if(!_SUPABASE_READY) return;
   await _sb.from("activity").insert({title,detail});
 }
 async function saveProfileToDB(p){
+  if(!_SUPABASE_READY) return;
   await _sb.from("profile").upsert({id:1,name:p.name,role:p.role,brand:p.brand,tagline:p.tagline,pic_url:p.picUrl,updated_at:new Date().toISOString()});
 }
 function clone(v){return JSON.parse(JSON.stringify(v));}
@@ -4061,14 +4072,29 @@ const LOCKOUT_MS       = 5 * 60 * 1000;
 // Users now live in Supabase — cached in memory after first load
 let _cachedUsers = null;
 
+const _SUPABASE_READY = SUPABASE_URL.includes("YOUR_PROJECT") === false && SUPABASE_ANON !== "YOUR_ANON_KEY";
+
 async function loadUsers(){
   if(_cachedUsers) return _cachedUsers;
-  const {data,error} = await _sb.from("users").select("*");
-  if(error||!data||!data.length){
-    // Fallback defaults if Supabase unreachable
-    _cachedUsers=[{id:"u1",name:"Samir",password:"Samir2024!",code:"112233",role:"Admin",active:true},{id:"u2",name:"Sam",password:"Sam2024!",code:"445566",role:"Member",active:true}];
-  } else {
+  if(!_SUPABASE_READY){
+    _cachedUsers=[
+      {id:"u1",name:"Samir",password:"Samir2024!",code:"112233",role:"Admin",active:true},
+      {id:"u2",name:"Sam",  password:"Sam2024!",  code:"445566",role:"Member",active:true}
+    ];
+    return _cachedUsers;
+  }
+  try{
+    const {data,error} = await Promise.race([
+      _sb.from("users").select("*"),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),5000))
+    ]);
+    if(error||!data||!data.length) throw new Error("no data");
     _cachedUsers = data;
+  }catch(e){
+    _cachedUsers=[
+      {id:"u1",name:"Samir",password:"Samir2024!",code:"112233",role:"Admin",active:true},
+      {id:"u2",name:"Sam",  password:"Sam2024!",  code:"445566",role:"Member",active:true}
+    ];
   }
   return _cachedUsers;
 }
@@ -4146,34 +4172,40 @@ async function submitLogin(){
   if(codeVal.length<6){ showLoginError("Please enter the full 6-digit authentication code."); $("ac0").focus(); return; }
 
   btn.textContent="Checking…"; btn.disabled=true;
-  const users = await getActiveUsers();
-  const user = users.find(u=>
-    u.name.toLowerCase()===nameVal.toLowerCase() &&
-    u.password===passVal &&
-    String(u.code)===codeVal
-  );
+  try{
+    const users = await loadUsers();
+    const user = users.find(u=>
+      u.name.toLowerCase()===nameVal.toLowerCase() &&
+      u.password===passVal &&
+      String(u.code)===codeVal
+    );
 
-  if(user){
-    loginAttempts=0;
-    localStorage.removeItem("SADT_LOCKOUT");
-    btn.textContent="✓ Access Granted";
-    btn.style.background="linear-gradient(135deg,#7dd4a0,#4e9e6c)";
-    await loadDB();
-    setTimeout(()=>showApp(user.name,true,user.role),700);
-  } else {
-    btn.textContent="Enter Command Center"; btn.disabled=false; btn.style.background="";
-    loginAttempts++;
-    const remaining=MAX_ATTEMPTS-loginAttempts;
-    setCodeError(true);
-    setTimeout(()=>{ setCodeError(false); clearAuthCode(); $("ac0").focus(); },800);
-    if(loginAttempts>=MAX_ATTEMPTS){
-      lockoutUntil=Date.now()+LOCKOUT_MS;
-      localStorage.setItem("SADT_LOCKOUT",String(lockoutUntil));
-      showLockOverlay(); startLockTimer();
+    if(user){
+      loginAttempts=0;
+      localStorage.removeItem("SADT_LOCKOUT");
+      btn.textContent="✓ Access Granted";
+      btn.style.background="linear-gradient(135deg,#7dd4a0,#4e9e6c)";
+      await loadDB();
+      setTimeout(()=>showApp(user.name,true,user.role),700);
     } else {
-      showLoginError(remaining===1?"Invalid credentials. 1 attempt remaining before lockout.":`Invalid name, password, or code. ${remaining} attempts remaining.`);
-      attEl.textContent=`${loginAttempts} / ${MAX_ATTEMPTS} attempts used`;
+      btn.textContent="Enter Command Center"; btn.disabled=false; btn.style.background="";
+      loginAttempts++;
+      const remaining=MAX_ATTEMPTS-loginAttempts;
+      setCodeError(true);
+      setTimeout(()=>{ setCodeError(false); clearAuthCode(); $("ac0").focus(); },800);
+      if(loginAttempts>=MAX_ATTEMPTS){
+        lockoutUntil=Date.now()+LOCKOUT_MS;
+        localStorage.setItem("SADT_LOCKOUT",String(lockoutUntil));
+        showLockOverlay(); startLockTimer();
+      } else {
+        showLoginError(remaining===1?"Invalid credentials. 1 attempt remaining before lockout.":`Invalid name, password, or code. ${remaining} attempts remaining.`);
+        attEl.textContent=`${loginAttempts} / ${MAX_ATTEMPTS} attempts used`;
+      }
     }
+  }catch(err){
+    console.error("Login error:",err);
+    btn.textContent="Enter Command Center"; btn.disabled=false; btn.style.background="";
+    showLoginError("Connection error. Please try again.");
   }
 }
 
