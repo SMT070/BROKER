@@ -55,7 +55,246 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;border:none;background:none}
 .hidden{display:none!important}
 
-/* ─── NOISE OVERLAY ─── */
+/* ─── LOGIN SCREEN ─── */
+#loginScreen{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(201,144,62,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 20%, rgba(201,144,62,0.08) 0%, transparent 50%),
+    linear-gradient(160deg,#0d0906 0%,#110d09 50%,#0a0805 100%);
+  padding:20px;
+}
+#loginScreen::before{
+  content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:0.03;
+}
+.login-box{
+  width:min(460px,100%);
+  background:linear-gradient(180deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.02) 100%);
+  border:1px solid rgba(201,144,62,0.2);
+  border-radius:28px;
+  padding:48px 44px 44px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.06);
+  animation:loginFadeIn 0.5s cubic-bezier(0.16,1,0.3,1);
+  position:relative;
+}
+@keyframes loginFadeIn{from{opacity:0;transform:translateY(24px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.login-gem{
+  width:56px;height:56px;margin:0 auto 24px;
+  background:linear-gradient(135deg,#e8b96a,#c9903e);
+  border-radius:14px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 32px rgba(201,144,62,0.35);
+}
+.login-gem svg{width:32px;height:32px;}
+.login-title{
+  font-family:"Playfair Display",serif;font-size:36px;font-weight:700;
+  color:#f2e8d5;text-align:center;line-height:1.05;margin-bottom:8px;
+}
+.login-sub{
+  font-size:13px;color:#8a7a68;text-align:center;
+  margin-bottom:36px;line-height:1.6;
+}
+.login-fields{display:flex;flex-direction:column;gap:16px;margin-bottom:10px;}
+.login-field{display:flex;flex-direction:column;gap:8px;}
+.login-field label{
+  font-size:10px;letter-spacing:0.22em;text-transform:uppercase;
+  color:#e8b96a;font-weight:600;
+}
+.login-field input{
+  padding:14px 16px;border-radius:12px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);
+  color:#ede0cc;font-size:14px;outline:none;
+  transition:border-color 0.2s,background 0.2s;
+  font-family:"DM Sans",sans-serif;
+}
+.login-field input:focus{border-color:rgba(201,144,62,0.5);background:rgba(201,144,62,0.05);}
+.login-field input::placeholder{color:#6a5e52;}
+.login-auth-hint{
+  font-size:11px;color:#6a5e52;margin-top:4px;line-height:1.5;
+}
+.login-btn{
+  width:100%;padding:15px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,#e8b96a 0%,#c9903e 100%);
+  color:#0a0805;font-weight:700;font-size:15px;
+  font-family:"DM Sans",sans-serif;cursor:pointer;
+  margin-top:24px;transition:filter 0.2s,transform 0.2s;
+  box-shadow:0 4px 20px rgba(201,144,62,0.3);
+}
+.login-btn:hover{filter:brightness(1.07);transform:translateY(-1px);}
+.login-btn:active{transform:translateY(0);}
+.login-error{
+  display:none;margin-top:16px;padding:12px 14px;
+  border-radius:10px;background:rgba(201,74,62,0.12);
+  border:1px solid rgba(201,74,62,0.25);
+  color:#e88a82;font-size:13px;text-align:center;line-height:1.5;
+}
+.login-error.show{display:block;animation:loginFadeIn 0.25s ease;}
+.login-divider{
+  display:flex;align-items:center;gap:12px;margin:22px 0 16px;
+}
+.login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:rgba(255,255,255,0.07);}
+.login-divider span{font-size:11px;color:#6a5e52;letter-spacing:0.15em;text-transform:uppercase;}
+.login-footer{
+  text-align:center;font-size:11px;color:#6a5e52;margin-top:22px;line-height:1.7;
+}
+.login-attempts{
+  font-size:11px;color:#e88a82;text-align:center;
+  margin-top:10px;min-height:16px;
+}
+.login-lock-overlay{
+  position:absolute;inset:0;border-radius:28px;
+  background:rgba(10,8,5,0.88);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;text-align:center;padding:32px;
+}
+.login-lock-overlay.show{display:flex;}
+.login-lock-overlay .lock-icon{font-size:40px;margin-bottom:4px;}
+.login-lock-overlay h3{font-family:"Playfair Display",serif;font-size:24px;color:#f2e8d5;}
+.login-lock-overlay p{font-size:13px;color:#8a7a68;line-height:1.6;}
+.login-lock-overlay .lock-timer{font-family:"DM Mono",monospace;font-size:22px;color:#e8b96a;margin-top:4px;}
+
+/* ─── AUTH CODE DOTS ─── */
+.auth-code-wrap{display:flex;gap:10px;justify-content:center;margin-top:4px;}
+.auth-code-input{
+  width:52px;height:60px;border-radius:12px;text-align:center;font-size:24px;
+  font-weight:700;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);color:#f2e8d5;
+  font-family:"Playfair Display",serif;outline:none;transition:0.2s;
+}
+.auth-code-input:focus{border-color:rgba(201,144,62,0.5);background:rgba(201,144,62,0.06);}
+.auth-code-input.filled{border-color:rgba(201,144,62,0.35);background:rgba(201,144,62,0.08);}
+.auth-code-input.error{border-color:rgba(201,74,62,0.5);background:rgba(201,74,62,0.08);}
+
+/* ─── USER MANAGEMENT MODAL (Admin only) ─── */
+.um-modal{
+  position:fixed;inset:0;z-index:10000;
+  display:none;align-items:center;justify-content:center;
+  padding:20px;
+  background:rgba(4,3,2,0.88);backdrop-filter:blur(12px);
+}
+.um-modal.open{display:flex;}
+.um-box{
+  width:min(700px,100%);max-height:90vh;overflow-y:auto;
+  background:linear-gradient(180deg,#16110d,#0e0b08);
+  border:1px solid rgba(201,144,62,0.25);
+  border-radius:24px;box-shadow:0 40px 100px rgba(0,0,0,0.7);
+  animation:loginFadeIn 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.um-head{
+  padding:26px 28px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  position:sticky;top:0;
+  background:linear-gradient(180deg,#16110d,#14100c);
+  border-radius:24px 24px 0 0;z-index:2;
+}
+.um-head h2{font-family:"Playfair Display",serif;font-size:28px;color:#f2e8d5;line-height:1.1;}
+.um-head p{font-size:12px;color:#8a7a68;margin-top:4px;line-height:1.6;}
+.um-body{padding:22px 28px 28px;}
+.um-user-list{display:grid;gap:12px;margin-bottom:24px;}
+.um-user-row{
+  display:grid;grid-template-columns:36px 1fr 1fr 1fr auto;
+  gap:10px;align-items:center;
+  padding:14px 16px;border-radius:14px;
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.07);
+  transition:0.2s;
+}
+.um-user-row:hover{border-color:rgba(201,144,62,0.18);}
+.um-user-row.admin-row{border-color:rgba(201,144,62,0.22);background:rgba(201,144,62,0.06);}
+.um-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#e8b96a,#c9903e);
+  display:grid;place-items:center;
+  font-family:"Playfair Display",serif;font-weight:700;font-size:13px;color:#0a0805;
+  flex-shrink:0;
+}
+.um-avatar.inactive{background:rgba(80,70,60,0.4);color:#6a5e52;}
+.um-user-info strong{display:block;font-size:13px;color:#ede0cc;margin-bottom:2px;}
+.um-user-info span{font-size:11px;color:#8a7a68;}
+.um-role-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:999px;
+  font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+}
+.um-role-admin{background:rgba(201,144,62,0.15);color:#e8b96a;border:1px solid rgba(201,144,62,0.3);}
+.um-role-member{background:rgba(74,130,201,0.12);color:#8db3e8;border:1px solid rgba(74,130,201,0.2);}
+.um-role-inactive{background:rgba(80,70,60,0.3);color:#8a7a68;border:1px solid rgba(80,70,60,0.3);}
+.um-creds{font-family:"DM Mono",monospace;font-size:11px;color:#8a7a68;line-height:1.7;}
+.um-creds .revealed{color:#e8b96a;}
+.um-reveal-btn{
+  font-size:10px;color:#8a7a68;border:1px solid rgba(255,255,255,0.08);
+  padding:3px 8px;border-radius:6px;background:transparent;cursor:pointer;
+  transition:0.2s;margin-left:6px;
+}
+.um-reveal-btn:hover{color:#e8b96a;border-color:rgba(201,144,62,0.3);}
+.um-row-actions{display:flex;gap:6px;}
+.um-edit-btn{
+  padding:7px 11px;border-radius:8px;font-size:11px;font-weight:600;
+  border:1px solid rgba(255,255,255,0.1);background:transparent;color:#c4b49e;
+  transition:0.2s;cursor:pointer;
+}
+.um-edit-btn:hover{border-color:rgba(201,144,62,0.3);color:#e8b96a;}
+.um-del-btn{
+  padding:7px 10px;border-radius:8px;font-size:11px;
+  border:1px solid rgba(201,74,62,0.2);background:rgba(201,74,62,0.08);
+  color:#e88a82;transition:0.2s;cursor:pointer;
+}
+.um-del-btn:hover{background:rgba(201,74,62,0.2);}
+.um-divider{
+  height:1px;background:rgba(255,255,255,0.06);
+  margin:20px 0;position:relative;
+}
+.um-divider span{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:#14100c;padding:0 12px;
+  font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#6a5e52;
+}
+.um-add-form{
+  padding:20px;border-radius:16px;
+  background:rgba(201,144,62,0.04);
+  border:1px solid rgba(201,144,62,0.14);
+}
+.um-add-form h4{font-family:"Playfair Display",serif;font-size:20px;color:#f2e8d5;margin-bottom:14px;}
+.um-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;}
+.um-field{display:flex;flex-direction:column;gap:7px;}
+.um-field label{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#e8b96a;}
+.um-field input,.um-field select{
+  padding:11px 13px;border-radius:10px;
+  border:1px solid rgba(255,255,255,0.09);
+  background:rgba(255,255,255,0.03);color:#ede0cc;
+  font-size:13px;outline:none;font-family:"DM Sans",sans-serif;transition:0.2s;
+}
+.um-field input:focus,.um-field select:focus{border-color:rgba(201,144,62,0.4);background:rgba(201,144,62,0.04);}
+.um-field input::placeholder{color:#6a5e52;}
+.um-field select option{background:#1a1410;}
+.um-code-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+.um-code-input{
+  width:44px;height:50px;border-radius:10px;text-align:center;font-size:20px;
+  font-weight:700;border:1px solid rgba(255,255,255,0.09);
+  background:rgba(255,255,255,0.03);color:#f2e8d5;
+  font-family:"Playfair Display",serif;outline:none;transition:0.2s;
+}
+.um-code-input:focus{border-color:rgba(201,144,62,0.4);background:rgba(201,144,62,0.05);}
+.um-code-gen{
+  padding:8px 14px;border-radius:10px;font-size:11px;font-weight:600;
+  border:1px solid rgba(201,144,62,0.2);background:rgba(201,144,62,0.08);
+  color:#e8b96a;cursor:pointer;transition:0.2s;margin-left:4px;white-space:nowrap;
+}
+.um-code-gen:hover{background:rgba(201,144,62,0.16);}
+.um-form-error{
+  font-size:12px;color:#e88a82;margin-bottom:10px;min-height:18px;
+}
+@media(max-width:600px){
+  .um-user-row{grid-template-columns:36px 1fr auto;gap:8px;}
+  .um-user-row .um-creds,.um-user-row .um-role-badge{display:none;}
+  .um-form-grid{grid-template-columns:1fr 1fr;}
+}
+#appRoot{display:none;}
+#appRoot.authed{display:block;}
 body::before{
   content:"";
   position:fixed;
@@ -1050,6 +1289,79 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 </head>
 <body>
 
+<!-- ─── LOGIN SCREEN ─── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <!-- Lock overlay for lockout -->
+    <div class="login-lock-overlay" id="loginLockOverlay">
+      <div class="lock-icon">🔒</div>
+      <h3>Access Locked</h3>
+      <p>Too many failed attempts. Please wait before trying again.</p>
+      <div class="lock-timer" id="lockTimer">5:00</div>
+    </div>
+
+    <!-- Logo -->
+    <div class="login-gem">
+      <svg width="32" height="32" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17 3L22 12H31L24 19L27 29L17 23L7 29L10 19L3 12H12L17 3Z" fill="#0a0805" opacity="0.9"/>
+        <path d="M17 6L21 13.5H29L22.5 19.5L25 27.5L17 22.5L9 27.5L11.5 19.5L5 13.5H13L17 6Z" fill="url(#gl1)" opacity="0.7"/>
+        <defs>
+          <linearGradient id="gl1" x1="3" y1="3" x2="31" y2="31" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#f5dfa0"/><stop offset="1" stop-color="#c9903e"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="login-title">PRESTIGE</div>
+    <div class="login-sub">Private Command Center<br>Authorized Personnel Only</div>
+
+    <div class="login-fields">
+      <!-- Field 1: Name -->
+      <div class="login-field">
+        <label>Your Name</label>
+        <input type="text" id="loginName" placeholder="Enter your name" autocomplete="name" onkeydown="loginKeydown(event,'loginName')">
+      </div>
+
+      <!-- Field 2: Password -->
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" onkeydown="loginKeydown(event,'loginPassword')">
+      </div>
+
+      <!-- Field 3: Auth Code -->
+      <div class="login-field">
+        <label>Authentication Code</label>
+        <div class="auth-code-wrap" id="authCodeWrap">
+          <input class="auth-code-input" id="ac0" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(0)" onkeydown="authCodeKey(event,0)">
+          <input class="auth-code-input" id="ac1" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(1)" onkeydown="authCodeKey(event,1)">
+          <input class="auth-code-input" id="ac2" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(2)" onkeydown="authCodeKey(event,2)">
+          <input class="auth-code-input" id="ac3" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(3)" onkeydown="authCodeKey(event,3)">
+          <input class="auth-code-input" id="ac4" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(4)" onkeydown="authCodeKey(event,4)">
+          <input class="auth-code-input" id="ac5" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(5)" onkeydown="authCodeKey(event,5)">
+        </div>
+        <div class="login-auth-hint">Enter the 6-digit team authentication code</div>
+      </div>
+    </div>
+
+    <div class="login-error" id="loginError"></div>
+    <div class="login-attempts" id="loginAttempts"></div>
+
+    <button class="login-btn" id="loginSubmitBtn" onclick="submitLogin()">
+      Enter Command Center
+    </button>
+
+    <div class="login-divider"><span>Secure Access</span></div>
+    <div class="login-footer">
+      This workspace is private and restricted to authorized team members.<br>
+      All access is logged. Unauthorized access is prohibited.
+    </div>
+  </div>
+</div>
+
+<!-- ─── APP (hidden until authenticated) ─── -->
+<div id="appRoot">
+
 <!-- ─── MOBILE SIDEBAR OVERLAY ─── -->
 <div class="sidebar-mobile-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
@@ -1112,6 +1424,10 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
       <button class="nav-item" onclick="switchPage('ops',this)">
         <span class="nav-icon">◉</span> Luxury Ops
       </button>
+      <div class="nav-section-label" id="adminNavSection" style="display:none;">Admin</div>
+      <button class="nav-item" id="manageUsersNav" style="display:none;" onclick="openUM()">
+        <span class="nav-icon">👥</span> Manage Users
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -1123,8 +1439,10 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
           <strong id="sidebarName">Your Name</strong>
           <span id="sidebarRole">Principal Agent</span>
         </div>
-
       </div>
+      <button onclick="logOut()" title="Log Out" style="margin-top:10px;width:100%;padding:9px 12px;border-radius:var(--r3);border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:0.2s;text-align:left;display:flex;align-items:center;gap:8px;" onmouseover="this.style.color='#e88a82';this.style.borderColor='rgba(201,74,62,0.25)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='rgba(255,255,255,0.07)'">
+        <span>⎋</span> Log Out
+      </button>
     </div>
   </aside>
 
@@ -1974,8 +2292,69 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
   </div>
 </div>
 
+<!-- ─── USER MANAGEMENT MODAL (Admin: Samir only) ─── -->
+<div class="um-modal" id="umModal">
+  <div class="um-box">
+    <div class="um-head">
+      <div>
+        <h2>👥 User Management</h2>
+        <p>Only Samir (Admin) can add, edit, or remove team members. Changes take effect immediately.</p>
+      </div>
+      <button onclick="closeUM()" style="padding:9px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#8a7a68;cursor:pointer;font-size:12px;transition:0.2s;" onmouseover="this.style.color='#ede0cc'" onmouseout="this.style.color='#8a7a68'">✕ Close</button>
+    </div>
+    <div class="um-body">
+
+      <!-- Current users list -->
+      <div style="margin-bottom:6px;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#e8b96a;">Current Team Members</div>
+      <div class="um-user-list" id="umUserList"></div>
+
+      <div class="um-divider"><span>Add New Member</span></div>
+
+      <!-- Add / Edit form -->
+      <div class="um-add-form">
+        <h4 id="umFormTitle">Add Team Member</h4>
+        <div class="um-form-grid">
+          <div class="um-field">
+            <label>Full Name <span style="color:#e88a82;">*</span></label>
+            <input id="umName" type="text" placeholder="e.g. Sarah">
+          </div>
+          <div class="um-field">
+            <label>Password <span style="color:#e88a82;">*</span></label>
+            <input id="umPass" type="text" placeholder="Min 6 characters">
+          </div>
+          <div class="um-field">
+            <label>Role</label>
+            <select id="umRole">
+              <option value="Member">Member</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:8px;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#e8b96a;">6-Digit Auth Code <span style="color:#e88a82;">*</span></div>
+        <div class="um-code-row">
+          <input class="um-code-input" id="umc0" type="text" maxlength="1" inputmode="numeric" oninput="umCodeInput(0)" onkeydown="umCodeKey(event,0)">
+          <input class="um-code-input" id="umc1" type="text" maxlength="1" inputmode="numeric" oninput="umCodeInput(1)" onkeydown="umCodeKey(event,1)">
+          <input class="um-code-input" id="umc2" type="text" maxlength="1" inputmode="numeric" oninput="umCodeInput(2)" onkeydown="umCodeKey(event,2)">
+          <input class="um-code-input" id="umc3" type="text" maxlength="1" inputmode="numeric" oninput="umCodeInput(3)" onkeydown="umCodeKey(event,3)">
+          <input class="um-code-input" id="umc4" type="text" maxlength="1" inputmode="numeric" oninput="umCodeInput(4)" onkeydown="umCodeKey(event,4)">
+          <input class="um-code-input" id="umc5" type="text" maxlength="1" inputmode="numeric" oninput="umCodeInput(5)" onkeydown="umCodeKey(event,5)">
+          <button class="um-code-gen" onclick="genRandomCode()">🎲 Random</button>
+        </div>
+        <div class="um-form-error" id="umFormError"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="submitUMForm()" style="padding:12px 22px;border-radius:10px;background:linear-gradient(135deg,#e8b96a,#c9903e);color:#0a0805;font-weight:700;font-size:13px;border:none;cursor:pointer;transition:0.2s;" id="umSubmitBtn">Add Member</button>
+          <button onclick="cancelUMEdit()" id="umCancelBtn" style="display:none;padding:12px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#8a7a68;font-size:13px;cursor:pointer;">Cancel Edit</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ─── TOASTS ─── -->
 <div class="toast-zone" id="toastZone"></div>
+
+</div><!-- /appRoot -->
 
 <script>
 // ─────────────── SEED DATA ───────────────
@@ -3522,8 +3901,368 @@ function showImportResult(tab,type,msg){
   el.textContent=msg;
   el.style.display='block';
 }
+// ─────────────── AUTH SYSTEM ───────────────
+const AUTH_SESSION_KEY = "SADT_SESSION";
+const AUTH_USERS_KEY   = "SADT_USERS";
+const MAX_ATTEMPTS     = 5;
+const LOCKOUT_MS       = 5 * 60 * 1000;
+
+// ── Default users — Samir is the permanent admin, Sam is preset member ──
+// Stored in localStorage so Samir can edit them live
+const DEFAULT_USERS = [
+  { id:"u1", name:"Samir", password:"Samir2024!",  code:"112233", role:"Admin",  active:true  },
+  { id:"u2", name:"Sam",   password:"Sam2024!",     code:"445566", role:"Member", active:true  },
+  { id:"u3", name:"",      password:"",             code:"",       role:"Member", active:false },
+  { id:"u4", name:"",      password:"",             code:"",       role:"Member", active:false },
+  { id:"u5", name:"",      password:"",             code:"",       role:"Member", active:false }
+];
+
+function loadUsers(){
+  try{
+    const raw = localStorage.getItem(AUTH_USERS_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  }catch(e){}
+  const users = DEFAULT_USERS.map(u=>({...u}));
+  saveUsers(users);
+  return users;
+}
+function saveUsers(users){ localStorage.setItem(AUTH_USERS_KEY, JSON.stringify(users)); }
+function getActiveUsers(){ return loadUsers().filter(u=>u.active && u.name && u.password && u.code); }
+
+let loginAttempts = 0;
+let lockoutUntil  = 0;
+let lockTimerInterval = null;
+let currentUser   = null;
+
+// ── Boot: check existing session ──
+(function bootAuth(){
+  try{
+    const s = JSON.parse(sessionStorage.getItem(AUTH_SESSION_KEY)||"null");
+    if(s && s.name && s.ts && Date.now() - s.ts < 8*60*60*1000){
+      currentUser = s;
+      showApp(s.name, false);
+      return;
+    }
+  }catch(e){}
+  const lo = parseInt(localStorage.getItem("SADT_LOCKOUT")||"0");
+  if(lo > Date.now()){
+    lockoutUntil = lo;
+    loginAttempts = MAX_ATTEMPTS;
+    showLockOverlay();
+    startLockTimer();
+  }
+})();
+
+// ── Login form helpers ──
+function loginKeydown(e, fieldId){
+  if(e.key==="Enter"){
+    if(fieldId==="loginName") $("loginPassword").focus();
+    else if(fieldId==="loginPassword") $("ac0").focus();
+  }
+}
+function authCodeInput(idx){
+  const input=$(`ac${idx}`);
+  if(input.value){ input.classList.add("filled"); if(idx<5)$(`ac${idx+1}`).focus(); else submitLogin(); }
+  else input.classList.remove("filled");
+}
+function authCodeKey(e,idx){
+  if(e.key==="Backspace"){
+    const inp=$(`ac${idx}`);
+    if(!inp.value&&idx>0){ $(`ac${idx-1}`).focus(); $(`ac${idx-1}`).value=""; $(`ac${idx-1}`).classList.remove("filled"); }
+  } else if(e.key==="Enter") submitLogin();
+}
+function getAuthCode(){ return [0,1,2,3,4,5].map(i=>$(`ac${i}`).value).join(""); }
+function setCodeError(isError){
+  [0,1,2,3,4,5].forEach(i=>{ const inp=$(`ac${i}`); inp.classList.toggle("error",isError); inp.classList.toggle("filled",!isError&&!!inp.value); });
+}
+function clearAuthCode(){
+  [0,1,2,3,4,5].forEach(i=>{ const inp=$(`ac${i}`); inp.value=""; inp.classList.remove("filled","error"); });
+}
+
+function submitLogin(){
+  if(lockoutUntil>Date.now()){ showLockOverlay(); return; }
+  const nameVal=($("loginName").value||"").trim();
+  const passVal=($("loginPassword").value||"").trim();
+  const codeVal=getAuthCode();
+  const errEl=$("loginError"), attEl=$("loginAttempts"), btn=$("loginSubmitBtn");
+  errEl.classList.remove("show"); setCodeError(false);
+  if(!nameVal){ showLoginError("Please enter your name."); $("loginName").focus(); return; }
+  if(!passVal){ showLoginError("Please enter your password."); $("loginPassword").focus(); return; }
+  if(codeVal.length<6){ showLoginError("Please enter the full 6-digit authentication code."); $("ac0").focus(); return; }
+
+  const users = getActiveUsers();
+  const user = users.find(u=>
+    u.name.toLowerCase()===nameVal.toLowerCase() &&
+    u.password===passVal &&
+    u.code===codeVal
+  );
+
+  if(user){
+    loginAttempts=0;
+    localStorage.removeItem("SADT_LOCKOUT");
+    btn.textContent="✓ Access Granted";
+    btn.style.background="linear-gradient(135deg,#7dd4a0,#4e9e6c)";
+    btn.disabled=true;
+    setTimeout(()=>showApp(user.name,true,user.role),700);
+  } else {
+    loginAttempts++;
+    const remaining=MAX_ATTEMPTS-loginAttempts;
+    setCodeError(true);
+    setTimeout(()=>{ setCodeError(false); clearAuthCode(); $("ac0").focus(); },800);
+    if(loginAttempts>=MAX_ATTEMPTS){
+      lockoutUntil=Date.now()+LOCKOUT_MS;
+      localStorage.setItem("SADT_LOCKOUT",String(lockoutUntil));
+      showLockOverlay(); startLockTimer();
+    } else {
+      showLoginError(remaining===1?"Invalid credentials. 1 attempt remaining before lockout.":`Invalid name, password, or code. ${remaining} attempts remaining.`);
+      attEl.textContent=`${loginAttempts} / ${MAX_ATTEMPTS} attempts used`;
+    }
+  }
+}
+
+function showLoginError(msg){
+  const errEl=$("loginError"); errEl.textContent=msg; errEl.classList.add("show");
+  const box=document.querySelector(".login-box");
+  box.style.transform="translateX(-8px)";
+  setTimeout(()=>{box.style.transform="translateX(8px)";},80);
+  setTimeout(()=>{box.style.transform="translateX(0)";},160);
+}
+function showLockOverlay(){ $("loginLockOverlay").classList.add("show"); }
+function startLockTimer(){
+  if(lockTimerInterval)clearInterval(lockTimerInterval);
+  lockTimerInterval=setInterval(()=>{
+    const remaining=Math.max(0,lockoutUntil-Date.now());
+    if(remaining<=0){
+      clearInterval(lockTimerInterval); lockoutUntil=0; loginAttempts=0;
+      localStorage.removeItem("SADT_LOCKOUT");
+      $("loginLockOverlay").classList.remove("show");
+      $("loginAttempts").textContent=""; $("loginError").classList.remove("show");
+      const btn=$("loginSubmitBtn"); btn.textContent="Enter Command Center"; btn.style.background=""; btn.disabled=false;
+      return;
+    }
+    const m=Math.floor(remaining/60000),s=Math.floor((remaining%60000)/1000);
+    $("lockTimer").textContent=`${m}:${String(s).padStart(2,"0")}`;
+  },1000);
+  const r=Math.max(0,lockoutUntil-Date.now()),m=Math.floor(r/60000),s=Math.floor((r%60000)/1000);
+  $("lockTimer").textContent=`${m}:${String(s).padStart(2,"0")}`;
+}
+
+function showApp(name, animate, role){
+  currentUser={name,role:role||"Member",ts:Date.now()};
+  sessionStorage.setItem(AUTH_SESSION_KEY,JSON.stringify(currentUser));
+  const loginEl=$("loginScreen"), appEl=$("appRoot");
+  // Show admin nav if Samir
+  const isAdmin = role==="Admin" || name.toLowerCase()==="samir";
+  const adminSec=$("adminNavSection"), adminNav=$("manageUsersNav");
+  if(adminSec) adminSec.style.display=isAdmin?"":"none";
+  if(adminNav) adminNav.style.display=isAdmin?"flex":"none";
+
+  if(animate){
+    loginEl.style.transition="opacity 0.4s ease,transform 0.4s ease";
+    loginEl.style.opacity="0"; loginEl.style.transform="scale(1.02)";
+    setTimeout(()=>{
+      loginEl.style.display="none"; appEl.style.display="block";
+      appEl.style.opacity="0"; appEl.style.transition="opacity 0.3s ease";
+      setTimeout(()=>{ appEl.style.opacity="1"; renderAll(); applyLoggedInUser(name,role); },30);
+    },400);
+  } else {
+    loginEl.style.display="none"; appEl.style.display="block";
+    renderAll(); applyLoggedInUser(name,role);
+  }
+}
+
+function applyLoggedInUser(name,role){
+  const sn=$("sidebarName");
+  if(sn&&name&&(!db.profile||!db.profile.name)){ sn.textContent=name; }
+  const init=$("sidebarAvatarInitial");
+  if(init&&(!db.profile||!db.profile.name)) init.textContent=name.slice(0,2).toUpperCase();
+  showToast("Welcome back",`Logged in as ${name}${role==="Admin"?" · Admin":""}. Access granted.`);
+}
+
+function logOut(){
+  openConfirm({
+    title:"Log Out",
+    text:"Are you sure you want to log out of the Command Center?",
+    btn:"Log Out",
+    cb:()=>{
+      sessionStorage.removeItem(AUTH_SESSION_KEY); currentUser=null;
+      $("loginName").value=""; $("loginPassword").value="";
+      clearAuthCode(); $("loginError").classList.remove("show"); $("loginAttempts").textContent="";
+      const btn=$("loginSubmitBtn"); btn.textContent="Enter Command Center"; btn.style.background=""; btn.disabled=false;
+      $("loginLockOverlay").classList.remove("show");
+      const loginEl=$("loginScreen"),appEl=$("appRoot");
+      appEl.style.transition="opacity 0.25s ease"; appEl.style.opacity="0";
+      setTimeout(()=>{
+        appEl.style.display="none"; appEl.style.opacity="1";
+        loginEl.style.display="flex"; loginEl.style.opacity="0";
+        loginEl.style.transition="opacity 0.3s ease";
+        setTimeout(()=>{ loginEl.style.opacity="1"; $("loginName").focus(); },30);
+      },250);
+    }
+  });
+}
+
+// ─────────────── USER MANAGEMENT (Admin only) ───────────────
+let editingUserId = null;
+
+function openUM(){
+  if(!currentUser||currentUser.role!=="Admin"){ showToast("Access Denied","Only Samir (Admin) can manage users."); return; }
+  renderUMList();
+  resetUMForm();
+  $("umModal").classList.add("open");
+}
+function closeUM(){ $("umModal").classList.remove("open"); resetUMForm(); }
+
+function renderUMList(){
+  const users=loadUsers();
+  const list=$("umUserList"); if(!list)return;
+  list.innerHTML=users.map((u,idx)=>{
+    const isAdmin=u.role==="Admin";
+    const isSamir=u.name.toLowerCase()==="samir";
+    const initials=u.name?u.name.slice(0,2).toUpperCase():"?";
+    return`<div class="um-user-row ${isAdmin?"admin-row":""}">
+      <div class="um-avatar ${!u.active||!u.name?"inactive":""}">${initials}</div>
+      <div class="um-user-info">
+        <strong>${u.active&&u.name?esc(u.name):`<span style="color:var(--muted2);">Slot ${idx+1} — Empty</span>`}</strong>
+        <span>User ${idx+1}${isSamir?" · Permanent Admin":""}</span>
+      </div>
+      <div>
+        <div class="um-role-badge um-role-${u.active&&u.name?(u.role==="Admin"?"admin":"member"):"inactive"}">${u.active&&u.name?u.role:"Inactive"}</div>
+      </div>
+      <div class="um-creds" id="umCreds${u.id}">
+        ${u.active&&u.name
+          ? `<span>Pass: <span id="umPassSpan${u.id}">••••••</span><button class="um-reveal-btn" onclick="toggleReveal('${u.id}','pass','${esc(u.password)}')">show</button></span><br>
+             <span>Code: <span id="umCodeSpan${u.id}">••••••</span><button class="um-reveal-btn" onclick="toggleReveal('${u.id}','code','${esc(u.code)}')">show</button></span>`
+          : `<span style="color:var(--muted2);">—</span>`
+        }
+      </div>
+      <div class="um-row-actions">
+        ${!isSamir
+          ? `<button class="um-edit-btn" onclick="editUser('${u.id}')">Edit</button>
+             ${u.active&&u.name?`<button class="um-del-btn" onclick="removeUser('${u.id}')">✕</button>`:""}` 
+          : `<span style="font-size:10px;color:var(--muted2);padding:4px 8px;">Protected</span>`
+        }
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggleReveal(userId,field,val){
+  const spanId=field==="pass"?`umPassSpan${userId}`:`umCodeSpan${userId}`;
+  const span=$(spanId); if(!span)return;
+  if(span.classList.contains("revealed")){ span.textContent="••••••"; span.classList.remove("revealed"); }
+  else { span.textContent=val; span.classList.add("revealed"); }
+}
+
+function resetUMForm(){
+  editingUserId=null;
+  $("umFormTitle").textContent="Add Team Member";
+  $("umSubmitBtn").textContent="Add Member";
+  $("umCancelBtn").style.display="none";
+  $("umName").value=""; $("umPass").value="";
+  $("umRole").value="Member";
+  [0,1,2,3,4,5].forEach(i=>{ const inp=$(`umc${i}`); if(inp){inp.value="";} });
+  $("umFormError").textContent="";
+}
+
+function cancelUMEdit(){ resetUMForm(); }
+
+function editUser(userId){
+  const users=loadUsers();
+  const u=users.find(x=>x.id===userId); if(!u)return;
+  editingUserId=userId;
+  $("umFormTitle").textContent=`Edit: ${u.name}`;
+  $("umSubmitBtn").textContent="Save Changes";
+  $("umCancelBtn").style.display="inline-block";
+  $("umName").value=u.name||"";
+  $("umPass").value=u.password||"";
+  $("umRole").value=u.role||"Member";
+  const code=String(u.code||"").padStart(6,"0");
+  [0,1,2,3,4,5].forEach(i=>{ const inp=$(`umc${i}`); if(inp)inp.value=code[i]||""; });
+  $("umFormError").textContent="";
+  // Scroll to form
+  document.querySelector(".um-add-form").scrollIntoView({behavior:"smooth"});
+}
+
+function removeUser(userId){
+  const users=loadUsers();
+  const u=users.find(x=>x.id===userId); if(!u)return;
+  if(u.name.toLowerCase()==="samir"){ showToast("Protected","Samir's account cannot be removed."); return; }
+  openConfirm({
+    title:"Remove User",
+    text:`Remove ${u.name} from the system? They will no longer be able to log in.`,
+    btn:"Remove",
+    cb:()=>{
+      const idx=users.findIndex(x=>x.id===userId);
+      users[idx]={...users[idx],name:"",password:"",code:"",role:"Member",active:false};
+      saveUsers(users);
+      renderUMList();
+      showToast("User Removed",`${u.name} has been removed.`);
+    }
+  });
+}
+
+function umCodeInput(idx){
+  const inp=$(`umc${idx}`);
+  if(inp&&inp.value&&idx<5) $(`umc${idx+1}`).focus();
+}
+function umCodeKey(e,idx){
+  if(e.key==="Backspace"){ const inp=$(`umc${idx}`); if(inp&&!inp.value&&idx>0){ $(`umc${idx-1}`).focus(); } }
+}
+function getUMCode(){ return [0,1,2,3,4,5].map(i=>{ const inp=$(`umc${i}`); return inp?inp.value:""; }).join(""); }
+
+function genRandomCode(){
+  const code=String(Math.floor(100000+Math.random()*900000));
+  [0,1,2,3,4,5].forEach(i=>{ const inp=$(`umc${i}`); if(inp)inp.value=code[i]; });
+  showToast("Code Generated",`Auth code: ${code} — save this securely.`);
+}
+
+function submitUMForm(){
+  const name=($("umName").value||"").trim();
+  const pass=($("umPass").value||"").trim();
+  const role=$("umRole").value||"Member";
+  const code=getUMCode();
+  const errEl=$("umFormError");
+  errEl.textContent="";
+
+  if(!name){ errEl.textContent="Name is required."; return; }
+  if(!pass||pass.length<4){ errEl.textContent="Password must be at least 4 characters."; return; }
+  if(code.length<6||code.split("").some(c=>isNaN(parseInt(c)))){ errEl.textContent="Enter a valid 6-digit numeric auth code."; return; }
+
+  const users=loadUsers();
+
+  // Check name uniqueness (excluding self when editing)
+  const nameTaken=users.some(u=>u.name.toLowerCase()===name.toLowerCase()&&(!editingUserId||u.id!==editingUserId)&&u.active);
+  if(nameTaken){ errEl.textContent=`The name "${name}" is already taken. Choose a different name.`; return; }
+
+  if(editingUserId){
+    const u=users.find(x=>x.id===editingUserId); if(!u){errEl.textContent="User not found.";return;}
+    const isSamir=u.name.toLowerCase()==="samir";
+    u.name=name; u.password=pass; u.code=code;
+    if(!isSamir)u.role=role;
+    u.active=true;
+    saveUsers(users);
+    resetUMForm();
+    renderUMList();
+    showToast("User Updated",`${name}'s credentials have been updated.`);
+  } else {
+    // Find first empty slot
+    const emptySlot=users.find(u=>!u.active||!u.name);
+    if(!emptySlot){ errEl.textContent="All 5 user slots are full. Remove a user first."; return; }
+    emptySlot.name=name; emptySlot.password=pass; emptySlot.code=code; emptySlot.role=role; emptySlot.active=true;
+    saveUsers(users);
+    resetUMForm();
+    renderUMList();
+    showToast("User Added",`${name} can now log in with their credentials.`);
+  }
+}
+
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){
+    if($("umModal").classList.contains("open")){ closeUM(); return; }
     if($("confirmOverlay").classList.contains("open")){closeConfirm();return;}
     if($("propModalOverlay").classList.contains("open")){closePropModal();return;}
     if($("propertyDrawer").classList.contains("open")){closeDrawer();return;}
@@ -3538,6 +4277,89 @@ document.addEventListener("click",e=>{
   const np=$("notifPanel");
   if(np.classList.contains("open")&&!np.contains(e.target)&&!e.target.closest(".icon-btn")){np.classList.remove("open");}
 });
+const AUTH_SESSION_KEY = "SADT_SESSION";
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 5 * 60 * 1000; // 5 minutes
+
+let loginAttempts = 0;
+let lockoutUntil = 0;
+let lockTimerInterval = null;
+let currentUser = null;
+
+// ── Boot: check if already authenticated ──
+(function bootAuth(){
+  try{
+    const s = JSON.parse(sessionStorage.getItem(AUTH_SESSION_KEY)||"null");
+    if(s && s.name && s.ts && Date.now() - s.ts < 8*60*60*1000){
+      // Valid session (8 hour timeout)
+      currentUser = s;
+      showApp(s.name, false);
+      return;
+    }
+  }catch(e){}
+  // Check lockout
+  const lo = parseInt(localStorage.getItem("SADT_LOCKOUT")||"0");
+  if(lo > Date.now()){
+    lockoutUntil = lo;
+    loginAttempts = MAX_ATTEMPTS;
+    showLockOverlay();
+    startLockTimer();
+  }
+})();
+
+function loginKeydown(e, fieldId){
+  if(e.key === "Enter"){
+    if(fieldId === "loginName") $("loginPassword").focus();
+    else if(fieldId === "loginPassword") $("ac0").focus();
+  }
+}
+
+function authCodeInput(idx){
+  const input = $(`ac${idx}`);
+  const val = input.value;
+  if(val){
+    input.classList.add("filled");
+    if(idx < 5) $(`ac${idx+1}`).focus();
+    else submitLogin(); // auto-submit when last digit entered
+  } else {
+    input.classList.remove("filled");
+  }
+}
+
+function authCodeKey(e, idx){
+  if(e.key === "Backspace"){
+    const input = $(`ac${idx}`);
+    if(!input.value && idx > 0){
+      $(`ac${idx-1}`).focus();
+      $(`ac${idx-1}`).value = "";
+      $(`ac${idx-1}`).classList.remove("filled");
+    }
+  } else if(e.key === "Enter"){
+    submitLogin();
+  }
+}
+
+function getAuthCode(){
+  return [0,1,2,3,4,5].map(i => $(`ac${i}`).value).join("");
+}
+
+function setCodeError(isError){
+  [0,1,2,3,4,5].forEach(i => {
+    const inp = $(`ac${i}`);
+    inp.classList.toggle("error", isError);
+    inp.classList.toggle("filled", !isError && !!inp.value);
+  });
+}
+
+function clearAuthCode(){
+  [0,1,2,3,4,5].forEach(i => {
+    const inp = $(`ac${i}`);
+    inp.value = "";
+    inp.classList.remove("filled","error");
+  });
+}
+
+
 </script>
 </body>
 </html>
