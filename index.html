@@ -12,13 +12,7 @@
 // ─── PASTE YOUR SUPABASE CREDENTIALS HERE ───
 const SUPABASE_URL  = "https://gcidoukfomnmofaybvsm.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjaWRvdWtmb21ubW9mYXlidnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTYzNTgsImV4cCI6MjA5MDg3MjM1OH0.O9ux2csoRN7ltuIrlYK1mfrwbwIdyy5mSqeP14893M8";
-
-// Safe init — won't crash if credentials are placeholders
-let _sb = null;
-const _SUPABASE_READY = !SUPABASE_URL.includes("YOUR_PROJECT") && SUPABASE_ANON !== "YOUR_ANON_KEY";
-try{
-  if(_SUPABASE_READY) _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-}catch(e){ console.warn("Supabase not configured:", e); }
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 <style>
 :root{
@@ -2441,11 +2435,6 @@ let editingTaskId = null;
 
 // ─────────────── SUPABASE DB ───────────────
 async function loadDB(){
-  if(!_SUPABASE_READY){
-    db = clone(seedData);
-    db.houses.forEach(norm); db.archived.forEach(norm); db.clients.forEach(normC);
-    return;
-  }
   try{
     const [propsRes,clientsRes,dealsRes,tasksRes,actRes,profRes] = await Promise.all([
       _sb.from("properties").select("*").order("created_at",{ascending:false}),
@@ -2526,7 +2515,6 @@ async function saveDB(){
 }
 
 async function saveProp(h){
-  if(!_SUPABASE_READY){renderAll();return;}
   const row = propToRow(h);
   if(h.id && typeof h.id === "number" && h.id > 1000000000000){
     // New item (Date.now() id) — insert
@@ -2539,7 +2527,6 @@ async function saveProp(h){
   }
 }
 async function saveClient(c){
-  if(!_SUPABASE_READY){renderAll();return;}
   const row = {
     name:c.name, phone:c.phone, email:c.email, type:c.type, stage:c.stage,
     next_action:c.nextAction, budget:String(c.estimatedValue||0), notes:c.note,
@@ -2555,7 +2542,6 @@ async function saveClient(c){
   }
 }
 async function saveDeal(d){
-  if(!_SUPABASE_READY){renderAll();return;}
   const row = {title:d.title,property_id:d.propertyId||null,client_id:d.clientId||null,
     profit:d.profit,currency:d.currency,closed_date:d.closedDate,notes:d.note||""};
   if(d.id && typeof d.id === "number" && d.id > 1000000000000){
@@ -2567,7 +2553,6 @@ async function saveDeal(d){
   }
 }
 async function saveTask(t){
-  if(!_SUPABASE_READY){renderAll();return;}
   const row = {title:t.title,assignee:t.assignee,priority:t.priority,category:t.category,
     due:t.due||null,property_id:t.propId||null,client_id:t.clientId||null,notes:t.notes,done:t.done};
   if(t.id && typeof t.id === "number" && t.id > 1000000000000){
@@ -2579,11 +2564,9 @@ async function saveTask(t){
   }
 }
 async function saveActivity(title,detail){
-  if(!_SUPABASE_READY) return;
   await _sb.from("activity").insert({title,detail});
 }
 async function saveProfileToDB(p){
-  if(!_SUPABASE_READY) return;
   await _sb.from("profile").upsert({id:1,name:p.name,role:p.role,brand:p.brand,tagline:p.tagline,pic_url:p.picUrl,updated_at:new Date().toISOString()});
 }
 function clone(v){return JSON.parse(JSON.stringify(v));}
@@ -2782,7 +2765,7 @@ function fillAssetForm(h){
   $("advFields").classList.add("open");
   openAssetForm(true);
 }
-function submitAsset(){
+async function submitAsset(){
   const addr=$("fAddr").value.trim();
   const price=parseFloat($("fPrice").value);
   if(!addr||!price){showToast("Missing Fields","Address and valuation are required.");return;}
@@ -3081,7 +3064,7 @@ function renderCRMPropOpts(){
   const closed=db.clients.filter(c=>c.stage==="Closed");
   $("dClient").innerHTML=`<option value="">— None —</option>`+closed.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
 }
-function addClient(){
+async function addClient(){
   const name=$("cName").value.trim();if(!name){showToast("Missing Fields","Client name is required.");return;}
   const propId=Number($("cProp").value)||null;
   const id=Date.now();
@@ -3097,8 +3080,7 @@ function deleteClient(id){
   db.houses.forEach(h=>{h.linkedClientIds=h.linkedClientIds.filter(x=>x!==id);});
   db.clients=db.clients.filter(c=>c.id!==id);
   addActivity("Client Removed","A client was removed from CRM.");
-  if(_sb) _sb.from("clients").delete().eq("id",id).then(()=>renderAll());
-  else renderAll();
+  _sb.from("clients").delete().eq("id",id).then(()=>renderAll());
 }
 function getCRMLinkedNames(c){return c.linkedPropertyIds.map(pid=>db.houses.find(h=>h.id===pid)).filter(Boolean).map(h=>h.addr);}
 function renderCRM(){
@@ -3159,7 +3141,7 @@ function renderPipeline(){
 }
 
 // ─────────────── SETTLEMENTS ───────────────
-function addDeal(){
+async function addDeal(){
   const title=$("dTitle").value.trim(),profit=parseFloat($("dProfit").value);
   if(!title||!profit){showToast("Missing Fields","Asset title and commission are required.");return;}
   const propId=Number($("dProp").value)||null,clientId=Number($("dClient").value)||null;
@@ -3180,8 +3162,7 @@ function addDeal(){
 function deleteDeal(id){
   db.deals=db.deals.filter(d=>d.id!==id);
   addActivity("Deal Removed","A settlement entry was removed.");
-  if(_sb) _sb.from("deals").delete().eq("id",id).then(()=>renderAll());
-  else renderAll();
+  _sb.from("deals").delete().eq("id",id).then(()=>renderAll());
 }
 function renderSettlements(){
   renderCRMPropOpts();
@@ -3612,7 +3593,7 @@ function resetTaskForm(){
   $("tPriority").value="medium";$("tCategory").value="admin";$("tDue").value="";
   if($("tProp"))$("tProp").value="";if($("tClient"))$("tClient").value="";
 }
-function submitTask(){
+async function submitTask(){
   const title=$("tTitle").value.trim();
   if(!title){showToast("Missing Title","Please enter a task title.");return;}
   const t={
@@ -3661,8 +3642,7 @@ function editTask(id){
 function deleteTask(id){
   db.tasks=db.tasks.filter(t=>t.id!==id);
   addActivity("Task Removed","A task was deleted.");
-  if(_sb) _sb.from("tasks").delete().eq("id",id).then(()=>renderAll());
-  else renderAll();
+  _sb.from("tasks").delete().eq("id",id).then(()=>renderAll());
 }
 function toggleTaskDone(id){
   const t=db.tasks.find(x=>x.id===id);if(!t)return;
@@ -3952,7 +3932,7 @@ function showImportPreview(tab,rows){
   $(`preview-${tab}`).classList.add('show');
 }
 
-function commitImport(tab){
+async function commitImport(tab){
   const data=importParsedData[tab];
   if(!data){showImportResult(tab,'error','No data loaded. Please select a file first.');return;}
 
@@ -4083,25 +4063,12 @@ let _cachedUsers = null;
 
 async function loadUsers(){
   if(_cachedUsers) return _cachedUsers;
-  if(!_SUPABASE_READY){
-    _cachedUsers=[
-      {id:"u1",name:"Samir",password:"Samir2024!",code:"112233",role:"Admin",active:true},
-      {id:"u2",name:"Sam",  password:"Sam2024!",  code:"445566",role:"Member",active:true}
-    ];
-    return _cachedUsers;
-  }
-  try{
-    const {data,error} = await Promise.race([
-      _sb.from("users").select("*"),
-      new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),5000))
-    ]);
-    if(error||!data||!data.length) throw new Error("no data");
+  const {data,error} = await _sb.from("users").select("*");
+  if(error||!data||!data.length){
+    // Fallback defaults if Supabase unreachable
+    _cachedUsers=[{id:"u1",name:"Samir",password:"Samir2024!",code:"112233",role:"Admin",active:true},{id:"u2",name:"Sam",password:"Sam2024!",code:"445566",role:"Member",active:true}];
+  } else {
     _cachedUsers = data;
-  }catch(e){
-    _cachedUsers=[
-      {id:"u1",name:"Samir",password:"Samir2024!",code:"112233",role:"Admin",active:true},
-      {id:"u2",name:"Sam",  password:"Sam2024!",  code:"445566",role:"Member",active:true}
-    ];
   }
   return _cachedUsers;
 }
@@ -4179,40 +4146,34 @@ async function submitLogin(){
   if(codeVal.length<6){ showLoginError("Please enter the full 6-digit authentication code."); $("ac0").focus(); return; }
 
   btn.textContent="Checking…"; btn.disabled=true;
-  try{
-    const users = await loadUsers();
-    const user = users.find(u=>
-      u.name.toLowerCase()===nameVal.toLowerCase() &&
-      u.password===passVal &&
-      String(u.code)===codeVal
-    );
+  const users = await getActiveUsers();
+  const user = users.find(u=>
+    u.name.toLowerCase()===nameVal.toLowerCase() &&
+    u.password===passVal &&
+    String(u.code)===codeVal
+  );
 
-    if(user){
-      loginAttempts=0;
-      localStorage.removeItem("SADT_LOCKOUT");
-      btn.textContent="✓ Access Granted";
-      btn.style.background="linear-gradient(135deg,#7dd4a0,#4e9e6c)";
-      await loadDB();
-      setTimeout(()=>showApp(user.name,true,user.role),700);
-    } else {
-      btn.textContent="Enter Command Center"; btn.disabled=false; btn.style.background="";
-      loginAttempts++;
-      const remaining=MAX_ATTEMPTS-loginAttempts;
-      setCodeError(true);
-      setTimeout(()=>{ setCodeError(false); clearAuthCode(); $("ac0").focus(); },800);
-      if(loginAttempts>=MAX_ATTEMPTS){
-        lockoutUntil=Date.now()+LOCKOUT_MS;
-        localStorage.setItem("SADT_LOCKOUT",String(lockoutUntil));
-        showLockOverlay(); startLockTimer();
-      } else {
-        showLoginError(remaining===1?"Invalid credentials. 1 attempt remaining before lockout.":`Invalid name, password, or code. ${remaining} attempts remaining.`);
-        attEl.textContent=`${loginAttempts} / ${MAX_ATTEMPTS} attempts used`;
-      }
-    }
-  }catch(err){
-    console.error("Login error:",err);
+  if(user){
+    loginAttempts=0;
+    localStorage.removeItem("SADT_LOCKOUT");
+    btn.textContent="✓ Access Granted";
+    btn.style.background="linear-gradient(135deg,#7dd4a0,#4e9e6c)";
+    await loadDB();
+    setTimeout(()=>showApp(user.name,true,user.role),700);
+  } else {
     btn.textContent="Enter Command Center"; btn.disabled=false; btn.style.background="";
-    showLoginError("Connection error. Please try again.");
+    loginAttempts++;
+    const remaining=MAX_ATTEMPTS-loginAttempts;
+    setCodeError(true);
+    setTimeout(()=>{ setCodeError(false); clearAuthCode(); $("ac0").focus(); },800);
+    if(loginAttempts>=MAX_ATTEMPTS){
+      lockoutUntil=Date.now()+LOCKOUT_MS;
+      localStorage.setItem("SADT_LOCKOUT",String(lockoutUntil));
+      showLockOverlay(); startLockTimer();
+    } else {
+      showLoginError(remaining===1?"Invalid credentials. 1 attempt remaining before lockout.":`Invalid name, password, or code. ${remaining} attempts remaining.`);
+      attEl.textContent=`${loginAttempts} / ${MAX_ATTEMPTS} attempts used`;
+    }
   }
 }
 
