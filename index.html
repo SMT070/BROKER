@@ -7,6 +7,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ─── PASTE YOUR SUPABASE CREDENTIALS HERE ───
+const SUPABASE_URL  = "https://YOUR_PROJECT.supabase.co";
+const SUPABASE_ANON = "YOUR_ANON_KEY";
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+</script>
 <style>
 :root{
   --ink:#0a0805;
@@ -2413,11 +2420,11 @@ const seedData = {
 };
 
 // ─────────────── STATE ───────────────
-let db = loadDB();
+let db = {houses:[],archived:[],clients:[],deals:[],activity:[],notifications:[],tasks:[],profile:{}};
 let editingId = null;
 let lastArchived = null;
 let confirmCb = null;
-let invSort = {field:"createdAt",dir:"desc"};
+let invSort = {field:"created_at",dir:"desc"};
 let invPage = 1;
 let colMode = "BUY";
 let currentPropModalId = null;
@@ -2426,25 +2433,142 @@ let dragClientId = null;
 let taskFilter = "all";
 let editingTaskId = null;
 
-// ─────────────── DB ───────────────
-function loadDB(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if(!raw) return clone(seedData);
+// ─────────────── SUPABASE DB ───────────────
+async function loadDB(){
   try{
-    const p = JSON.parse(raw);
-    p.houses = p.houses||clone(seedData.houses);
-    p.archived = p.archived||[];
-    p.clients = p.clients||clone(seedData.clients);
-    p.deals = p.deals||clone(seedData.deals);
-    p.activity = p.activity||clone(seedData.activity);
-    p.notifications = p.notifications||clone(seedData.notifications);
-    p.tasks = p.tasks||clone(seedData.tasks);
-    p.profile = p.profile||clone(seedData.profile);
-    p.houses.forEach(norm); p.archived.forEach(norm); p.clients.forEach(normC);
-    return p;
-  }catch(e){return clone(seedData);}
+    const [propsRes,clientsRes,dealsRes,tasksRes,actRes,profRes] = await Promise.all([
+      _sb.from("properties").select("*").order("created_at",{ascending:false}),
+      _sb.from("clients").select("*").order("created_at",{ascending:false}),
+      _sb.from("deals").select("*").order("created_at",{ascending:false}),
+      _sb.from("tasks").select("*").order("created_at",{ascending:false}),
+      _sb.from("activity").select("*").order("created_at",{ascending:false}).limit(40),
+      _sb.from("profile").select("*").eq("id",1).single()
+    ]);
+    const allProps = propsRes.data||[];
+    db.houses   = allProps.filter(p=>!p.archived).map(mapProp);
+    db.archived = allProps.filter(p=>p.archived).map(mapProp);
+    db.clients  = (clientsRes.data||[]).map(mapClient);
+    db.deals    = (dealsRes.data||[]).map(mapDeal);
+    db.tasks    = (tasksRes.data||[]).map(mapTask);
+    db.activity = (actRes.data||[]).map(a=>({id:a.id,title:a.title,text:a.detail,ts:a.created_at}));
+    db.notifications = db.activity.slice(0,15).map(a=>({...a,read:true}));
+    db.profile  = profRes.data ? mapProfile(profRes.data) : clone(seedData.profile);
+    db.houses.forEach(norm); db.archived.forEach(norm); db.clients.forEach(normC);
+  }catch(e){
+    console.error("Supabase loadDB error:",e);
+    db = clone(seedData);
+    db.houses.forEach(norm); db.clients.forEach(normC);
+  }
 }
-function saveDB(){localStorage.setItem(STORAGE_KEY,JSON.stringify(db));renderAll();}
+
+// Map Supabase snake_case → app camelCase
+function mapProp(r){
+  return {
+    id:r.id, addr:r.addr, location:r.location||"Unknown", intent:r.intent||"BUY",
+    price:Number(r.price)||0, currency:r.currency||"$", status:r.status||"ACTIVE",
+    type:r.type||"Villa", size:r.size||0, bedrooms:r.bedrooms||0, bathrooms:r.bathrooms||0,
+    owner:r.owner||"Private Owner", notes:r.notes||"", coverImage:r.cover_image||"",
+    offMarket:r.off_market||false, archived:r.archived||false, addedBy:r.added_by||"",
+    amenities:Array.isArray(r.amenities)?r.amenities:[], wellnessFeatures:Array.isArray(r.wellness_features)?r.wellness_features:[],
+    gallery:Array.isArray(r.gallery)?r.gallery:[], history:Array.isArray(r.history)?r.history:[],
+    linkedClientIds:Array.isArray(r.linked_client_ids)?r.linked_client_ids:[],
+    createdAt:r.created_at||new Date().toISOString()
+  };
+}
+function mapClient(r){
+  return {
+    id:r.id, name:r.name||"", phone:r.phone||"-", email:r.email||"-",
+    type:r.type||"VIP", stage:r.stage||"Lead", nextAction:r.next_action||"Follow up",
+    estimatedValue:Number(r.budget)||0, note:r.notes||"", source:r.source||"Manual",
+    linkedPropertyIds:r.linked_property_id?[r.linked_property_id]:[], mustHave:"", niceHave:"",
+    createdAt:r.created_at||new Date().toISOString()
+  };
+}
+function mapDeal(r){
+  return {id:r.id,title:r.title||"",propertyId:r.property_id||null,clientId:r.client_id||null,
+    profit:Number(r.profit)||0,currency:r.currency||"$",closedDate:r.closed_date||"",note:r.notes||""};
+}
+function mapTask(r){
+  return {id:r.id,title:r.title||"",assignee:r.assignee||"Unassigned",priority:r.priority||"medium",
+    category:r.category||"admin",due:r.due||"",propId:r.property_id||null,clientId:r.client_id||null,
+    notes:r.notes||"",done:r.done||false,createdAt:r.created_at||new Date().toISOString()};
+}
+function mapProfile(r){
+  return {name:r.name||"",role:r.role||"Principal Agent",brand:r.brand||"PRESTIGE",tagline:r.tagline||"Command Center",picUrl:r.pic_url||""};
+}
+
+// Map camelCase → Supabase snake_case for saves
+function propToRow(h){
+  return {
+    addr:h.addr, location:h.location, intent:h.intent, price:h.price, currency:h.currency,
+    status:h.status, type:h.type, size:h.size, bedrooms:h.bedrooms, bathrooms:h.bathrooms,
+    owner:h.owner, notes:h.notes, cover_image:h.coverImage, off_market:h.offMarket,
+    archived:h.archived||false, added_by:h.addedBy||"",
+    amenities:h.amenities||[], wellness_features:h.wellnessFeatures||[],
+    gallery:h.gallery||[], history:h.history||[], linked_client_ids:h.linkedClientIds||[]
+  };
+}
+
+async function saveDB(){
+  // Fire and forget — saves happen per-operation via saveProp/saveClient/etc
+  renderAll();
+}
+
+async function saveProp(h){
+  const row = propToRow(h);
+  if(h.id && typeof h.id === "number" && h.id > 1000000000000){
+    // New item (Date.now() id) — insert
+    const {data,error} = await _sb.from("properties").insert(row).select().single();
+    if(data) h.id = data.id;
+    if(error) console.error("saveProp insert error:",error);
+  } else {
+    const {error} = await _sb.from("properties").update(row).eq("id",h.id);
+    if(error) console.error("saveProp update error:",error);
+  }
+}
+async function saveClient(c){
+  const row = {
+    name:c.name, phone:c.phone, email:c.email, type:c.type, stage:c.stage,
+    next_action:c.nextAction, budget:String(c.estimatedValue||0), notes:c.note,
+    source:c.source, linked_property_id:c.linkedPropertyIds&&c.linkedPropertyIds[0]||null
+  };
+  if(c.id && typeof c.id === "number" && c.id > 1000000000000){
+    const {data,error} = await _sb.from("clients").insert(row).select().single();
+    if(data) c.id = data.id;
+    if(error) console.error("saveClient insert error:",error);
+  } else {
+    const {error} = await _sb.from("clients").update(row).eq("id",c.id);
+    if(error) console.error("saveClient update error:",error);
+  }
+}
+async function saveDeal(d){
+  const row = {title:d.title,property_id:d.propertyId||null,client_id:d.clientId||null,
+    profit:d.profit,currency:d.currency,closed_date:d.closedDate,notes:d.note||""};
+  if(d.id && typeof d.id === "number" && d.id > 1000000000000){
+    const {data,error} = await _sb.from("deals").insert(row).select().single();
+    if(data) d.id = data.id;
+    if(error) console.error("saveDeal error:",error);
+  } else {
+    await _sb.from("deals").update(row).eq("id",d.id);
+  }
+}
+async function saveTask(t){
+  const row = {title:t.title,assignee:t.assignee,priority:t.priority,category:t.category,
+    due:t.due||null,property_id:t.propId||null,client_id:t.clientId||null,notes:t.notes,done:t.done};
+  if(t.id && typeof t.id === "number" && t.id > 1000000000000){
+    const {data,error} = await _sb.from("tasks").insert(row).select().single();
+    if(data) t.id = data.id;
+    if(error) console.error("saveTask error:",error);
+  } else {
+    await _sb.from("tasks").update(row).eq("id",t.id);
+  }
+}
+async function saveActivity(title,detail){
+  await _sb.from("activity").insert({title,detail});
+}
+async function saveProfileToDB(p){
+  await _sb.from("profile").upsert({id:1,name:p.name,role:p.role,brand:p.brand,tagline:p.tagline,pic_url:p.picUrl,updated_at:new Date().toISOString()});
+}
 function clone(v){return JSON.parse(JSON.stringify(v));}
 function norm(h,i=0){
   if(!h.currency)h.currency="$";if(!h.intent)h.intent="BUY";if(!h.type)h.type="Villa";
@@ -2493,6 +2617,7 @@ function addActivity(title,text){
   db.notifications.unshift({id:Date.now()+1,title,text,ts,read:false});
   db.activity=db.activity.slice(0,30);
   db.notifications=db.notifications.slice(0,40);
+  saveActivity(title,text).catch(e=>console.error("activity save:",e));
 }
 
 // ─────────────── CLOCK ───────────────
@@ -2535,7 +2660,6 @@ function toggleNotifPanel(){
 }
 function markAllRead(){
   db.notifications.forEach(n=>n.read=true);
-  saveDB();
   renderNotifs();
 }
 function renderNotifs(){
@@ -2663,13 +2787,16 @@ function submitAsset(){
     h.history.unshift(`Updated ${fmtDate(new Date().toISOString())}.`);
     if(prev!==status){h.history.unshift(`Status: ${prev} → ${status}.`);addActivity("Status Updated",`${h.addr} moved from ${prev} to ${status}.`);}
     showToast("Asset Updated","Property record has been updated.");
+    resetAssetForm();openAssetForm(false);
+    await saveProp(h); renderAll();
   } else {
     const h={id:Date.now(),addr,location:loc,intent,price,currency:cur,status,type,size,bedrooms:bed,bathrooms:bath,amenities:amen,wellnessFeatures:well,owner,notes,coverImage:cover,gallery,offMarket:offMkt,linkedClientIds:[],addedBy:"saDT",createdAt:new Date().toISOString(),history:[`Listed by saDT on ${fmtDate(new Date().toISOString())}.`]};
     db.houses.unshift(h);
     addActivity("Asset Added",`${h.addr} entered inventory at ${money(h.price,h.currency)}.`);
     showToast("Asset Listed",`${h.addr} is now in your inventory.`);
+    resetAssetForm();openAssetForm(false);
+    await saveProp(h); renderAll();
   }
-  resetAssetForm();openAssetForm(false);saveDB();
 }
 
 function getInvSource(){return $("invStatus").value==="ARCHIVED"?db.archived:db.houses;}
@@ -2753,23 +2880,24 @@ function requestArchive(id){
 function archiveProp(id,reason){
   const h=db.houses.find(x=>x.id===id);if(!h)return;
   db.houses=db.houses.filter(x=>x.id!==id);
-  h.archivedReason=reason;h.history.unshift(`Archived. Reason: ${reason}.`);
+  h.archivedReason=reason;h.history.unshift(`Archived. Reason: ${reason}.`);h.archived=true;
   db.archived.unshift(h);lastArchived=h.id;
   addActivity("Asset Archived",`${h.addr} archived. Reason: ${reason}.`);
   closeDrawer();
   showToast("Asset Archived",h.addr+" moved to archive.",()=>{
     const a=db.archived.find(x=>x.id===lastArchived);
-    if(a){db.archived=db.archived.filter(x=>x.id!==lastArchived);a.history.unshift("Restored (undo).");delete a.archivedReason;db.houses.unshift(a);addActivity("Undo Archive",`${a.addr} restored.`);saveDB();}
+    if(a){db.archived=db.archived.filter(x=>x.id!==lastArchived);a.history.unshift("Restored (undo).");delete a.archivedReason;a.archived=false;db.houses.unshift(a);addActivity("Undo Archive",`${a.addr} restored.`);saveProp(a).then(()=>renderAll());}
   });
-  saveDB();
+  saveProp(h).then(()=>renderAll());
 }
 function restoreProperty(id){
   const h=db.archived.find(x=>x.id===id);if(!h)return;
   db.archived=db.archived.filter(x=>x.id!==id);
-  h.history.unshift("Restored from archive.");delete h.archivedReason;
+  h.history.unshift("Restored from archive.");delete h.archivedReason;h.archived=false;
   db.houses.unshift(h);
   addActivity("Asset Restored",`${h.addr} returned to inventory.`);
-  showToast("Restored",`${h.addr} is back in active inventory.`);saveDB();
+  showToast("Restored",`${h.addr} is back in active inventory.`);
+  saveProp(h).then(()=>renderAll());
 }
 
 // ─────────────── COLLECTION VIEW ───────────────
@@ -2917,7 +3045,8 @@ function linkClientToDrawerProp(propId){
   if(!c.linkedPropertyIds.includes(propId))c.linkedPropertyIds.push(propId);
   h.history.unshift(`Linked to ${c.name}.`);
   addActivity("Client Linked",`${c.name} attached to ${h.addr}.`);
-  saveDB();openDrawer(propId,false);
+  Promise.all([saveProp(h),saveClient(c)]).then(()=>renderAll());
+  openDrawer(propId,false);
 }
 function prepSettlement(propId){
   const h=db.houses.find(x=>x.id===propId);if(!h)return;
@@ -2941,15 +3070,17 @@ function addClient(){
   const id=Date.now();
   const c={id,name,type:$("cType").value,stage:$("cStage").value,nextAction:$("cNext").value.trim()||"Follow up",estimatedValue:parseFloat($("cVal").value)||0,linkedPropertyIds:propId?[propId]:[],note:$("cNote").value.trim()||"",source:$("cSrc").value.trim()||"Manual",phone:$("cPhone").value.trim()||"-",email:$("cEmail").value.trim()||"-",mustHave:$("cMustHave").value.trim()||"",niceHave:$("cNiceHave").value.trim()||"",createdAt:new Date().toISOString()};
   db.clients.unshift(c);
-  if(propId){const h=db.houses.find(x=>x.id===propId);if(h&&!h.linkedClientIds.includes(id)){h.linkedClientIds.push(id);h.history.unshift(`Linked to client ${name}.`);}}
+  if(propId){const h=db.houses.find(x=>x.id===propId);if(h&&!h.linkedClientIds.includes(id)){h.linkedClientIds.push(id);h.history.unshift(`Linked to client ${name}.`);saveProp(h).catch(()=>{});}}
   ["cName","cPhone","cVal","cEmail","cNote","cNext","cSrc","cMustHave","cNiceHave"].forEach(id=>$(id).value="");
   $("cType").value="VIP";$("cStage").value="Lead";$("cProp").value="";
-  addActivity("Client Added",`${name} entered CRM as ${c.type}.`);saveDB();
+  addActivity("Client Added",`${name} entered CRM as ${c.type}.`);
+  await saveClient(c); renderAll();
 }
 function deleteClient(id){
   db.houses.forEach(h=>{h.linkedClientIds=h.linkedClientIds.filter(x=>x!==id);});
   db.clients=db.clients.filter(c=>c.id!==id);
-  addActivity("Client Removed","A client was removed from CRM.");saveDB();
+  addActivity("Client Removed","A client was removed from CRM.");
+  _sb.from("clients").delete().eq("id",id).then(()=>renderAll());
 }
 function getCRMLinkedNames(c){return c.linkedPropertyIds.map(pid=>db.houses.find(h=>h.id===pid)).filter(Boolean).map(h=>h.addr);}
 function renderCRM(){
@@ -2987,7 +3118,8 @@ function dropCard(e,stage){
   if(!c)return;
   const prev=c.stage;c.stage=stage;
   addActivity("Pipeline Moved",`${c.name} moved from ${prev} to ${stage}.`);
-  dragClientId=null;saveDB();
+  dragClientId=null;
+  saveClient(c).then(()=>renderAll());
 }
 function renderPipeline(){
   const board=$("pipelineBoard");
@@ -3019,9 +3151,19 @@ function addDeal(){
   if(clientId){const c=db.clients.find(x=>x.id===clientId);if(c){c.stage="Closed";c.nextAction="Request testimonial";}}
   ["dTitle","dProfit","dDate","dNote"].forEach(id=>$(id).value="");
   $("dProp").value="";$("dClient").value="";
-  addActivity("Settlement Logged",`${title} added ${money(profit)} in commission.`);saveDB();
+  addActivity("Settlement Logged",`${title} added ${money(profit)} in commission.`);
+  const propH=propId?db.houses.find(x=>x.id===propId):null;
+  const clientC=clientId?db.clients.find(x=>x.id===clientId):null;
+  const ops=[saveDeal(d)];
+  if(propH)ops.push(saveProp(propH));
+  if(clientC)ops.push(saveClient(clientC));
+  Promise.all(ops).then(()=>renderAll());
 }
-function deleteDeal(id){db.deals=db.deals.filter(d=>d.id!==id);addActivity("Deal Removed","A settlement entry was removed.");saveDB();}
+function deleteDeal(id){
+  db.deals=db.deals.filter(d=>d.id!==id);
+  addActivity("Deal Removed","A settlement entry was removed.");
+  _sb.from("deals").delete().eq("id",id).then(()=>renderAll());
+}
 function renderSettlements(){
   renderCRMPropOpts();
   const total=db.deals.reduce((s,d)=>s+d.profit,0);
@@ -3185,7 +3327,7 @@ function importJSON(e){
           db.clients=db.clients||[];db.deals=db.deals||[];
           db.activity=db.activity||[];db.notifications=db.notifications||[];
           db.houses.forEach(norm);db.archived.forEach(norm);db.clients.forEach(normC);
-          saveDB();showToast("Backup Restored","Your data has been fully restored.");
+          renderAll();showToast("Backup Restored","Your data has been fully restored.");
         }
       });
     }catch(err){showToast("Import Failed","Invalid or corrupt backup file.");}
@@ -3194,14 +3336,9 @@ function importJSON(e){
   e.target.value="";
 }
 function checkStorageWarning(){
-  try{
-    const used=new Blob([localStorage.getItem(STORAGE_KEY)||""]).size;
-    const warn=$("storageWarn");
-    if(used>3*1024*1024){
-      warn.className="data-warning show";
-      warn.innerHTML=`⚠ Storage is getting large (${(used/1024/1024).toFixed(1)}MB). Consider exporting a backup. <button class="btn-outline btn-sm" onclick="exportJSON()" style="margin-left:auto;">Backup Now</button>`;
-    }
-  }catch(e){}
+  // Using Supabase — no local storage limits apply
+  const warn=$("storageWarn");
+  if(warn) warn.className="data-warning";
 }
 
 // ─────────────── COMMISSION CALCULATOR ───────────────
@@ -3273,7 +3410,7 @@ function openAddShowing(){
       const parts=v.split("·").map(s=>s.trim());
       h.showings.unshift({id:Date.now(),client:parts[0]||v,date:parts[1]||new Date().toISOString().slice(0,10),outcome:parts[2]||"",loggedAt:new Date().toISOString()});
       addActivity("Showing Logged",`${h.addr} — ${parts[0]||v}`);
-      saveDB();
+      saveProp(h).then(()=>renderAll());
       renderShowingLog(h);
     }
   });
@@ -3387,7 +3524,7 @@ function saveProfile(){
   const tagline=$("profileTagline").value.trim()||"Command Center";
   const picUrl=$("profilePicUrl").value.trim();
   db.profile={name,role,brand,tagline,picUrl};
-  saveDB();
+  saveProfileToDB(db.profile).then(()=>renderAll());
   closeProfileModal();
   showToast("Profile Saved","Your workspace has been updated.");
 }
@@ -3481,7 +3618,9 @@ function submitTask(){
     addActivity("Task Created",title);
     showToast("Task Created",title+" added to board.");
   }
-  closeTaskForm();saveDB();
+  closeTaskForm();
+  const tToSave = editingTaskId ? db.tasks.find(x=>x.id===t.id)||t : db.tasks[0];
+  saveTask(tToSave).then(()=>renderAll());
 }
 function editTask(id){
   const t=db.tasks.find(x=>x.id===id);if(!t)return;
@@ -3503,13 +3642,13 @@ function editTask(id){
 function deleteTask(id){
   db.tasks=db.tasks.filter(t=>t.id!==id);
   addActivity("Task Removed","A task was deleted.");
-  saveDB();
+  _sb.from("tasks").delete().eq("id",id).then(()=>renderAll());
 }
 function toggleTaskDone(id){
   const t=db.tasks.find(x=>x.id===id);if(!t)return;
   t.done=!t.done;
   if(t.done)addActivity("Task Completed",t.title);
-  saveDB();
+  saveTask(t).then(()=>renderAll());
 }
 function filterTasks(mode,btn){
   taskFilter=mode;
@@ -3805,8 +3944,8 @@ function commitImport(tab){
       db.activity=db.activity||[];db.notifications=db.notifications||[];
       db.tasks=db.tasks||[];db.profile=db.profile||{};
       db.houses.forEach(norm);db.archived.forEach(norm);db.clients.forEach(normC);
-      saveDB();
-      showImportResult(tab,'success',`✓ Full backup restored successfully. All data has been loaded.`);
+      renderAll();
+      showImportResult(tab,'success',`Backup restored successfully. All data has been loaded.`);
       addActivity('Backup Restored','Full system data restored from backup.');
     }catch(err){showImportResult(tab,'error','Restore failed: '+err.message);}
     return;
@@ -3889,8 +4028,21 @@ function commitImport(tab){
     addActivity('Deals Imported',`${count} deals imported from file.`);
   }
 
-  saveDB();
-  const msg=errors?`✓ ${count} records imported. ${errors} rows had errors and were skipped.`:`✓ ${count} records imported successfully into your ${tab}.`;
+  // Bulk upsert to Supabase
+  try{
+    if(tab==='properties'){
+      const rows=db.houses.slice(0,count).map(propToRow);
+      await _sb.from("properties").upsert(rows);
+    } else if(tab==='clients'){
+      const rows=db.clients.slice(0,count).map(c=>({name:c.name,phone:c.phone,email:c.email,type:c.type,stage:c.stage,next_action:c.nextAction,budget:String(c.estimatedValue||0),notes:c.note,source:c.source}));
+      await _sb.from("clients").upsert(rows);
+    } else if(tab==='deals'){
+      const rows=db.deals.slice(0,count).map(d=>({title:d.title,profit:d.profit,currency:d.currency,closed_date:d.closedDate,notes:d.note||""}));
+      await _sb.from("deals").upsert(rows);
+    }
+  }catch(e){console.error("import upsert error:",e);}
+  renderAll();
+  const msg=errors?`\u2713 ${count} records imported. ${errors} rows had errors and were skipped.`:`\u2713 ${count} records imported successfully into your ${tab}.`;
   showImportResult(tab,errors?'error':'success',msg);
   setTimeout(()=>{if(count>0)closeImportCenter();},2200);
 }
@@ -3903,47 +4055,47 @@ function showImportResult(tab,type,msg){
 }
 // ─────────────── AUTH SYSTEM ───────────────
 const AUTH_SESSION_KEY = "SADT_SESSION";
-const AUTH_USERS_KEY   = "SADT_USERS";
 const MAX_ATTEMPTS     = 5;
 const LOCKOUT_MS       = 5 * 60 * 1000;
 
-// ── Default users — Samir is the permanent admin, Sam is preset member ──
-// Stored in localStorage so Samir can edit them live
-const DEFAULT_USERS = [
-  { id:"u1", name:"Samir", password:"Samir2024!",  code:"112233", role:"Admin",  active:true  },
-  { id:"u2", name:"Sam",   password:"Sam2024!",     code:"445566", role:"Member", active:true  },
-  { id:"u3", name:"",      password:"",             code:"",       role:"Member", active:false },
-  { id:"u4", name:"",      password:"",             code:"",       role:"Member", active:false },
-  { id:"u5", name:"",      password:"",             code:"",       role:"Member", active:false }
-];
+// Users now live in Supabase — cached in memory after first load
+let _cachedUsers = null;
 
-function loadUsers(){
-  try{
-    const raw = localStorage.getItem(AUTH_USERS_KEY);
-    if(raw){
-      const parsed = JSON.parse(raw);
-      if(Array.isArray(parsed) && parsed.length) return parsed;
-    }
-  }catch(e){}
-  const users = DEFAULT_USERS.map(u=>({...u}));
-  saveUsers(users);
-  return users;
+async function loadUsers(){
+  if(_cachedUsers) return _cachedUsers;
+  const {data,error} = await _sb.from("users").select("*");
+  if(error||!data||!data.length){
+    // Fallback defaults if Supabase unreachable
+    _cachedUsers=[{id:"u1",name:"Samir",password:"Samir2024!",code:"112233",role:"Admin",active:true},{id:"u2",name:"Sam",password:"Sam2024!",code:"445566",role:"Member",active:true}];
+  } else {
+    _cachedUsers = data;
+  }
+  return _cachedUsers;
 }
-function saveUsers(users){ localStorage.setItem(AUTH_USERS_KEY, JSON.stringify(users)); }
-function getActiveUsers(){ return loadUsers().filter(u=>u.active && u.name && u.password && u.code); }
+async function saveUsers(users){
+  _cachedUsers = users;
+  for(const u of users){
+    await _sb.from("users").upsert({id:u.id,name:u.name,password:u.password,code:u.code,role:u.role,active:u.active});
+  }
+}
+async function getActiveUsers(){
+  const users = await loadUsers();
+  return users.filter(u=>u.active && u.name && u.password && u.code);
+}
 
 let loginAttempts = 0;
 let lockoutUntil  = 0;
 let lockTimerInterval = null;
 let currentUser   = null;
 
-// ── Boot: check existing session ──
-(function bootAuth(){
+// ── Boot: check existing session then load data ──
+(async function bootAuth(){
   try{
     const s = JSON.parse(sessionStorage.getItem(AUTH_SESSION_KEY)||"null");
     if(s && s.name && s.ts && Date.now() - s.ts < 8*60*60*1000){
       currentUser = s;
-      showApp(s.name, false);
+      await loadDB();
+      showApp(s.name, false, s.role);
       return;
     }
   }catch(e){}
@@ -3982,7 +4134,7 @@ function clearAuthCode(){
   [0,1,2,3,4,5].forEach(i=>{ const inp=$(`ac${i}`); inp.value=""; inp.classList.remove("filled","error"); });
 }
 
-function submitLogin(){
+async function submitLogin(){
   if(lockoutUntil>Date.now()){ showLockOverlay(); return; }
   const nameVal=($("loginName").value||"").trim();
   const passVal=($("loginPassword").value||"").trim();
@@ -3993,11 +4145,12 @@ function submitLogin(){
   if(!passVal){ showLoginError("Please enter your password."); $("loginPassword").focus(); return; }
   if(codeVal.length<6){ showLoginError("Please enter the full 6-digit authentication code."); $("ac0").focus(); return; }
 
-  const users = getActiveUsers();
+  btn.textContent="Checking…"; btn.disabled=true;
+  const users = await getActiveUsers();
   const user = users.find(u=>
     u.name.toLowerCase()===nameVal.toLowerCase() &&
     u.password===passVal &&
-    u.code===codeVal
+    String(u.code)===codeVal
   );
 
   if(user){
@@ -4005,9 +4158,10 @@ function submitLogin(){
     localStorage.removeItem("SADT_LOCKOUT");
     btn.textContent="✓ Access Granted";
     btn.style.background="linear-gradient(135deg,#7dd4a0,#4e9e6c)";
-    btn.disabled=true;
+    await loadDB();
     setTimeout(()=>showApp(user.name,true,user.role),700);
   } else {
+    btn.textContent="Enter Command Center"; btn.disabled=false; btn.style.background="";
     loginAttempts++;
     const remaining=MAX_ATTEMPTS-loginAttempts;
     setCodeError(true);
@@ -4108,16 +4262,16 @@ function logOut(){
 // ─────────────── USER MANAGEMENT (Admin only) ───────────────
 let editingUserId = null;
 
-function openUM(){
+async function openUM(){
   if(!currentUser||currentUser.role!=="Admin"){ showToast("Access Denied","Only Samir (Admin) can manage users."); return; }
-  renderUMList();
+  await renderUMList();
   resetUMForm();
   $("umModal").classList.add("open");
 }
 function closeUM(){ $("umModal").classList.remove("open"); resetUMForm(); }
 
-function renderUMList(){
-  const users=loadUsers();
+async function renderUMList(){
+  const users=await loadUsers();
   const list=$("umUserList"); if(!list)return;
   list.innerHTML=users.map((u,idx)=>{
     const isAdmin=u.role==="Admin";
@@ -4170,8 +4324,8 @@ function resetUMForm(){
 
 function cancelUMEdit(){ resetUMForm(); }
 
-function editUser(userId){
-  const users=loadUsers();
+async function editUser(userId){
+  const users=await loadUsers();
   const u=users.find(x=>x.id===userId); if(!u)return;
   editingUserId=userId;
   $("umFormTitle").textContent=`Edit: ${u.name}`;
@@ -4187,19 +4341,20 @@ function editUser(userId){
   document.querySelector(".um-add-form").scrollIntoView({behavior:"smooth"});
 }
 
-function removeUser(userId){
-  const users=loadUsers();
+async function removeUser(userId){
+  const users=await loadUsers();
   const u=users.find(x=>x.id===userId); if(!u)return;
   if(u.name.toLowerCase()==="samir"){ showToast("Protected","Samir's account cannot be removed."); return; }
   openConfirm({
     title:"Remove User",
     text:`Remove ${u.name} from the system? They will no longer be able to log in.`,
     btn:"Remove",
-    cb:()=>{
+    cb:async()=>{
       const idx=users.findIndex(x=>x.id===userId);
       users[idx]={...users[idx],name:"",password:"",code:"",role:"Member",active:false};
-      saveUsers(users);
-      renderUMList();
+      _cachedUsers=users;
+      await _sb.from("users").upsert({id:users[idx].id,name:"",password:"",code:"",role:"Member",active:false});
+      await renderUMList();
       showToast("User Removed",`${u.name} has been removed.`);
     }
   });
@@ -4220,7 +4375,7 @@ function genRandomCode(){
   showToast("Code Generated",`Auth code: ${code} — save this securely.`);
 }
 
-function submitUMForm(){
+async function submitUMForm(){
   const name=($("umName").value||"").trim();
   const pass=($("umPass").value||"").trim();
   const role=$("umRole").value||"Member";
@@ -4232,9 +4387,8 @@ function submitUMForm(){
   if(!pass||pass.length<4){ errEl.textContent="Password must be at least 4 characters."; return; }
   if(code.length<6||code.split("").some(c=>isNaN(parseInt(c)))){ errEl.textContent="Enter a valid 6-digit numeric auth code."; return; }
 
-  const users=loadUsers();
+  const users=await loadUsers();
 
-  // Check name uniqueness (excluding self when editing)
   const nameTaken=users.some(u=>u.name.toLowerCase()===name.toLowerCase()&&(!editingUserId||u.id!==editingUserId)&&u.active);
   if(nameTaken){ errEl.textContent=`The name "${name}" is already taken. Choose a different name.`; return; }
 
@@ -4244,18 +4398,20 @@ function submitUMForm(){
     u.name=name; u.password=pass; u.code=code;
     if(!isSamir)u.role=role;
     u.active=true;
-    saveUsers(users);
+    _cachedUsers=users;
+    await _sb.from("users").upsert({id:u.id,name:u.name,password:u.password,code:u.code,role:u.role,active:u.active});
     resetUMForm();
-    renderUMList();
+    await renderUMList();
     showToast("User Updated",`${name}'s credentials have been updated.`);
   } else {
-    // Find first empty slot
-    const emptySlot=users.find(u=>!u.active||!u.name);
-    if(!emptySlot){ errEl.textContent="All 5 user slots are full. Remove a user first."; return; }
-    emptySlot.name=name; emptySlot.password=pass; emptySlot.code=code; emptySlot.role=role; emptySlot.active=true;
-    saveUsers(users);
+    // Insert new user
+    const newId = "u"+Date.now();
+    const newUser={id:newId,name,password:pass,code,role,active:true};
+    users.push(newUser);
+    _cachedUsers=users;
+    await _sb.from("users").insert({id:newId,name,password:pass,code,role,active:true});
     resetUMForm();
-    renderUMList();
+    await renderUMList();
     showToast("User Added",`${name} can now log in with their credentials.`);
   }
 }
