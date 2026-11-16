@@ -153,7 +153,7 @@ button{cursor:pointer;border:none;background:none}
 }
 .login-lock-overlay{
   position:absolute;inset:0;border-radius:28px;
-  background:rgba(10,8,5,0.88);backdrop-filter:blur(8px);
+  background:rgba(10,8,5,0.88);
   display:none;align-items:center;justify-content:center;
   flex-direction:column;gap:12px;text-align:center;padding:32px;
 }
@@ -180,7 +180,7 @@ button{cursor:pointer;border:none;background:none}
   position:fixed;inset:0;z-index:10000;
   display:none;align-items:center;justify-content:center;
   padding:20px;
-  background:rgba(4,3,2,0.88);backdrop-filter:blur(12px);
+  background:rgba(4,3,2,0.88);
 }
 .um-modal.open{display:flex;}
 .um-box{
@@ -302,15 +302,6 @@ button{cursor:pointer;border:none;background:none}
 }
 #appRoot{display:none;}
 #appRoot.authed{display:block;}
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:999;
-  opacity:0.025;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
 
 /* ─── SHELL ─── */
 .app-shell{
@@ -454,9 +445,9 @@ body::before{
 }
 .topbar{
   padding:16px 32px;
-  background:rgba(10,8,5,0.9);
+  background:#0a0805;
   border-bottom:1px solid var(--white-line);
-  backdrop-filter:blur(12px);
+  
   display:flex;align-items:center;justify-content:space-between;gap:20px;
   position:sticky;top:0;z-index:50;
 }
@@ -490,7 +481,7 @@ body::before{
   flex:1;overflow-y:auto;
   padding:32px;
 }
-.page{display:none;animation:fadeUp 0.3s ease;}
+.page{display:none;animation:fadeUp 0.12s ease;}
 .page.active{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -734,7 +725,7 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 /* ─── DRAWER ─── */
 .drawer-overlay{
   position:fixed;inset:0;z-index:200;
-  background:rgba(5,4,3,0.7);backdrop-filter:blur(6px);
+  background:rgba(5,4,3,0.7);
   display:none;opacity:0;transition:opacity 0.3s;
 }
 .drawer-overlay.open{display:block;opacity:1;}
@@ -787,7 +778,7 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 /* ─── MODAL ─── */
 .modal-overlay{
   position:fixed;inset:0;z-index:300;
-  background:rgba(4,3,2,0.85);backdrop-filter:blur(10px);
+  background:rgba(4,3,2,0.85);
   display:none;align-items:center;justify-content:center;padding:24px;
 }
 .modal-overlay.open{display:flex;}
@@ -1016,7 +1007,7 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 .hamburger:hover{border-color:var(--gold-line);color:var(--gold2);}
 .sidebar-mobile-overlay{
   display:none;position:fixed;inset:0;z-index:150;
-  background:rgba(5,4,3,0.75);backdrop-filter:blur(4px);
+  background:rgba(5,4,3,0.75);
 }
 .sidebar-mobile-overlay.open{display:block;}
 .sidebar.mobile-open{display:flex!important;position:fixed;top:0;left:0;bottom:0;z-index:151;width:280px;animation:slideFromLeft 0.28s cubic-bezier(0.16,1,0.3,1);}
@@ -2347,14 +2338,14 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 const STORAGE_KEY = "SADT_PRESTIGE_V2";
 const STAGES = ["Lead","Qualified","Viewing Scheduled","Negotiation","Under Offer","Closed"];
 const PHOTOS = [
-  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1600566753151-384129cf4e3e?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1600607687644-c7f34b5f7b5d?auto=format&fit=crop&w=1600&q=80"
+  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=70",
+  "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=900&q=70",
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=70",
+  "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=900&q=70",
+  "https://images.unsplash.com/photo-1600566753151-384129cf4e3e?auto=format&fit=crop&w=900&q=70",
+  "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=70",
+  "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=900&q=70",
+  "https://images.unsplash.com/photo-1600607687644-c7f34b5f7b5d?auto=format&fit=crop&w=900&q=70"
 ];
 
 const seedData = {
@@ -2413,6 +2404,13 @@ let taskFilter = "all";
 let editingTaskId = null;
 
 // ─────────────── SUPABASE DB ───────────────
+const CACHE_KEY="SADT_DB_CACHE_V1";
+function loadCache(){
+  try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
+    if(c&&Array.isArray(c.houses)){db=c;db.archived=db.archived||[];db.clients=db.clients||[];db.deals=db.deals||[];db.tasks=db.tasks||[];db.activity=db.activity||[];db.notifications=db.notifications||[];db.profile=db.profile||{};return true;}
+  }catch(e){}
+  return false;
+}
 async function loadDB(){
   try{
     const [propsRes,clientsRes,dealsRes,tasksRes,actRes,profRes] = await Promise.all([
@@ -2433,10 +2431,10 @@ async function loadDB(){
     db.notifications = db.activity.slice(0,15).map(a=>({...a,read:true}));
     db.profile  = profRes.data ? mapProfile(profRes.data) : clone(seedData.profile);
     db.houses.forEach(norm); db.archived.forEach(norm); db.clients.forEach(normC);
+    try{localStorage.setItem(CACHE_KEY,JSON.stringify(db));}catch(e){}
   }catch(e){
     console.error("Supabase loadDB error:",e);
-    db = clone(seedData);
-    db.houses.forEach(norm); db.clients.forEach(normC);
+    if(!db.houses.length&&!db.clients.length){db = clone(seedData);db.houses.forEach(norm); db.clients.forEach(normC);}
   }
 }
 
@@ -2575,6 +2573,7 @@ function normC(c){
 const $=id=>document.getElementById(id);
 function money(v,c="$"){return c+Number(v||0).toLocaleString("en-US");}
 function fmtDate(v){if(!v)return"N/A";return new Date(v).toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"});}
+function thumb(u,w=400){return u&&u.indexOf("images.unsplash.com")>-1?u.replace(/w=\d+/,"w="+w):u;}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function sc(v){return String(v||"").toLowerCase().replace(/\s+/g,"-");}
 function parseList(v){return v.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);}
@@ -2676,7 +2675,7 @@ function renderOverview(){
   invB.innerHTML=slice.length?slice.map(h=>`
     <tr onclick="openDrawer(${h.id},false)" style="cursor:pointer;">
       <td data-label="Asset"><div class="asset-cell">
-        <div class="thumb"><img src="${esc(h.coverImage)}" alt=""></div>
+        <div class="thumb"><img src="${esc(thumb(h.coverImage))}" alt="" loading="lazy" decoding="async"></div>
         <div class="asset-cell-info"><strong>${esc(h.addr)}</strong><span>${esc(h.location)} • ${esc(h.type)}</span></div>
       </div></td>
       <td data-label="Valuation">${money(h.price,h.currency)}</td>
@@ -2767,14 +2766,14 @@ async function submitAsset(){
     if(prev!==status){h.history.unshift(`Status: ${prev} → ${status}.`);addActivity("Status Updated",`${h.addr} moved from ${prev} to ${status}.`);}
     showToast("Asset Updated","Property record has been updated.");
     resetAssetForm();openAssetForm(false);
-    await saveProp(h); renderAll();
+    renderAll(); saveProp(h).then(()=>renderAll());
   } else {
     const h={id:Date.now(),addr,location:loc,intent,price,currency:cur,status,type,size,bedrooms:bed,bathrooms:bath,amenities:amen,wellnessFeatures:well,owner,notes,coverImage:cover,gallery,offMarket:offMkt,linkedClientIds:[],addedBy:"saDT",createdAt:new Date().toISOString(),history:[`Listed by saDT on ${fmtDate(new Date().toISOString())}.`]};
     db.houses.unshift(h);
     addActivity("Asset Added",`${h.addr} entered inventory at ${money(h.price,h.currency)}.`);
     showToast("Asset Listed",`${h.addr} is now in your inventory.`);
     resetAssetForm();openAssetForm(false);
-    await saveProp(h); renderAll();
+    renderAll(); saveProp(h).then(()=>renderAll());
   }
 }
 
@@ -2824,7 +2823,7 @@ function renderInventory(){
 
   body.innerHTML=visible.length?visible.map(h=>`
     <tr style="cursor:pointer;" onclick="openDrawer(${h.id},${archivedView})">
-      <td data-label="Thumb"><div class="thumb"><img src="${esc(h.coverImage)}" alt=""></div></td>
+      <td data-label="Thumb"><div class="thumb"><img src="${esc(thumb(h.coverImage))}" alt="" loading="lazy" decoding="async"></div></td>
       <td data-label="Asset"><div class="asset-cell">
         <div class="asset-cell-info">
           <strong>${esc(h.addr)}</strong>
@@ -2865,9 +2864,9 @@ function archiveProp(id,reason){
   closeDrawer();
   showToast("Asset Archived",h.addr+" moved to archive.",()=>{
     const a=db.archived.find(x=>x.id===lastArchived);
-    if(a){db.archived=db.archived.filter(x=>x.id!==lastArchived);a.history.unshift("Restored (undo).");delete a.archivedReason;a.archived=false;db.houses.unshift(a);addActivity("Undo Archive",`${a.addr} restored.`);saveProp(a).then(()=>renderAll());}
+    if(a){db.archived=db.archived.filter(x=>x.id!==lastArchived);a.history.unshift("Restored (undo).");delete a.archivedReason;a.archived=false;db.houses.unshift(a);addActivity("Undo Archive",`${a.addr} restored.`);renderAll();saveProp(a).then(()=>renderAll());}
   });
-  saveProp(h).then(()=>renderAll());
+  renderAll();saveProp(h).then(()=>renderAll());
 }
 function restoreProperty(id){
   const h=db.archived.find(x=>x.id===id);if(!h)return;
@@ -2876,7 +2875,7 @@ function restoreProperty(id){
   db.houses.unshift(h);
   addActivity("Asset Restored",`${h.addr} returned to inventory.`);
   showToast("Restored",`${h.addr} is back in active inventory.`);
-  saveProp(h).then(()=>renderAll());
+  renderAll();saveProp(h).then(()=>renderAll());
 }
 
 // ─────────────── COLLECTION VIEW ───────────────
@@ -2902,7 +2901,7 @@ function renderCollection(){
   $("colGrid").innerHTML=items.length?items.map(h=>`
     <article class="prop-card" onclick="openPropModal(${h.id})">
       <div class="prop-img">
-        <img src="${esc(h.coverImage)}" alt="${esc(h.addr)}" loading="lazy">
+        <img src="${esc(thumb(h.coverImage,800))}" alt="${esc(h.addr)}" loading="lazy" decoding="async">
         <div class="prop-price-tag">${money(h.price,h.currency)}</div>
         <div class="prop-status-tag"><span class="badge badge-${sc(h.status)}">${esc(h.status)}</span></div>
       </div>
@@ -2930,7 +2929,7 @@ function renderPropModal(){
   const g=getGallery(h);
   const img=g[currentPropModalImg]||h.coverImage;
   $("propModalImg").src=img;$("propModalImg").alt=h.addr;
-  $("propModalThumbs").innerHTML=g.map((src,i)=>`<button onclick="setPropModalImg(${i})"><img src="${esc(src)}" alt=""></button>`).join("");
+  $("propModalThumbs").innerHTML=g.map((src,i)=>`<button onclick="setPropModalImg(${i})"><img src="${esc(thumb(src,300))}" alt="" loading="lazy"></button>`).join("");
   $("propModalContent").innerHTML=`
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;">
       <div>
@@ -2967,7 +2966,7 @@ function openDrawer(id,archived=false){
   $("drawerSub").textContent=`${h.type} · ${h.location} · ${money(h.price,h.currency)} · Added by ${h.addedBy}`;
   $("drawerBody").innerHTML=`
     <div class="drawer-image"><img src="${esc(h.coverImage)}" alt="${esc(h.addr)}"></div>
-    <div class="drawer-gallery">${getGallery(h).slice(0,8).map(s=>`<img src="${esc(s)}" alt="">`).join("")}</div>
+    <div class="drawer-gallery">${getGallery(h).slice(0,8).map(s=>`<img src="${esc(thumb(s,300))}" alt="" loading="lazy">`).join("")}</div>
     <div class="drawer-grid">
       <div class="detail-cell"><strong>Valuation</strong><span>${money(h.price,h.currency)}</span></div>
       <div class="detail-cell"><strong>Status</strong><span><span class="badge badge-${archived?"archived":sc(h.status)}">${archived?"ARCHIVED":esc(h.status)}</span></span></div>
@@ -3024,12 +3023,12 @@ function linkClientToDrawerProp(propId){
   if(!c.linkedPropertyIds.includes(propId))c.linkedPropertyIds.push(propId);
   h.history.unshift(`Linked to ${c.name}.`);
   addActivity("Client Linked",`${c.name} attached to ${h.addr}.`);
-  Promise.all([saveProp(h),saveClient(c)]).then(()=>renderAll());
+  renderAll();Promise.all([saveProp(h),saveClient(c)]).then(()=>renderAll());
   openDrawer(propId,false);
 }
 function prepSettlement(propId){
   const h=db.houses.find(x=>x.id===propId);if(!h)return;
-  $("dTitle").value=h.addr;$("dProp").value=h.id;$("dDate").value=new Date().toISOString().slice(0,10);
+  renderCRMPropOpts();$("dTitle").value=h.addr;$("dProp").value=h.id;$("dDate").value=new Date().toISOString().slice(0,10);
   if(h.linkedClientIds[0])$("dClient").value=h.linkedClientIds[0];
   closeDrawer();switchPage("settlements",null);
   showToast("Ready","Settlement form pre-filled for "+h.addr);
@@ -3037,11 +3036,13 @@ function prepSettlement(propId){
 
 // ─────────────── CRM ───────────────
 function renderCRMPropOpts(){
+  const keep=["cProp","dProp","dClient"].map(i=>$(i).value);
   const opts=db.houses.map(h=>`<option value="${h.id}">${esc(h.addr)}</option>`).join("");
   $("cProp").innerHTML=`<option value="">— None —</option>`+opts;
   $("dProp").innerHTML=`<option value="">— None —</option>`+opts;
   const closed=db.clients.filter(c=>c.stage==="Closed");
   $("dClient").innerHTML=`<option value="">— None —</option>`+closed.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  ["cProp","dProp","dClient"].forEach((i,k)=>{$(i).value=keep[k];});
 }
 async function addClient(){
   const name=$("cName").value.trim();if(!name){showToast("Missing Fields","Client name is required.");return;}
@@ -3053,13 +3054,13 @@ async function addClient(){
   ["cName","cPhone","cVal","cEmail","cNote","cNext","cSrc","cMustHave","cNiceHave"].forEach(id=>$(id).value="");
   $("cType").value="VIP";$("cStage").value="Lead";$("cProp").value="";
   addActivity("Client Added",`${name} entered CRM as ${c.type}.`);
-  await saveClient(c); renderAll();
+  renderAll(); saveClient(c).then(()=>renderAll());
 }
 function deleteClient(id){
   db.houses.forEach(h=>{h.linkedClientIds=h.linkedClientIds.filter(x=>x!==id);});
   db.clients=db.clients.filter(c=>c.id!==id);
   addActivity("Client Removed","A client was removed from CRM.");
-  _sb.from("clients").delete().eq("id",id).then(()=>renderAll());
+  renderAll();_sb.from("clients").delete().eq("id",id).then(()=>{});
 }
 function getCRMLinkedNames(c){return c.linkedPropertyIds.map(pid=>db.houses.find(h=>h.id===pid)).filter(Boolean).map(h=>h.addr);}
 function renderCRM(){
@@ -3098,7 +3099,7 @@ function dropCard(e,stage){
   const prev=c.stage;c.stage=stage;
   addActivity("Pipeline Moved",`${c.name} moved from ${prev} to ${stage}.`);
   dragClientId=null;
-  saveClient(c).then(()=>renderAll());
+  renderAll();saveClient(c).then(()=>renderAll());
 }
 function renderPipeline(){
   const board=$("pipelineBoard");
@@ -3136,12 +3137,12 @@ async function addDeal(){
   const ops=[saveDeal(d)];
   if(propH)ops.push(saveProp(propH));
   if(clientC)ops.push(saveClient(clientC));
-  Promise.all(ops).then(()=>renderAll());
+  renderAll();Promise.all(ops).then(()=>renderAll());
 }
 function deleteDeal(id){
   db.deals=db.deals.filter(d=>d.id!==id);
   addActivity("Deal Removed","A settlement entry was removed.");
-  _sb.from("deals").delete().eq("id",id).then(()=>renderAll());
+  renderAll();_sb.from("deals").delete().eq("id",id).then(()=>{});
 }
 function renderSettlements(){
   renderCRMPropOpts();
@@ -3245,7 +3246,7 @@ function onGlobalSearch(){
     html+=`<div class="search-result-section">Properties</div>`;
     props.forEach(h=>{
       html+=`<div class="search-result-item" onclick="searchGoProperty(${h.id})">
-        <div class="search-result-icon"><img src="${esc(h.coverImage)}" alt=""></div>
+        <div class="search-result-icon"><img src="${esc(thumb(h.coverImage))}" alt="" loading="lazy" decoding="async"></div>
         <div class="search-result-info"><strong>${esc(h.addr)}</strong><span>${esc(h.location)} · ${money(h.price,h.currency)}</span></div>
         <span class="search-result-tag">${esc(h.status)}</span>
       </div>`;
@@ -3389,7 +3390,7 @@ function openAddShowing(){
       const parts=v.split("·").map(s=>s.trim());
       h.showings.unshift({id:Date.now(),client:parts[0]||v,date:parts[1]||new Date().toISOString().slice(0,10),outcome:parts[2]||"",loggedAt:new Date().toISOString()});
       addActivity("Showing Logged",`${h.addr} — ${parts[0]||v}`);
-      saveProp(h).then(()=>renderAll());
+      renderAll();saveProp(h).then(()=>renderAll());
       renderShowingLog(h);
     }
   });
@@ -3453,18 +3454,16 @@ function renderMatchBadge(score){
 }
 
 // ─────────────── RENDER ALL ───────────────
+function updateBadges(){
+  $("crmBadge").textContent=db.clients.length;
+  const o=(db.tasks||[]).filter(t=>!t.done).length;
+  const b=$("tasksBadge");b.textContent=o;b.style.display=o?"grid":"none";
+}
 function renderAll(){
-  db.houses.forEach(norm);db.archived.forEach(norm);db.clients.forEach(normC);
-  renderOverview();
-  renderInventory();
-  renderCollection();
-  renderCRM();
-  renderSettlements();
-  renderOps();
-  renderNotifs();
-  renderTasks();
-  checkStorageWarning();
-  applyProfile();
+  const pg=(document.querySelector(".page.active")||{id:"page-overview"}).id.replace("page-","");
+  const fn={overview:renderOverview,inventory:renderInventory,collection:renderCollection,crm:renderCRM,settlements:renderSettlements,ops:renderOps,tasks:renderTasks}[pg]||renderOverview;
+  fn();
+  updateBadges();renderNotifs();applyProfile();
 }
 
 // ─────────────── PROFILE ───────────────
@@ -3503,7 +3502,7 @@ function saveProfile(){
   const tagline=$("profileTagline").value.trim()||"Command Center";
   const picUrl=$("profilePicUrl").value.trim();
   db.profile={name,role,brand,tagline,picUrl};
-  saveProfileToDB(db.profile).then(()=>renderAll());
+  renderAll();saveProfileToDB(db.profile).then(()=>renderAll());
   closeProfileModal();
   showToast("Profile Saved","Your workspace has been updated.");
 }
@@ -3599,7 +3598,7 @@ async function submitTask(){
   }
   closeTaskForm();
   const tToSave = editingTaskId ? db.tasks.find(x=>x.id===t.id)||t : db.tasks[0];
-  saveTask(tToSave).then(()=>renderAll());
+  renderAll();saveTask(tToSave).then(()=>renderAll());
 }
 function editTask(id){
   const t=db.tasks.find(x=>x.id===id);if(!t)return;
@@ -3621,13 +3620,13 @@ function editTask(id){
 function deleteTask(id){
   db.tasks=db.tasks.filter(t=>t.id!==id);
   addActivity("Task Removed","A task was deleted.");
-  _sb.from("tasks").delete().eq("id",id).then(()=>renderAll());
+  renderAll();_sb.from("tasks").delete().eq("id",id).then(()=>{});
 }
 function toggleTaskDone(id){
   const t=db.tasks.find(x=>x.id===id);if(!t)return;
   t.done=!t.done;
   if(t.done)addActivity("Task Completed",t.title);
-  saveTask(t).then(()=>renderAll());
+  renderAll();saveTask(t).then(()=>renderAll());
 }
 function filterTasks(mode,btn){
   taskFilter=mode;
@@ -4073,8 +4072,9 @@ let currentUser   = null;
     const s = JSON.parse(sessionStorage.getItem(AUTH_SESSION_KEY)||"null");
     if(s && s.name && s.ts && Date.now() - s.ts < 8*60*60*1000){
       currentUser = s;
-      await loadDB();
+      loadCache();
       showApp(s.name, false, s.role);
+      loadDB().then(()=>renderAll());
       return;
     }
   }catch(e){}
@@ -4113,19 +4113,23 @@ function clearAuthCode(){
   [0,1,2,3,4,5].forEach(i=>{ const inp=$(`ac${i}`); inp.value=""; inp.classList.remove("filled","error"); });
 }
 
-async function submitLogin(){
+let _loggingIn=false;
+function submitLogin(){
+  if(_loggingIn) return;
   const code=($("loginCode").value||"").trim();
+  if(code.length<4) return;
   if(code!=="1234"){
     showLoginError("Incorrect code.");
     $("loginCode").value="";
     $("loginCode").focus();
     return;
   }
-  const btn=$("loginSubmitBtn");
-  btn.textContent="✓ Access Granted"; btn.disabled=true;
-  btn.style.background="linear-gradient(135deg,#7dd4a0,#4e9e6c)";
-  await loadDB();
-  setTimeout(()=>showApp("Samir",true,"Admin"),500);
+  _loggingIn=true;
+  $("loginError").classList.remove("show");
+  loadCache();
+  showApp("Samir",false,"Admin");
+  loadDB().then(()=>renderAll());
+  setTimeout(()=>{_loggingIn=false;},1000);
 }
 
 function showLoginError(msg){
