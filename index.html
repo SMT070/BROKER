@@ -1324,30 +1324,9 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
     <div class="login-sub">Private Command Center<br>Authorized Personnel Only</div>
 
     <div class="login-fields">
-      <!-- Field 1: Name -->
       <div class="login-field">
-        <label>Your Name</label>
-        <input type="text" id="loginName" placeholder="Enter your name" autocomplete="name" onkeydown="loginKeydown(event,'loginName')">
-      </div>
-
-      <!-- Field 2: Password -->
-      <div class="login-field">
-        <label>Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" onkeydown="loginKeydown(event,'loginPassword')">
-      </div>
-
-      <!-- Field 3: Auth Code -->
-      <div class="login-field">
-        <label>Authentication Code</label>
-        <div class="auth-code-wrap" id="authCodeWrap">
-          <input class="auth-code-input" id="ac0" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(0)" onkeydown="authCodeKey(event,0)">
-          <input class="auth-code-input" id="ac1" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(1)" onkeydown="authCodeKey(event,1)">
-          <input class="auth-code-input" id="ac2" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(2)" onkeydown="authCodeKey(event,2)">
-          <input class="auth-code-input" id="ac3" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(3)" onkeydown="authCodeKey(event,3)">
-          <input class="auth-code-input" id="ac4" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(4)" onkeydown="authCodeKey(event,4)">
-          <input class="auth-code-input" id="ac5" type="password" maxlength="1" inputmode="numeric" oninput="authCodeInput(5)" onkeydown="authCodeKey(event,5)">
-        </div>
-        <div class="login-auth-hint">Enter the 6-digit team authentication code</div>
+        <label>Access Code</label>
+        <input type="password" id="loginCode" inputmode="numeric" maxlength="4" placeholder="Enter code" autofocus oninput="if(this.value.length===4)submitLogin()" onkeydown="if(event.key==='Enter')submitLogin()">
       </div>
     </div>
 
@@ -4135,46 +4114,18 @@ function clearAuthCode(){
 }
 
 async function submitLogin(){
-  if(lockoutUntil>Date.now()){ showLockOverlay(); return; }
-  const nameVal=($("loginName").value||"").trim();
-  const passVal=($("loginPassword").value||"").trim();
-  const codeVal=getAuthCode();
-  const errEl=$("loginError"), attEl=$("loginAttempts"), btn=$("loginSubmitBtn");
-  errEl.classList.remove("show"); setCodeError(false);
-  if(!nameVal){ showLoginError("Please enter your name."); $("loginName").focus(); return; }
-  if(!passVal){ showLoginError("Please enter your password."); $("loginPassword").focus(); return; }
-  if(codeVal.length<6){ showLoginError("Please enter the full 6-digit authentication code."); $("ac0").focus(); return; }
-
-  btn.textContent="Checking…"; btn.disabled=true;
-  const users = await getActiveUsers();
-  const user = users.find(u=>
-    u.name.toLowerCase()===nameVal.toLowerCase() &&
-    u.password===passVal &&
-    String(u.code)===codeVal
-  );
-
-  if(user){
-    loginAttempts=0;
-    localStorage.removeItem("SADT_LOCKOUT");
-    btn.textContent="✓ Access Granted";
-    btn.style.background="linear-gradient(135deg,#7dd4a0,#4e9e6c)";
-    await loadDB();
-    setTimeout(()=>showApp(user.name,true,user.role),700);
-  } else {
-    btn.textContent="Enter Command Center"; btn.disabled=false; btn.style.background="";
-    loginAttempts++;
-    const remaining=MAX_ATTEMPTS-loginAttempts;
-    setCodeError(true);
-    setTimeout(()=>{ setCodeError(false); clearAuthCode(); $("ac0").focus(); },800);
-    if(loginAttempts>=MAX_ATTEMPTS){
-      lockoutUntil=Date.now()+LOCKOUT_MS;
-      localStorage.setItem("SADT_LOCKOUT",String(lockoutUntil));
-      showLockOverlay(); startLockTimer();
-    } else {
-      showLoginError(remaining===1?"Invalid credentials. 1 attempt remaining before lockout.":`Invalid name, password, or code. ${remaining} attempts remaining.`);
-      attEl.textContent=`${loginAttempts} / ${MAX_ATTEMPTS} attempts used`;
-    }
+  const code=($("loginCode").value||"").trim();
+  if(code!=="1234"){
+    showLoginError("Incorrect code.");
+    $("loginCode").value="";
+    $("loginCode").focus();
+    return;
   }
+  const btn=$("loginSubmitBtn");
+  btn.textContent="✓ Access Granted"; btn.disabled=true;
+  btn.style.background="linear-gradient(135deg,#7dd4a0,#4e9e6c)";
+  await loadDB();
+  setTimeout(()=>showApp("Samir",true,"Admin"),500);
 }
 
 function showLoginError(msg){
@@ -4243,8 +4194,7 @@ function logOut(){
     btn:"Log Out",
     cb:()=>{
       sessionStorage.removeItem(AUTH_SESSION_KEY); currentUser=null;
-      $("loginName").value=""; $("loginPassword").value="";
-      clearAuthCode(); $("loginError").classList.remove("show"); $("loginAttempts").textContent="";
+      $("loginCode").value=""; $("loginError").classList.remove("show"); $("loginAttempts").textContent="";
       const btn=$("loginSubmitBtn"); btn.textContent="Enter Command Center"; btn.style.background=""; btn.disabled=false;
       $("loginLockOverlay").classList.remove("show");
       const loginEl=$("loginScreen"),appEl=$("appRoot");
@@ -4253,7 +4203,7 @@ function logOut(){
         appEl.style.display="none"; appEl.style.opacity="1";
         loginEl.style.display="flex"; loginEl.style.opacity="0";
         loginEl.style.transition="opacity 0.3s ease";
-        setTimeout(()=>{ loginEl.style.opacity="1"; $("loginName").focus(); },30);
+        setTimeout(()=>{ loginEl.style.opacity="1"; $("loginCode").focus(); },30);
       },250);
     }
   });
