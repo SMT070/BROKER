@@ -262,7 +262,6 @@ async function send(e,f,propId){
   const row={name:d.name.trim(),phone:d.phone||"-",email:d.email||"-",type:h&&h.intent==="RENT"?"RENTER":"BUYER",stage:"Lead",next_action:"Reply to website inquiry",budget:String(h?h.price:0),notes:(d.msg||"").trim()||"Website inquiry",source:"Website",linked_property_id:(demo?null:propId||null)};
   const {error}=await SB.from("clients").insert(row);
   if(error){console.error(error);er.textContent="Something went wrong. Please try again or contact us directly.";er.style.display="block";b.disabled=false;return false}
-  SB.from("activity").insert({title:"New Website Lead",detail:row.name+" sent an inquiry"+(h?" about "+h.addr:"")+"."}).then(()=>{});
   f.reset();ok.style.display="block";b.disabled=false;return false;
 }
 const DEMO=[["Eretria Seaside Villa","Eretria","BUY",2400000,"€","ACTIVE","Villa",780,5,6],["Caesarea Horizon Estate","Caesarea","BUY",18500000,"$","UNDER OFFER","Estate",1280,7,8],["Tel Aviv Sky Penthouse","Tel Aviv","BUY",9750000,"$","ACTIVE","Penthouse",540,4,5],["Netanya Beachfront Villa","Netanya","RENT",14200,"$","ACTIVE","Villa",960,6,7],["Athens Riviera Residence","Athens Riviera","BUY",6800000,"€","ACTIVE","Apartment",420,3,4],["Chalkida Bay Retreat","Chalkida","BUY",3100000,"€","ACTIVE","Villa",610,4,4],["Herzliya Cliff House","Herzliya","BUY",5200000,"$","SOLD","Villa",700,5,5],["Oropos Garden Estate","Oropos","BUY",3900000,"€","SOLD","Estate",850,6,6]].map((r,i)=>({id:i+1,addr:r[0],location:r[1],intent:r[2],price:r[3],currency:r[4],status:r[5],type:r[6],size:r[7],bedrooms:r[8],bathrooms:r[9],notes:"Sample listing — replace with your own properties in the Command Center.",cover_image:"",gallery:[],amenities:["Sea View","Pool","Smart Home"],wellness_features:["Spa","Gym"],archived:false,off_market:false}));
@@ -335,7 +334,7 @@ load();
 // ─── PASTE YOUR SUPABASE CREDENTIALS HERE ───
 const SUPABASE_URL  = "https://oojwljmabjrdueewbwtf.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vandsam1hYmpyZHVlZXdid3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMzU5NDEsImV4cCI6MjExMDkxMTk0MX0.WA2bsw0wErh5G9A3ovLH9aX8cgp0OfH4lnTRmFi5Y-0";
-const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {auth:{storage:window.sessionStorage,persistSession:true,autoRefreshToken:true,storageKey:"sadt-auth"}});
 <\/script>
 <style>
 :root{
@@ -1644,8 +1643,12 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 
     <div class="login-fields">
       <div class="login-field">
-        <label>Access Code</label>
-        <input type="password" id="loginCode" inputmode="numeric" maxlength="4" placeholder="Enter code" autofocus oninput="if(this.value.length===4)submitLogin()" onkeydown="if(event.key==='Enter')submitLogin()">
+        <label>Email</label>
+        <input type="email" id="loginEmail" autocomplete="username" placeholder="you@company.com" autofocus onkeydown="if(event.key==='Enter')$('loginPass').focus()">
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="Password" onkeydown="if(event.key==='Enter')submitLogin()">
       </div>
     </div>
 
@@ -4415,13 +4418,12 @@ let currentUser   = null;
 // ── Boot: check existing session then load data ──
 (async function bootAuth(){
   try{
-    const s = JSON.parse(sessionStorage.getItem(AUTH_SESSION_KEY)||"null");
-    if(s && s.name){
-      currentUser = s;
-      loadCache();
-      showApp(s.name, false, s.role);
-      loadDB().then(()=>renderAll());
-      return;
+    const {data}=await _sb.auth.getSession();
+    const u=data&&data.session&&data.session.user;
+    if(u){
+      const st=await getStaff(u.id);
+      if(st){ currentUser={name:st.name,role:st.role}; loadCache(); showApp(st.name||u.email,false,st.role); loadDB().then(()=>renderAll()); return; }
+      await _sb.auth.signOut();
     }
   }catch(e){}
   const lo = parseInt(localStorage.getItem("SADT_LOCKOUT")||"0");
@@ -4460,22 +4462,38 @@ function clearAuthCode(){
 }
 
 let _loggingIn=false;
-function submitLogin(){
-  if(_loggingIn) return;
-  const code=($("loginCode").value||"").trim();
-  if(code.length<4) return;
-  if(code!=="1234"){
-    showLoginError("Incorrect code.");
-    $("loginCode").value="";
-    $("loginCode").focus();
-    return;
-  }
+async function getStaff(uid){
+  const {data}=await _sb.from("staff").select("name,role,active").eq("user_id",uid).maybeSingle();
+  return data&&data.active?data:null;
+}
+async function submitLogin(){
+  if(_loggingIn||lockoutUntil>Date.now()) return;
+  const email=($("loginEmail").value||"").trim(), pass=$("loginPass").value||"";
+  if(!email||!pass){showLoginError("Enter your email and password.");return;}
   _loggingIn=true;
+  const btn=$("loginSubmitBtn"); btn.disabled=true; btn.textContent="Signing in…";
   $("loginError").classList.remove("show");
-  loadCache();
-  showApp("Samir",false,"Admin");
-  loadDB().then(()=>renderAll());
-  setTimeout(()=>{_loggingIn=false;},1000);
+  try{
+    const {data,error}=await _sb.auth.signInWithPassword({email,password:pass});
+    if(error||!data||!data.user) throw new Error("bad");
+    const st=await getStaff(data.user.id);
+    if(!st){ await _sb.auth.signOut(); throw new Error("nostaff"); }
+    loginAttempts=0; $("loginPass").value="";
+    loadCache();
+    showApp(st.name||email,false,st.role);
+    loadDB().then(()=>renderAll());
+  }catch(e){
+    loginAttempts++; $("loginPass").value="";
+    if(loginAttempts>=MAX_ATTEMPTS){
+      lockoutUntil=Date.now()+LOCKOUT_MS;
+      try{localStorage.setItem("SADT_LOCKOUT",String(lockoutUntil))}catch(_){}
+      showLockOverlay(); startLockTimer();
+    }else{
+      showLoginError(e.message==="nostaff"?"This account has no staff access.":"Incorrect email or password.");
+      $("loginAttempts").textContent=(MAX_ATTEMPTS-loginAttempts)+" attempts remaining";
+    }
+  }
+  btn.disabled=false; btn.textContent="Enter Command Center"; _loggingIn=false;
 }
 
 function showLoginError(msg){
@@ -4510,10 +4528,10 @@ function showApp(name, animate, role){
   sessionStorage.setItem(AUTH_SESSION_KEY,JSON.stringify(currentUser));
   const loginEl=$("loginScreen"), appEl=$("appRoot");
   // Show admin nav if Samir
-  const isAdmin = role==="Admin" || name.toLowerCase()==="samir";
+  const isAdmin = role==="Admin";
   const adminSec=$("adminNavSection"), adminNav=$("manageUsersNav");
-  if(adminSec) adminSec.style.display=isAdmin?"":"none";
-  if(adminNav) adminNav.style.display=isAdmin?"flex":"none";
+  if(adminSec) adminSec.style.display="none";
+  if(adminNav) adminNav.style.display="none";
 
   if(animate){
     loginEl.style.transition="opacity 0.4s ease,transform 0.4s ease";
@@ -4543,8 +4561,8 @@ function logOut(){
     text:"Are you sure you want to log out of the Command Center?",
     btn:"Log Out",
     cb:()=>{
-      sessionStorage.removeItem(AUTH_SESSION_KEY); currentUser=null; try{parent.postMessage({sadt:"site",logout:true},"*")}catch(e){}
-      $("loginCode").value=""; $("loginError").classList.remove("show"); $("loginAttempts").textContent="";
+      sessionStorage.removeItem(AUTH_SESSION_KEY); try{_sb.auth.signOut()}catch(e){} currentUser=null; try{parent.postMessage({sadt:"site",logout:true},"*")}catch(e){}
+      $("loginPass").value=""; $("loginError").classList.remove("show"); $("loginAttempts").textContent="";
       const btn=$("loginSubmitBtn"); btn.textContent="Enter Command Center"; btn.style.background=""; btn.disabled=false;
       $("loginLockOverlay").classList.remove("show");
       const loginEl=$("loginScreen"),appEl=$("appRoot");
@@ -4553,7 +4571,7 @@ function logOut(){
         appEl.style.display="none"; appEl.style.opacity="1";
         loginEl.style.display="flex"; loginEl.style.opacity="0";
         loginEl.style.transition="opacity 0.3s ease";
-        setTimeout(()=>{ loginEl.style.opacity="1"; $("loginCode").focus(); },30);
+        setTimeout(()=>{ loginEl.style.opacity="1"; $("loginEmail").focus(); },30);
       },250);
     }
   });
@@ -4739,16 +4757,11 @@ document.addEventListener("click",e=>{
 </html>
 </script>
 <script>
-const STAFF_CODE="1234";
-function staffOpen(){$("staff").classList.add("on");const i=$("pin");i.value="";$("pinErr").style.display="none";setTimeout(()=>i.focus(),50)}
-function staffClose(){$("staff").classList.remove("on")}
-function staffCheck(){
-  const i=$("pin");if(i.value.length<4)return;
-  if(i.value!==STAFF_CODE){$("pinErr").style.display="block";i.value="";i.focus();return}
-  staffClose();openAdmin();
-}
+function staffOpen(){openAdmin()}
+function staffClose(){}
+function staffCheck(){}
 function openAdmin(){
-  try{if(!sessionStorage.getItem("SADT_SESSION"))sessionStorage.setItem("SADT_SESSION",JSON.stringify({name:"Samir",role:"Admin",ts:Date.now()}));sessionStorage.setItem("SADT_ADMIN_OPEN","1")}catch(e){}
+  try{sessionStorage.setItem("SADT_ADMIN_OPEN","1")}catch(e){}
   const f=$("adminFrame");
   if(!f.dataset.ready){f.srcdoc=$("adminSrc").textContent.replace(/<\\\/script/g,"</script").replace(/<\\!--/g,"<!--");f.dataset.ready="1";}
   $("adminWrap").style.display="block";document.body.style.overflow="hidden";
@@ -4761,12 +4774,10 @@ function closeAdmin(reset){
   applyTheme(t);load();
 }
 window.addEventListener("message",e=>{if(e.data&&e.data.sadt==="site")closeAdmin(!!e.data.logout)});
-$("staff").addEventListener("click",e=>{if(e.target===$("staff"))staffClose()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")staffClose()});
 let lc=0,lt;$("brand").addEventListener("click",()=>{lc++;clearTimeout(lt);lt=setTimeout(()=>lc=0,2500);if(lc>=5){lc=0;staffOpen()}});
 function hs(){if(location.hash==="#staff"){history.replaceState(null,"",location.pathname+location.search);staffOpen()}}
 addEventListener("hashchange",hs);hs();
-try{if(sessionStorage.getItem("SADT_ADMIN_OPEN")==="1"&&sessionStorage.getItem("SADT_SESSION"))openAdmin()}catch(e){}
+try{if(sessionStorage.getItem("SADT_ADMIN_OPEN")==="1")openAdmin()}catch(e){}
 </script>
 </body>
 </html>
