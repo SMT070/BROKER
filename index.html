@@ -8,7 +8,7 @@
 <script>try{document.documentElement.dataset.theme=localStorage.getItem("SADT_THEME")==="light"?"light":"dark"}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -329,7 +329,7 @@ load();
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"><\/script>
 <script>
 // ─── PASTE YOUR SUPABASE CREDENTIALS HERE ───
 const SUPABASE_URL  = "https://oojwljmabjrdueewbwtf.supabase.co";
@@ -2969,10 +2969,10 @@ function normC(c){
 
 // ─────────────── UTILS ───────────────
 const $=id=>document.getElementById(id);
-function money(v,c="$"){return c+Number(v||0).toLocaleString("en-US");}
+function money(v,c="$"){return String(c).replace(/[&<>"']/g,"")+Number(v||0).toLocaleString("en-US");}
 function fmtDate(v){if(!v)return"N/A";return new Date(v).toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"});}
 function thumb(u,w=400){return u&&u.indexOf("images.unsplash.com")>-1?u.replace(/w=\d+/,"w="+w):u;}
-function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 function sc(v){return String(v||"").toLowerCase().replace(/\s+/g,"-");}
 function parseList(v){return v.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);}
 function getGallery(h){return (Array.isArray(h.gallery)&&h.gallery.length?h.gallery:[h.coverImage]).filter(Boolean);}
@@ -3924,7 +3924,7 @@ function applyProfile(){
   // Topbar
   const tbc=$("topbarAvatarContent");
   if(picUrl){
-    tbc.innerHTML=`<img src="${esc(picUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none'">`;
+    tbc.innerHTML=`<img alt="" src="${esc(picUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none'">`;
   } else {tbc.textContent=initial;}
   // Hero greeting
   const hr=getHourGreeting();
@@ -4438,22 +4438,18 @@ const LOCKOUT_MS       = 5 * 60 * 1000;
 
 // Users now live in Supabase — cached in memory after first load
 let _cachedUsers = null;
+// Stub: the legacy plaintext users table is never read or written from the browser.
+const _legacyUsersDisabled={select:async()=>({data:[],error:null}),upsert:async()=>({data:null,error:null}),insert:async()=>({data:null,error:null})};
 
 async function loadUsers(){
-  if(_cachedUsers) return _cachedUsers;
-  const {data,error} = await _sb.from("users").select("*");
-  if(error||!data||!data.length){
-    // Fallback defaults if Supabase unreachable
-    _cachedUsers=[{id:"u1",name:"Samir",password:"Samir2024!",code:"112233",role:"Admin",active:true},{id:"u2",name:"Sam",password:"Sam2024!",code:"445566",role:"Member",active:true}];
-  } else {
-    _cachedUsers = data;
-  }
+  // Legacy plaintext "users" table is disabled. Authentication is handled by Supabase Auth + the "staff" table.
+  _cachedUsers=[];
   return _cachedUsers;
 }
 async function saveUsers(users){
   _cachedUsers = users;
   for(const u of users){
-    await _sb.from("users").upsert({id:u.id,name:u.name,password:u.password,code:u.code,role:u.role,active:u.active});
+    await _legacyUsersDisabled.upsert({id:u.id,name:u.name,password:u.password,code:u.code,role:u.role,active:u.active});
   }
 }
 async function getActiveUsers(){
@@ -4640,6 +4636,7 @@ function logOut(){
 let editingUserId = null;
 
 async function openUM(){
+  showToast("User management","Accounts are managed in Supabase Auth and the staff table."); return;
   if(!currentUser||currentUser.role!=="Admin"){ showToast("Access Denied","Only Samir (Admin) can manage users."); return; }
   await renderUMList();
   resetUMForm();
@@ -4730,7 +4727,7 @@ async function removeUser(userId){
       const idx=users.findIndex(x=>x.id===userId);
       users[idx]={...users[idx],name:"",password:"",code:"",role:"Member",active:false};
       _cachedUsers=users;
-      await _sb.from("users").upsert({id:users[idx].id,name:"",password:"",code:"",role:"Member",active:false});
+      await _legacyUsersDisabled.upsert({id:users[idx].id,name:"",password:"",code:"",role:"Member",active:false});
       await renderUMList();
       showToast("User Removed",`${u.name} has been removed.`);
     }
@@ -4776,7 +4773,7 @@ async function submitUMForm(){
     if(!isSamir)u.role=role;
     u.active=true;
     _cachedUsers=users;
-    await _sb.from("users").upsert({id:u.id,name:u.name,password:u.password,code:u.code,role:u.role,active:u.active});
+    await _legacyUsersDisabled.upsert({id:u.id,name:u.name,password:u.password,code:u.code,role:u.role,active:u.active});
     resetUMForm();
     await renderUMList();
     showToast("User Updated",`${name}'s credentials have been updated.`);
@@ -4786,7 +4783,7 @@ async function submitUMForm(){
     const newUser={id:newId,name,password:pass,code,role,active:true};
     users.push(newUser);
     _cachedUsers=users;
-    await _sb.from("users").insert({id:newId,name,password:pass,code,role,active:true});
+    await _legacyUsersDisabled.insert({id:newId,name,password:pass,code,role,active:true});
     resetUMForm();
     await renderUMList();
     showToast("User Added",`${name} can now log in with their credentials.`);
