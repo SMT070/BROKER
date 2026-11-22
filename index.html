@@ -341,6 +341,7 @@ load();
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"><\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"><\/script>
 <script>
 // ─── PASTE YOUR SUPABASE CREDENTIALS HERE ───
 const SUPABASE_URL  = "https://oojwljmabjrdueewbwtf.supabase.co";
@@ -1902,6 +1903,7 @@ input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:tex
             <p>Full asset management with status control, archiving, and settlement pipeline.</p>
           </div>
           <div class="page-actions">
+            <button class="btn-ghost btn-sm" onclick="impOpen()">⇪ Import Folders</button>
             <button class="btn-ghost btn-sm" onclick="exportCSV()">↓ Export CSV</button>
             <button class="btn-ghost btn-sm" onclick="printReport()">⎙ Report</button>
             <button class="btn-gold" onclick="openAssetForm(true)">+ List New Asset</button>
@@ -4824,6 +4826,124 @@ document.addEventListener("click",e=>{
   if(np.classList.contains("open")&&!np.contains(e.target)&&!e.target.closest(".icon-btn")){np.classList.remove("open");}
 });
 
+<\/script>
+<style>
+#impModal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;padding:18px}
+#impModal.open{display:flex}
+#impBox{background:var(--ink2,#0c0c0c);border:1px solid var(--gold-line,rgba(201,144,62,.3));border-radius:16px;width:min(1100px,100%);max-height:92vh;display:flex;flex-direction:column;color:var(--cream,#ede0cc)}
+#impBox header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--gold-line2,rgba(201,144,62,.12))}
+#impBody{padding:18px 20px;overflow:auto;flex:1}
+#impDrop{border:2px dashed var(--gold-line,rgba(201,144,62,.35));border-radius:14px;padding:38px;text-align:center;cursor:pointer}
+#impDrop.over{background:rgba(201,144,62,.1)}
+#impTbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}
+#impTbl th,#impTbl td{padding:6px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;vertical-align:top}
+#impTbl input[type=text],#impTbl input[type=number]{width:100%;min-width:70px;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:5px;color:inherit}
+.impWarn{color:#e8b96a;font-size:11px}.impBar{height:8px;background:rgba(255,255,255,.1);border-radius:6px;margin-top:12px;overflow:hidden}.impBar i{display:block;height:100%;width:0;background:#c9903e;transition:.2s}
+#impFoot{padding:14px 20px;border-top:1px solid var(--gold-line2,rgba(201,144,62,.12));display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+</style>
+<div id="impModal"><div id="impBox"><header><strong>Import Properties</strong><button class="btn-ghost btn-sm" onclick="impClose()">✕</button></header>
+<div id="impBody"><div id="impDrop" onclick="document.getElementById('impPick').click()"><div style="font-size:30px">📁</div><p>Drop your house folders here (one or many)</p><p style="opacity:.6;font-size:12px">Each folder: photos + a .docx or .txt description. Or click to choose a folder.</p><input id="impPick" type="file" webkitdirectory multiple hidden></div><div id="impOut"></div></div>
+<div id="impFoot"><label style="font-size:13px"><input type="checkbox" id="impPub"> Publish on the public site immediately</label><span id="impMsg" style="font-size:12px;opacity:.8"></span><button class="btn-gold" id="impGo" onclick="impRun()" disabled>Import selected</button></div></div></div>
+<script>
+(function(){
+var BUCKET="property-images",rows=[],busy=false;
+var TR={"אורטריה":"Eretria","אוויה":"Evia","יוון":"Greece"};
+var AM={"מרוהט":"Furnished","אח":"Fireplace","דלת ביטחון":"Security Door","רשתות נגד יתושים":"Mosquito Screens","מרפסת":"Balcony","סוככים":"Awnings","עמדת BBQ בנויה":"Built-in BBQ","נוף":"View","נכס פינתי":"Corner Property"};
+var n=function(s){var v=parseFloat(String(s).replace(/,/g,""));return isFinite(v)?v:0};
+var slug=function(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"house"};
+var noEmoji=function(s){return s.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu,"").trim()};
+function parse(text,folder){
+  var L=text.split(/\r?\n/).map(function(l){return l.trim()}).filter(Boolean);
+  var head=noEmoji(L[0]||""),intent=/להשכרה/.test(head)?"RENT":"BUY";
+  head=head.replace(/^(למכירה|להשכרה)\s*[–-]\s*/,"");
+  var type=/פנטהאוז/.test(text)?"Penthouse":/אחוזה/.test(head)?"Estate":/דירה/.test(head)?"Apartment":"Villa";
+  var lm=head.match(/\sב(?:מרכז\s+)?([^\s,][^,]*(?:,[^,]+)+)$/),loc="";
+  if(lm)loc=lm[1].split(",").map(function(x){x=x.trim();return TR[x]||x}).slice(0,2).join(", ");
+  var fm=folder.match(/house-([a-z]+)/i);if(!loc&&fm)loc=fm[1][0].toUpperCase()+fm[1].slice(1);
+  var pm=text.match(/מחיר[^\d]*(\d[\d,.]*)/),price=pm?n(pm[1]):0;
+  var cur=/₪|ש"ח|שקל/.test(text)?"₪":/\$|דולר/.test(text)?"$":"€";
+  var kf=folder.match(/(\d+(?:\.\d+)?)k/i),fprice=kf?Math.round(parseFloat(kf[1])*1000):0;
+  var sz=text.match(/שטח בנוי[^\d]*(\d[\d,.]*)/),plot=text.match(/שטח מגרש[^\d]*(\d[\d,.]*)/);
+  var yr=text.match(/שנת בנייה[^\d]*(\d{4})/),en=text.match(/דירוג אנרגטי[^A-Za-z]*([A-G])/);
+  var bd=text.match(/(\d+)\s*חדרי שינה/),bt=text.match(/(\d+)\s*חדרי רחצה/);
+  var am=[],i=L.findIndex(function(l){return /מאפיינים/.test(l)});
+  for(i=i<0?L.length:i+1;i<L.length&&/^[•·\-]/.test(L[i]);i++){var a=L[i].replace(/^[•·\-]\s*/,"");am.push(AM[a]||a)}
+  var stop=L.findIndex(function(l){return /^📞/.test(l)}),body=(stop<0?L:L.slice(0,stop)).slice(1).filter(function(l){return !/^[•·\-]/.test(l)&&!/^(💶|📐|✨)/.test(l)}).map(noEmoji);
+  var det=[];if(plot)det.push("Plot: "+plot[1]+" sqm");if(yr)det.push("Built: "+yr[1]);if(en)det.push("Energy rating: "+en[1]);
+  var base=(type+" in "+(loc.split(",")[0]||"Greece"));
+  return {addr:base,location:loc||"Unknown",intent:intent,price:price||fprice,fprice:fprice,hasDocPrice:!!price,currency:cur,type:type,size:sz?n(sz[1]):0,bedrooms:bd?+bd[1]:0,bathrooms:bt?+bt[1]:(/חדר רחצה/.test(text)?1:0),amenities:am,notes:[head].concat(body,det.length?[det.join(" · ")]:[]).join("\n")};
+}
+async function readText(f){
+  if(/\.docx$/i.test(f.name)){if(!window.mammoth)throw new Error("docx reader not loaded — save the notes as .txt");return (await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value}
+  return await f.text();
+}
+async function build(files){
+  var g={};files.forEach(function(f){var p=(f._path||f.webkitRelativePath||f.name).split("/");p.pop();var k=p.join("/")||"house";(g[k]=g[k]||[]).push(f)});
+  rows=[];var all=[].concat(db.houses||[],db.archived||[]);
+  for(var k in g){
+    var fs=g[k],imgs=fs.filter(function(f){return /\.(webp|jpe?g|png)$/i.test(f.name)}).sort(function(a,b){return a.name.localeCompare(b.name,undefined,{numeric:true})});
+    var doc=fs.find(function(f){return /\.(docx|txt)$/i.test(f.name)&&!/^~\$/.test(f.name)});
+    if(!imgs.length&&!doc)continue;
+    var folder=k.split("/").pop(),r={folder:folder,key:slug(folder),imgs:imgs,warn:[],on:true};
+    try{Object.assign(r,doc?parse(await readText(doc),folder):parse("",folder))}catch(e){r.warn.push("Could not read notes: "+e.message);Object.assign(r,parse("",folder))}
+    if(!doc)r.warn.push("No description file");
+    if(!r.price)r.warn.push("No price");
+    if(r.hasDocPrice&&r.fprice&&Math.abs(r.price-r.fprice)/r.fprice>.02)r.warn.push("Price differs from folder name ("+r.fprice.toLocaleString()+")");
+    if(!r.size)r.warn.push("No size");if(!imgs.length)r.warn.push("No photos");
+    if(all.some(function(h){return h.importKey===r.key})){r.warn.push("Already imported — skipped");r.on=false;r.dup=true}
+    rows.push(r);
+  }
+  draw();
+}
+function draw(){
+  var o=document.getElementById("impOut");
+  if(!rows.length){o.innerHTML='<p style="margin-top:14px">No house folders found.</p>';return}
+  o.innerHTML='<table id="impTbl"><tr><th></th><th>Folder</th><th>Title</th><th>Location</th><th>Price</th><th>Bd/Ba/m²</th><th>Photos</th><th>Notes</th></tr>'+rows.map(function(r,i){
+    return '<tr><td><input type="checkbox" '+(r.on?"checked":"")+(r.dup?" disabled":"")+' onchange="impSet('+i+',\'on\',this.checked)"></td><td>'+esc(r.folder)+'</td>'
+    +'<td><input type="text" dir="auto" value="'+esc(r.addr)+'" onchange="impSet('+i+',\'addr\',this.value)"></td>'
+    +'<td><input type="text" dir="auto" value="'+esc(r.location)+'" onchange="impSet('+i+',\'location\',this.value)"></td>'
+    +'<td><input type="number" value="'+r.price+'" onchange="impSet('+i+',\'price\',+this.value)">'+esc(r.currency)+'</td>'
+    +'<td>'+r.bedrooms+' / '+r.bathrooms+' / '+r.size+'</td><td>'+r.imgs.length+'</td><td class="impWarn">'+r.warn.map(esc).join("<br>")+'</td></tr>'}).join("")+'</table><div class="impBar"><i id="impProg"></i></div>';
+  upd();
+}
+function upd(){var c=rows.filter(function(r){return r.on}).length;document.getElementById("impGo").disabled=busy||!c;document.getElementById("impMsg").textContent=rows.length+" found · "+c+" selected"}
+window.impSet=function(i,k,v){rows[i][k]=v;if(k==="on")upd()};
+window.impOpen=function(){rows=[];document.getElementById("impOut").innerHTML="";upd();document.getElementById("impModal").classList.add("open")};
+window.impClose=function(){if(busy&&!confirm("Import is running. Close anyway?"))return;document.getElementById("impModal").classList.remove("open")};
+async function shrink(f){var b=await createImageBitmap(f),k=Math.min(1,1600/Math.max(b.width,b.height)),c=document.createElement("canvas");c.width=Math.round(b.width*k);c.height=Math.round(b.height*k);c.getContext("2d").drawImage(b,0,0,c.width,c.height);return new Promise(function(r){c.toBlob(r,"image/webp",.82)})}
+async function upImgs(r){
+  var urls=new Array(r.imgs.length),next=0;
+  async function w(){while(next<r.imgs.length){var i=next++,blob=await shrink(r.imgs[i]),p=_uid+"/"+r.key+"/"+(i+1)+".webp";
+    var u=await _sb.storage.from(BUCKET).upload(p,blob,{upsert:true,contentType:"image/webp"});if(u.error)throw u.error;urls[i]=_sb.storage.from(BUCKET).getPublicUrl(p).data.publicUrl}}
+  await Promise.all([w(),w(),w()]);return urls;
+}
+window.impRun=async function(){
+  var sel=rows.filter(function(r){return r.on});if(!sel.length||busy)return;busy=true;upd();
+  var pub=document.getElementById("impPub").checked,ok=0,bad=[],bar=document.getElementById("impProg");
+  for(var j=0;j<sel.length;j++){var r=sel[j];document.getElementById("impMsg").textContent="Importing "+(j+1)+"/"+sel.length+": "+r.folder;
+    try{
+      var urls=r.imgs.length?await upImgs(r):[];
+      var h={id:newId(),addr:r.addr||r.folder,location:r.location,intent:r.intent,price:r.price,currency:r.currency,status:"ACTIVE",type:r.type,size:r.size,bedrooms:r.bedrooms,bathrooms:r.bathrooms,amenities:r.amenities,wellnessFeatures:[],owner:"Private Owner",notes:r.notes,coverImage:urls[0]||"",gallery:urls,offMarket:!pub,archived:false,linkedClientIds:[],addedBy:"import",history:["Imported "+fmtDate(new Date().toISOString())+"."],createdAt:new Date().toISOString(),importKey:r.key};
+      var s=await saveProp(h);if(s&&s.error)throw s.error;db.houses.unshift(h);r.on=false;r.dup=true;ok++;
+    }catch(e){bad.push(r.folder+": "+((e&&e.message)||e))}
+    bar.style.width=Math.round((j+1)/sel.length*100)+"%";
+  }
+  busy=false;renderAll();draw();
+  document.getElementById("impMsg").textContent="Done: "+ok+" imported"+(bad.length?", "+bad.length+" failed":"");
+  if(bad.length)document.getElementById("impOut").insertAdjacentHTML("afterbegin",'<p class="impWarn">Failed:<br>'+bad.map(esc).join("<br>")+"</p>");
+  try{addActivity("Import",ok+" properties imported.")}catch(e){}
+};
+async function walk(en,path,out){
+  if(en.isFile){var f=await new Promise(function(r){en.file(r)});f._path=path+en.name;out.push(f)}
+  else if(en.isDirectory){var rd=en.createReader(),all=[],b;do{b=await new Promise(function(r){rd.readEntries(r)});all=all.concat(b)}while(b.length);for(var i=0;i<all.length;i++)await walk(all[i],path+en.name+"/",out)}
+}
+var dz=document.getElementById("impDrop");
+dz.ondragover=function(e){e.preventDefault();dz.classList.add("over")};dz.ondragleave=function(){dz.classList.remove("over")};
+dz.ondrop=async function(e){e.preventDefault();dz.classList.remove("over");var out=[],it=[].slice.call(e.dataTransfer.items||[]);
+  var ens=it.map(function(i){return i.webkitGetAsEntry&&i.webkitGetAsEntry()}).filter(Boolean);
+  document.getElementById("impMsg").textContent="Reading files…";for(var i=0;i<ens.length;i++)await walk(ens[i],"",out);await build(out)};
+document.getElementById("impPick").onchange=function(e){document.getElementById("impMsg").textContent="Reading files…";build([].slice.call(e.target.files))};
+})();
 <\/script>
 </body>
 </html>
