@@ -30,6 +30,10 @@ header{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px s
 header .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
 .logo{font:700 22px "Playfair Display",serif;letter-spacing:.08em;color:var(--g2)}
 .brandmark{display:flex;align-items:center;gap:12px}.brandmark .mark{flex:none;border-radius:10px;box-shadow:0 0 0 1px rgba(var(--f),.08)}
+/* No-select on interface chrome only. Content, forms and data stay selectable. */
+header,nav,footer,.logo,.brandmark,.btn,button,.ic,.chips,.tabs,.mq,.mqi,.glow,.x,.pin,.hero small{-webkit-user-select:none;user-select:none}
+.brandmark,.brandmark *{-webkit-user-drag:none}
+input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:text}
 nav{display:flex;align-items:center;gap:22px;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
 nav a{color:var(--mu);text-decoration:none;transition:.2s}nav a:hover{color:var(--g2)}
 .ic{width:38px;height:38px;border-radius:10px;border:1px solid var(--ln);color:var(--g2);font-size:16px}
@@ -1616,6 +1620,11 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
 :root[data-theme="light"] .prop-card:hover{box-shadow:0 20px 40px rgba(70,50,15,0.16)}
 :root[data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(184,121,31,0.4)}
 .badge-under-offer,.badge-viewing-scheduled{background:var(--amber2);color:var(--gold2);border:1px solid rgba(201,140,62,0.25);}
+
+/* No-select on interface chrome only. Content, forms and data stay selectable. */
+.sidebar,.sidebar-nav,.sidebar-footer,.nav-item,.nav-icon,.nav-section-label,.nav-badge,.brand,.brand-line,.brand-logo,.brand-name,.brand-sub,.topbar,.icon-btn,.btn-gold,.btn-outline,.btn-ghost,.btn-danger,.btn-sm,button,.tab-btn,.tab-row,.badge,.pagination,.pagination-buttons,.stat-label,.toast-undo{-webkit-user-select:none;user-select:none}
+.brand-logo,.brand-logo *{-webkit-user-drag:none}
+input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:text}
 </style>
 </head>
 <body>
