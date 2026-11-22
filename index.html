@@ -4853,6 +4853,7 @@ var n=function(s){var v=parseFloat(String(s).replace(/,/g,""));return isFinite(v
 var slug=function(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"house"};
 var noEmoji=function(s){return s.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu,"").trim()};
 function parse(text,folder){
+  if(!/[\u0590-\u05FF]/.test(text))return parseEn(text,folder);
   var L=text.split(/\r?\n/).map(function(l){return l.trim()}).filter(Boolean);
   var head=noEmoji(L[0]||""),intent=/להשכרה/.test(head)?"RENT":"BUY";
   head=head.replace(/^(למכירה|להשכרה)\s*[–-]\s*/,"");
@@ -4872,6 +4873,31 @@ function parse(text,folder){
   var det=[];if(plot)det.push("Plot: "+plot[1]+" sqm");if(yr)det.push("Built: "+yr[1]);if(en)det.push("Energy rating: "+en[1]);
   var base=(type+" in "+(loc.split(",")[0]||"Greece"));
   return {addr:base,location:loc||"Unknown",intent:intent,price:price||fprice,fprice:fprice,hasDocPrice:!!price,currency:cur,type:type,size:sz?n(sz[1]):0,bedrooms:bd?+bd[1]:0,bathrooms:bt?+bt[1]:(/חדר רחצה/.test(text)?1:0),amenities:am,notes:[head].concat(body,det.length?[det.join(" · ")]:[]).join("\n")};
+}
+function parseEn(text,folder){
+  var T=text.replace(/\r/g,"").replace(/[*`]/g,""),L=T.split("\n").map(function(l){return l.replace(/^#+\s*/,"").trim()}).filter(Boolean),M=function(re){return T.match(re)};
+  var head=L[0]||"",hl=head.toLowerCase(),tl=head.split(/\s[–—-]\s/),place=(tl[1]||"").trim();
+  var intent=/for rent|to rent/i.test(head)?"RENT":"BUY";
+  var type=/penthouse/i.test(T)?"Penthouse":/estate|mansion/.test(hl)?"Estate":/apartment|flat|studio/.test(hl)?"Apartment":"Villa";
+  var parts=place?place.split(",").map(function(x){return x.trim()}).filter(Boolean):[];
+  if(parts.length>1&&/^(greece|israel|cyprus|italy|spain|portugal|turkey)$/i.test(parts[parts.length-1]))parts.pop();
+  var loc=parts.slice(-2).join(", "),first=parts[0]||"";
+  var fp=folder.match(/[€$₪]\s*(\d[\d,.]*)/),kf=folder.match(/(\d+(?:\.\d+)?)k\b/i),fs=folder.match(/(\d+)\s*m[²2]/i);
+  var fprice=fp?n(fp[1]):kf?Math.round(parseFloat(kf[1])*1000):0;
+  if(!loc){var fl=folder.replace(/^house[,\s-]*/i,"").replace(/\d+\s*m[²2]/i,"").replace(/[€$₪]\s*\d[\d,.]*/,"").replace(/\d+(?:\.\d+)?k\b/i,"").replace(/^[\s,]+|[\s,]+$/g,""),fa=fl.split(",").map(function(x){return x.trim()}).filter(Boolean);loc=fa.slice(-2).join(", ");first=first||fa[0]||""}
+  var pm=M(/price\W{0,6}([€$₪])?\s*(\d[\d,.]*)/i),price=pm?n(pm[2]):0;
+  var sym=(pm&&pm[1])||(folder.match(/([€$₪])/)||[])[1]||(/₪|ils|nis/i.test(T)?"₪":/\$|usd/i.test(T)?"$":"€");
+  var sz=M(/(?:living|built|covered|internal)\s*area\W*(\d[\d,.]*)/i),plot=M(/plot(?:\s*size)?\W*(\d[\d,.]*)/i);
+  var bd=M(/bedrooms?\W*(\d+)/i),bt=M(/bathrooms?\W*(\d+)/i),yr=M(/year of construction\W*(\d{4})/i),en=M(/energy (?:class|rating)\W*([A-G])/i),sea=M(/distance from the sea\W*(\d[\d.,]*\s*km)/i);
+  var am=[],extra=[],take=false,sec="";
+  L.forEach(function(l){
+    if(!/^[-•]/.test(l)){sec=l;take=/features/i.test(l);return}
+    var b=l.replace(/^[-•]\s*/,"");
+    if(take){if(am.indexOf(b)<0)am.push(b)}else if(/additional/i.test(sec)&&!/currently available|negotiable/i.test(b))extra.push(b);
+  });
+  var det=[];if(sz)det.push(sz[1]+" m² living area");if(plot)det.push("Plot "+plot[1]+" m²");if(yr)det.push("Built "+yr[1]);if(en)det.push("Energy class "+en[1]);if(sea)det.push(sea[1]+" from the sea");
+  var notes=[head].concat(/negotiable/i.test(T)?["Asking price is negotiable."]:[],extra,det.length?[det.join(" · ")]:[]).filter(Boolean).join("\n");
+  return {addr:type+" in "+(first||"Greece"),location:loc||"Unknown",intent:intent,price:price||fprice,fprice:fprice,hasDocPrice:!!price,currency:sym,type:type,size:sz?n(sz[1]):(fs?+fs[1]:0),bedrooms:bd?+bd[1]:0,bathrooms:bt?+bt[1]:0,amenities:am,notes:notes};
 }
 async function readText(f){
   if(/\.docx$/i.test(f.name)){if(!window.mammoth)throw new Error("docx reader not loaded — save the notes as .txt");return (await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value}
