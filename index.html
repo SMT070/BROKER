@@ -1734,8 +1734,8 @@ tbody tr:hover{background:rgba(201,144,62,0.03);}
         <span class="nav-icon">◉</span> Luxury Ops
       </button>
       <div class="nav-section-label" id="adminNavSection" style="display:none;">Admin</div>
-      <button class="nav-item" id="manageUsersNav" style="display:none;" onclick="openUM()">
-        <span class="nav-icon">👥</span> Manage Users
+      <button class="nav-item" id="manageUsersNav" style="display:none;" onclick="toggleTeamView()">
+        <span class="nav-icon">👥</span> Team view: Off
       </button>
     </nav>
 
@@ -2752,22 +2752,26 @@ let taskFilter = "all";
 let editingTaskId = null;
 
 // ─────────────── SUPABASE DB ───────────────
-const CACHE_KEY="SADT_DB_CACHE_V1";
+let _uid=null, TEAM_VIEW=false; try{TEAM_VIEW=sessionStorage.getItem("SADT_TEAM")==="1"}catch(e){}
+function cacheKey(){return "SADT_DB_V2_"+(_uid||"none")+(TEAM_VIEW?"_team":"")}
+function resetDb(){db={houses:[],archived:[],clients:[],deals:[],activity:[],notifications:[],tasks:[],profile:{}};}
+try{localStorage.removeItem("SADT_DB_CACHE_V1")}catch(e){}
 function loadCache(){
-  try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
+  try{const c=JSON.parse(localStorage.getItem(cacheKey())||"null");
     if(c&&Array.isArray(c.houses)){db=c;db.archived=db.archived||[];db.clients=db.clients||[];db.deals=db.deals||[];db.tasks=db.tasks||[];db.activity=db.activity||[];db.notifications=db.notifications||[];db.profile=db.profile||{};return true;}
   }catch(e){}
   return false;
 }
 async function loadDB(){
   try{
-    const [propsRes,clientsRes,dealsRes,tasksRes,actRes,profRes] = await Promise.all([
+    const [propsRes,clientsRes,dealsRes,tasksRes,actRes,profRes,upRes] = await Promise.all([
       fetchAll("properties"),
       fetchAll("clients"),
       fetchAll("deals"),
       fetchAll("tasks"),
-      _sb.from("activity").select("*").order("created_at",{ascending:false}).limit(40),
-      _sb.from("profile").select("*").eq("id",1).maybeSingle()
+      (TEAM_VIEW?_sb.from("activity").select("*"):_sb.from("activity").select("*").eq("owner_id",_uid)).order("created_at",{ascending:false}).limit(40),
+      _sb.from("profile").select("*").eq("id",1).maybeSingle(),
+      _sb.from("user_profiles").select("*").eq("user_id",_uid).maybeSingle()
     ]);
     const _errs=[propsRes,clientsRes,dealsRes,tasksRes,actRes].map(r=>r.error).filter(Boolean);
     if(_errs.length){dbFail("Load",_errs[0]);return;}
@@ -2780,8 +2784,12 @@ async function loadDB(){
     db.activity = (actRes.data||[]).map(a=>({id:a.id,title:a.title,text:a.detail,ts:a.created_at}));
     db.notifications = db.activity.slice(0,15).map(a=>({...a,read:true}));
     db.profile  = profRes.data ? mapProfile(profRes.data) : clone(seedData.profile);
+    if(currentUser&&currentUser.role!=="Admin"){
+      const u=upRes&&upRes.data;
+      db.profile={...db.profile,name:(u&&u.name)||currentUser.name||"",role:(u&&u.role)||"Agent",picUrl:(u&&u.pic_url)||""};
+    }
     db.houses.forEach(norm); db.archived.forEach(norm); db.clients.forEach(normC);
-    try{localStorage.setItem(CACHE_KEY,JSON.stringify(db));}catch(e){}
+    try{localStorage.setItem(cacheKey(),JSON.stringify(db));}catch(e){}
   }catch(e){
     console.error("Supabase loadDB error:",e);
     if(!db.houses.length&&!db.clients.length){db = clone(seedData);db.houses.forEach(norm); db.clients.forEach(normC);}
@@ -2878,7 +2886,8 @@ async function dbRun(label,fn){
 async function fetchAll(t){
   let out=[],from=0;const step=1000;
   while(from<500000){
-    const {data,error}=await _sb.from(t).select("*").order("created_at",{ascending:false}).order("id",{ascending:false}).range(from,from+step-1);
+    let q=_sb.from(t).select("*"); if(!TEAM_VIEW&&_uid) q=q.eq("owner_id",_uid);
+    const {data,error}=await q.order("created_at",{ascending:false}).order("id",{ascending:false}).range(from,from+step-1);
     if(error) return {error};
     out=out.concat(data||[]); if(!data||data.length<step) break; from+=step;
   }
@@ -2930,6 +2939,9 @@ async function saveDeal(d){ if(!d.id)d.id=newId(); return dbRun("Deal",()=>_sb.f
 async function saveTask(t){ if(!t.id)t.id=newId(); return dbRun("Task",()=>_sb.from("tasks").upsert(taskToRow(t))); }
 async function saveActivity(title,detail){ return _sb.from("activity").insert({title,detail}); }
 async function saveProfileToDB(p){
+  if(currentUser&&currentUser.role!=="Admin"){
+    return dbRun("Profile",()=>_sb.from("user_profiles").upsert({user_id:_uid,name:p.name,role:p.role,pic_url:p.picUrl,updated_at:new Date().toISOString()}));
+  }
   return dbRun("Profile",()=>_sb.from("profile").upsert({id:1,name:p.name,role:p.role,brand:p.brand,tagline:p.tagline,pic_url:p.picUrl,updated_at:new Date().toISOString()}));
 }
 function clone(v){return JSON.parse(JSON.stringify(v));}
@@ -4461,7 +4473,7 @@ let currentUser   = null;
     const u=data&&data.session&&data.session.user;
     if(u){
       const st=await getStaff(u.id);
-      if(st){ currentUser={name:st.name,role:st.role}; loadCache(); showApp(st.name||u.email,false,st.role); loadDB().then(()=>renderAll()); return; }
+      if(st){ _uid=u.id; TEAM_VIEW=TEAM_VIEW&&st.role==="Admin"; resetDb(); currentUser={name:st.name,role:st.role}; loadCache(); showApp(st.name||u.email,false,st.role); loadDB().then(()=>renderAll()); return; }
       await _sb.auth.signOut();
     }
   }catch(e){}
@@ -4517,7 +4529,7 @@ async function submitLogin(){
     if(error||!data||!data.user) throw new Error("bad");
     const st=await getStaff(data.user.id);
     if(!st){ await _sb.auth.signOut(); throw new Error("nostaff"); }
-    loginAttempts=0; $("loginPass").value="";
+    loginAttempts=0; $("loginPass").value=""; _uid=data.user.id; TEAM_VIEW=TEAM_VIEW&&st.role==="Admin"; resetDb();
     loadCache();
     showApp(st.name||email,false,st.role);
     loadDB().then(()=>renderAll());
@@ -4569,8 +4581,8 @@ function showApp(name, animate, role){
   // Show admin nav if Samir
   const isAdmin = role==="Admin";
   const adminSec=$("adminNavSection"), adminNav=$("manageUsersNav");
-  if(adminSec) adminSec.style.display="none";
-  if(adminNav) adminNav.style.display="none";
+  if(adminSec) adminSec.style.display=isAdmin?"":"none";
+  if(adminNav) adminNav.style.display=isAdmin?"flex":"none"; updateTeamBtn();
 
   if(animate){
     loginEl.style.transition="opacity 0.4s ease,transform 0.4s ease";
@@ -4586,6 +4598,14 @@ function showApp(name, animate, role){
   }
 }
 
+function updateTeamBtn(){const b=$("manageUsersNav");if(b)b.innerHTML='<span class="nav-icon">👥</span> '+(TEAM_VIEW?"Team view: ON":"Team view: Off");}
+function toggleTeamView(){
+  if(!currentUser||currentUser.role!=="Admin")return;
+  TEAM_VIEW=!TEAM_VIEW; try{sessionStorage.setItem("SADT_TEAM",TEAM_VIEW?"1":"0")}catch(e){}
+  resetDb(); renderAll(); updateTeamBtn();
+  showToast(TEAM_VIEW?"Team view on":"My data only",TEAM_VIEW?"You are seeing every team member's data.":"Showing only your own data.");
+  loadDB().then(()=>renderAll());
+}
 function applyLoggedInUser(name,role){
   const sn=$("sidebarName");
   if(sn&&name&&(!db.profile||!db.profile.name)){ sn.textContent=name; }
@@ -4600,7 +4620,7 @@ function logOut(){
     text:"Are you sure you want to log out of the Command Center?",
     btn:"Log Out",
     cb:()=>{
-      sessionStorage.removeItem(AUTH_SESSION_KEY); try{localStorage.removeItem(CACHE_KEY)}catch(e){} try{_sb.auth.signOut()}catch(e){} currentUser=null; try{parent.postMessage({sadt:"site",logout:true},"*")}catch(e){}
+      sessionStorage.removeItem(AUTH_SESSION_KEY); try{localStorage.removeItem(cacheKey())}catch(e){} _uid=null;TEAM_VIEW=false;resetDb();try{sessionStorage.removeItem("SADT_TEAM")}catch(e){} try{_sb.auth.signOut()}catch(e){} currentUser=null; try{parent.postMessage({sadt:"site",logout:true},"*")}catch(e){}
       $("loginPass").value=""; $("loginError").classList.remove("show"); $("loginAttempts").textContent="";
       const btn=$("loginSubmitBtn"); btn.textContent="Enter Command Center"; btn.style.background=""; btn.disabled=false;
       $("loginLockOverlay").classList.remove("show");
