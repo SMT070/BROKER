@@ -202,7 +202,7 @@ $("yr").textContent=new Date().getFullYear();
 async function load(){
   try{
     const [p,pr]=await Promise.all([
-      SB.from("properties").select("*").eq("archived",false).eq("off_market",false).order("created_at",{ascending:false}),
+      SB.from("properties").select("id,addr,location,intent,price,currency,status,type,size,bedrooms,bathrooms,notes,cover_image,off_market,archived,amenities,wellness_features,gallery,created_at").eq("archived",false).eq("off_market",false).order("created_at",{ascending:false}),
       SB.from("profile").select("*").eq("id",1).maybeSingle()
     ]);
     if(p.error)throw p.error;
