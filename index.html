@@ -4416,7 +4416,7 @@ let currentUser   = null;
 (async function bootAuth(){
   try{
     const s = JSON.parse(sessionStorage.getItem(AUTH_SESSION_KEY)||"null");
-    if(s && s.name && s.ts && Date.now() - s.ts < 8*60*60*1000){
+    if(s && s.name){
       currentUser = s;
       loadCache();
       showApp(s.name, false, s.role);
@@ -4748,12 +4748,13 @@ function staffCheck(){
   staffClose();openAdmin();
 }
 function openAdmin(){
-  try{sessionStorage.setItem("SADT_SESSION",JSON.stringify({name:"Samir",role:"Admin",ts:Date.now()}))}catch(e){}
+  try{if(!sessionStorage.getItem("SADT_SESSION"))sessionStorage.setItem("SADT_SESSION",JSON.stringify({name:"Samir",role:"Admin",ts:Date.now()}));sessionStorage.setItem("SADT_ADMIN_OPEN","1")}catch(e){}
   const f=$("adminFrame");
   if(!f.dataset.ready){f.srcdoc=$("adminSrc").textContent.replace(/<\\\/script/g,"</script").replace(/<\\!--/g,"<!--");f.dataset.ready="1";}
   $("adminWrap").style.display="block";document.body.style.overflow="hidden";
 }
 function closeAdmin(reset){
+  try{sessionStorage.removeItem("SADT_ADMIN_OPEN")}catch(e){}
   $("adminWrap").style.display="none";document.body.style.overflow="";
   if(reset){const f=$("adminFrame");f.removeAttribute("srcdoc");f.src="about:blank";delete f.dataset.ready}
   let t="dark";try{t=localStorage.getItem("SADT_THEME")==="light"?"light":"dark"}catch(e){}
@@ -4765,6 +4766,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")staffClose()});
 let lc=0,lt;$("brand").addEventListener("click",()=>{lc++;clearTimeout(lt);lt=setTimeout(()=>lc=0,2500);if(lc>=5){lc=0;staffOpen()}});
 function hs(){if(location.hash==="#staff"){history.replaceState(null,"",location.pathname+location.search);staffOpen()}}
 addEventListener("hashchange",hs);hs();
+try{if(sessionStorage.getItem("SADT_ADMIN_OPEN")==="1"&&sessionStorage.getItem("SADT_SESSION"))openAdmin()}catch(e){}
 </script>
 </body>
 </html>
