@@ -3250,10 +3250,12 @@ function renderInventory(){
       <td data-label="Status"><span class="badge badge-${archivedView?"archived":sc(h.status)}">${archivedView?"ARCHIVED":esc(h.status)}</span></td>
       <td data-label="Actions"><div style="display:flex;gap:6px;flex-wrap:wrap;">
         ${archivedView
-          ?`<button class="btn-outline btn-sm" onclick="event.stopPropagation();restoreProperty(${h.id})">Restore</button>`
+          ?`<button class="btn-outline btn-sm" onclick="event.stopPropagation();restoreProperty(${h.id})">Restore</button>
+            <button class="btn-danger btn-sm" onclick="event.stopPropagation();deleteProperty(${h.id})">Delete</button>`
           :`<button class="btn-outline btn-sm" onclick="event.stopPropagation();editProp(${h.id})">Edit</button>
             <button class="btn-outline btn-sm" onclick="event.stopPropagation();printSheet(${h.id})">PDF</button>
-            <button class="btn-danger" onclick="event.stopPropagation();requestArchive(${h.id})">Archive</button>`
+            <button class="btn-outline btn-sm" onclick="event.stopPropagation();requestArchive(${h.id})">Archive</button>
+            <button class="btn-danger btn-sm" onclick="event.stopPropagation();deleteProperty(${h.id})">Delete</button>`
         }
       </div></td>
     </tr>`).join(""):emptyRow(5,"No properties match your filters.");
@@ -3283,6 +3285,28 @@ function archiveProp(id,reason){
     if(a){db.archived=db.archived.filter(x=>x.id!==lastArchived);a.history.unshift("Restored (undo).");delete a.archivedReason;a.archived=false;db.houses.unshift(a);addActivity("Undo Archive",`${a.addr} restored.`);renderAll();saveProp(a).then(()=>renderAll());}
   });
   renderAll();saveProp(h).then(()=>renderAll());
+}
+function deleteProperty(id){
+  const h=db.houses.find(x=>x.id===id)||db.archived.find(x=>x.id===id);if(!h)return;
+  openConfirm({title:"Delete Permanently",text:`${h.addr} and its photos will be permanently deleted. This cannot be undone. Use Archive if you may need it again.`,btn:"Delete",cb:async()=>{
+    const wasActive=db.houses.some(x=>x.id===id);
+    db.houses=db.houses.filter(x=>x.id!==id);db.archived=db.archived.filter(x=>x.id!==id);
+    closeDrawer();renderAll();
+    const r=await dbRun("Delete property",()=>_sb.from("properties").delete().eq("id",id).select("id"));
+    if((r&&r.error)||!(r&&r.data&&r.data.length)){
+      (wasActive?db.houses:db.archived).unshift(h);renderAll();
+      if(!(r&&r.error))showToast("Not deleted","The database refused the delete (no permission for this property).");
+      return;
+    }
+    try{
+      const pre="/property-images/";
+      const paths=[h.coverImage].concat(h.gallery||[]).filter(u=>typeof u==="string"&&u.indexOf(pre)>-1).map(u=>decodeURIComponent(u.split(pre)[1].split("?")[0]));
+      if(paths.length)await _sb.storage.from("property-images").remove(Array.from(new Set(paths)));
+    }catch(e){}
+    (db.clients||[]).forEach(c=>{if((c.linkedPropertyIds||[]).includes(id)){c.linkedPropertyIds=c.linkedPropertyIds.filter(x=>x!==id);saveClient(c)}});
+    addActivity("Asset Deleted",`${h.addr} was permanently deleted.`);
+    showToast("Deleted",h.addr+" was permanently deleted.");
+  }});
 }
 function restoreProperty(id){
   const h=db.archived.find(x=>x.id===id);if(!h)return;
@@ -3421,9 +3445,11 @@ function openDrawer(id,archived=false){
     </div>
   `;
   $("drawerFoot").innerHTML=archived
-    ?`<button class="btn-gold" onclick="restoreProperty(${h.id});closeDrawer();">Restore Asset</button>`
+    ?`<button class="btn-gold" onclick="restoreProperty(${h.id});closeDrawer();">Restore Asset</button>
+      <button class="btn-danger btn-sm" onclick="deleteProperty(${h.id})">Delete</button>`
     :`<button class="btn-gold" onclick="editProp(${h.id});closeDrawer();switchPage('inventory',null);">Edit Asset</button>
       <button class="btn-outline" onclick="requestArchive(${h.id})">Archive</button>
+      <button class="btn-danger btn-sm" onclick="deleteProperty(${h.id})">Delete</button>
       <button class="btn-ghost btn-sm" onclick="printSheet(${h.id})">PDF</button>
       ${h.status==="SOLD"||h.status==="RENTED"?`<button class="btn-ghost btn-sm" onclick="prepSettlement(${h.id})">→ Settlements</button>`:""}`;
   $("propertyDrawer").classList.add("open");
