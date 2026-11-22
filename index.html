@@ -2762,13 +2762,15 @@ function loadCache(){
 async function loadDB(){
   try{
     const [propsRes,clientsRes,dealsRes,tasksRes,actRes,profRes] = await Promise.all([
-      _sb.from("properties").select("*").order("created_at",{ascending:false}),
-      _sb.from("clients").select("*").order("created_at",{ascending:false}),
-      _sb.from("deals").select("*").order("created_at",{ascending:false}),
-      _sb.from("tasks").select("*").order("created_at",{ascending:false}),
+      fetchAll("properties"),
+      fetchAll("clients"),
+      fetchAll("deals"),
+      fetchAll("tasks"),
       _sb.from("activity").select("*").order("created_at",{ascending:false}).limit(40),
-      _sb.from("profile").select("*").eq("id",1).single()
+      _sb.from("profile").select("*").eq("id",1).maybeSingle()
     ]);
+    const _errs=[propsRes,clientsRes,dealsRes,tasksRes,actRes].map(r=>r.error).filter(Boolean);
+    if(_errs.length){dbFail("Load",_errs[0]);return;}
     const allProps = propsRes.data||[];
     db.houses   = allProps.filter(p=>!p.archived).map(mapProp);
     db.archived = allProps.filter(p=>p.archived).map(mapProp);
@@ -2788,7 +2790,7 @@ async function loadDB(){
 
 // Map Supabase snake_case → app camelCase
 function mapProp(r){
-  return {
+  return {...(r.extra||{}),
     id:r.id, addr:r.addr, location:r.location||"Unknown", intent:r.intent||"BUY",
     price:Number(r.price)||0, currency:r.currency||"$", status:r.status||"ACTIVE",
     type:r.type||"Villa", size:r.size||0, bedrooms:r.bedrooms||0, bathrooms:r.bathrooms||0,
@@ -2801,7 +2803,7 @@ function mapProp(r){
   };
 }
 function mapClient(r){
-  return {
+  return {...(r.extra||{}),
     id:r.id, name:r.name||"", phone:r.phone||"-", email:r.email||"-",
     type:r.type||"VIP", stage:r.stage||"Lead", nextAction:r.next_action||"Follow up",
     estimatedValue:Number(r.budget)||0, note:r.notes||"", source:r.source||"Manual",
@@ -2810,11 +2812,11 @@ function mapClient(r){
   };
 }
 function mapDeal(r){
-  return {id:r.id,title:r.title||"",propertyId:r.property_id||null,clientId:r.client_id||null,
+  return {...(r.extra||{}),id:r.id,title:r.title||"",propertyId:r.property_id||null,clientId:r.client_id||null,
     profit:Number(r.profit)||0,currency:r.currency||"$",closedDate:r.closed_date||"",note:r.notes||""};
 }
 function mapTask(r){
-  return {id:r.id,title:r.title||"",assignee:r.assignee||"Unassigned",priority:r.priority||"medium",
+  return {...(r.extra||{}),id:r.id,title:r.title||"",assignee:r.assignee||"Unassigned",priority:r.priority||"medium",
     category:r.category||"admin",due:r.due||"",propId:r.property_id||null,clientId:r.client_id||null,
     notes:r.notes||"",done:r.done||false,createdAt:r.created_at||new Date().toISOString()};
 }
@@ -2823,77 +2825,112 @@ function mapProfile(r){
 }
 
 // Map camelCase → Supabase snake_case for saves
+// ───────── DATA LAYER (every save goes through here) ─────────
+let _lastId=0;
+function newId(){_lastId=Math.max(Date.now(),_lastId+1);return _lastId}
+const _num=v=>(v==null||v===""||!Number.isFinite(Number(v)))?null:Number(v);
+const _iso=v=>(v&&!isNaN(Date.parse(v)))?new Date(v).toISOString():undefined;
+function _extra(o,known){const x={};for(const k of Object.keys(o)){if(k==="id"||k==="createdAt"||known.includes(k)||o[k]===undefined)continue;x[k]=o[k]}return x}
+const PROP_K=["addr","location","intent","price","currency","status","type","size","bedrooms","bathrooms","owner","notes","coverImage","offMarket","archived","addedBy","amenities","wellnessFeatures","gallery","history","linkedClientIds"];
+const CLI_K=["name","phone","email","type","stage","nextAction","estimatedValue","note","source","linkedPropertyIds","mustHave","niceHave"];
+const DEAL_K=["title","propertyId","clientId","profit","currency","closedDate","note"];
+const TASK_K=["title","assignee","priority","category","due","propId","clientId","notes","done"];
 function propToRow(h){
-  return {
-    addr:h.addr, location:h.location, intent:h.intent, price:h.price, currency:h.currency,
-    status:h.status, type:h.type, size:h.size, bedrooms:h.bedrooms, bathrooms:h.bathrooms,
-    owner:h.owner, notes:h.notes, cover_image:h.coverImage, off_market:h.offMarket,
-    archived:h.archived||false, added_by:h.addedBy||"",
+  return {id:h.id,created_at:_iso(h.createdAt),
+    addr:h.addr, location:h.location, intent:h.intent, price:Number(h.price)||0, currency:h.currency,
+    status:h.status, type:h.type, size:Number(h.size)||0, bedrooms:Number(h.bedrooms)||0, bathrooms:Number(h.bathrooms)||0,
+    owner:h.owner, notes:h.notes, cover_image:h.coverImage, off_market:!!h.offMarket,
+    archived:!!h.archived, added_by:h.addedBy||"",
     amenities:h.amenities||[], wellness_features:h.wellnessFeatures||[],
-    gallery:h.gallery||[], history:h.history||[], linked_client_ids:h.linkedClientIds||[]
-  };
+    gallery:h.gallery||[], history:h.history||[], linked_client_ids:h.linkedClientIds||[],
+    extra:_extra(h,PROP_K)};
 }
-
-async function saveDB(){
-  // Fire and forget — saves happen per-operation via saveProp/saveClient/etc
-  renderAll();
+function clientToRow(c){
+  const lp=c.linkedPropertyIds||[];
+  return {id:c.id,created_at:_iso(c.createdAt),name:c.name||"",phone:c.phone,email:c.email,type:c.type,stage:c.stage,
+    next_action:c.nextAction,budget:Number(c.estimatedValue)||0,notes:c.note,source:c.source,
+    linked_property_id:_num(lp[0]),linked_property_ids:lp,must_have:c.mustHave||"",nice_have:c.niceHave||"",
+    extra:_extra(c,CLI_K)};
 }
-
-async function saveProp(h){
-  const row = propToRow(h);
-  if(h.id && typeof h.id === "number" && h.id > 1000000000000){
-    // New item (Date.now() id) — insert
-    const {data,error} = await _sb.from("properties").insert(row).select().single();
-    if(data) h.id = data.id;
-    if(error) console.error("saveProp insert error:",error);
-  } else {
-    const {error} = await _sb.from("properties").update(row).eq("id",h.id);
-    if(error) console.error("saveProp update error:",error);
+function dealToRow(d){
+  return {id:d.id,created_at:_iso(d.createdAt),title:d.title,property_id:_num(d.propertyId),client_id:_num(d.clientId),
+    profit:Number(d.profit)||0,currency:d.currency,closed_date:d.closedDate||"",notes:d.note||"",extra:_extra(d,DEAL_K)};
+}
+function taskToRow(t){
+  return {id:t.id,created_at:_iso(t.createdAt),title:t.title,assignee:t.assignee,priority:t.priority,category:t.category,
+    due:t.due||null,property_id:_num(t.propId),client_id:_num(t.clientId),notes:t.notes,done:!!t.done,extra:_extra(t,TASK_K)};
+}
+function dbFail(label,error){
+  console.error(label,error);
+  const m=(error&&error.message)||String(error);
+  const auth=/jwt|expired|not authorized|permission denied|row-level|401/i.test(m);
+  showToast(auth?"Session problem":"Save failed",auth?"Please log out and log in again, then retry.":label+": "+m);
+}
+async function dbRun(label,fn){
+  let last;
+  for(let i=0;i<3;i++){
+    try{const r=await fn(); if(!r||!r.error) return r||{}; last=r.error;}catch(e){last=e;}
+    if(/permission denied|row-level|jwt/i.test((last&&last.message)||""))break;
+    await new Promise(r=>setTimeout(r,700*(i+1)));
   }
+  dbFail(label,last);return {error:last};
 }
-async function saveClient(c){
-  const row = {
-    name:c.name, phone:c.phone, email:c.email, type:c.type, stage:c.stage,
-    next_action:c.nextAction, budget:String(c.estimatedValue||0), notes:c.note,
-    source:c.source, linked_property_id:c.linkedPropertyIds&&c.linkedPropertyIds[0]||null,
-    linked_property_ids:c.linkedPropertyIds||[], must_have:c.mustHave||"", nice_have:c.niceHave||""
-  };
-  if(c.id && typeof c.id === "number" && c.id > 1000000000000){
-    const {data,error} = await _sb.from("clients").insert(row).select().single();
-    if(data) c.id = data.id;
-    if(error) console.error("saveClient insert error:",error);
-  } else {
-    const {error} = await _sb.from("clients").update(row).eq("id",c.id);
-    if(error) console.error("saveClient update error:",error);
+async function fetchAll(t){
+  let out=[],from=0;const step=1000;
+  while(from<500000){
+    const {data,error}=await _sb.from(t).select("*").order("created_at",{ascending:false}).order("id",{ascending:false}).range(from,from+step-1);
+    if(error) return {error};
+    out=out.concat(data||[]); if(!data||data.length<step) break; from+=step;
   }
+  return {data:out};
 }
-async function saveDeal(d){
-  const row = {title:d.title,property_id:d.propertyId||null,client_id:d.clientId||null,
-    profit:d.profit,currency:d.currency,closed_date:d.closedDate,notes:d.note||""};
-  if(d.id && typeof d.id === "number" && d.id > 1000000000000){
-    const {data,error} = await _sb.from("deals").insert(row).select().single();
-    if(data) d.id = data.id;
-    if(error) console.error("saveDeal error:",error);
-  } else {
-    await _sb.from("deals").update(row).eq("id",d.id);
+async function upsertRows(t,rows){
+  for(let i=0;i<rows.length;i+=200){
+    const r=await dbRun(t,()=>_sb.from(t).upsert(rows.slice(i,i+200)));
+    if(r&&r.error) return false;
   }
+  return true;
 }
-async function saveTask(t){
-  const row = {title:t.title,assignee:t.assignee,priority:t.priority,category:t.category,
-    due:t.due||null,property_id:t.propId||null,client_id:t.clientId||null,notes:t.notes,done:t.done};
-  if(t.id && typeof t.id === "number" && t.id > 1000000000000){
-    const {data,error} = await _sb.from("tasks").insert(row).select().single();
-    if(data) t.id = data.id;
-    if(error) console.error("saveTask error:",error);
-  } else {
-    await _sb.from("tasks").update(row).eq("id",t.id);
+async function replaceTable(t,rows){
+  if(!(await upsertRows(t,rows))) return false;
+  const {data,error}=await fetchAll(t); if(error){dbFail(t,error);return false}
+  const keep=new Set(rows.map(r=>r.id));
+  const del=data.map(x=>x.id).filter(id=>!keep.has(id));
+  for(let i=0;i<del.length;i+=200){
+    const r=await dbRun(t,()=>_sb.from(t).delete().in("id",del.slice(i,i+200)));
+    if(r&&r.error) return false;
   }
+  return true;
 }
-async function saveActivity(title,detail){
-  await _sb.from("activity").insert({title,detail});
+function fixIds(){
+  const ok=v=>Number.isInteger(v)&&v>0;
+  db.houses=db.houses||[];db.archived=db.archived||[];db.clients=db.clients||[];db.deals=db.deals||[];db.tasks=db.tasks||[];
+  const pm=new Map(),cm=new Map(),props=[...db.houses,...db.archived];
+  props.forEach(h=>{if(!ok(h.id)){const n=newId();pm.set(h.id,n);h.id=n;}});
+  db.clients.forEach(c=>{if(!ok(c.id)){const n=newId();cm.set(c.id,n);c.id=n;}});
+  const mp=v=>pm.has(v)?pm.get(v):v, mc=v=>cm.has(v)?cm.get(v):v;
+  props.forEach(h=>{h.linkedClientIds=(h.linkedClientIds||[]).map(mc);});
+  db.clients.forEach(c=>{c.linkedPropertyIds=(c.linkedPropertyIds||[]).map(mp);});
+  db.deals.forEach(d=>{if(!ok(d.id))d.id=newId();d.propertyId=mp(d.propertyId);d.clientId=mc(d.clientId);});
+  db.tasks.forEach(t=>{if(!ok(t.id))t.id=newId();t.propId=mp(t.propId);t.clientId=mc(t.clientId);});
 }
+async function syncAll(){
+  fixIds();
+  const a=await replaceTable("properties",[...db.houses,...db.archived].map(propToRow));
+  const b=await replaceTable("clients",db.clients.map(clientToRow));
+  const c=await replaceTable("deals",db.deals.map(dealToRow));
+  const d=await replaceTable("tasks",db.tasks.map(taskToRow));
+  if(db.profile&&db.profile.name!==undefined) await saveProfileToDB(db.profile);
+  return a&&b&&c&&d;
+}
+async function saveDB(){ renderAll(); }
+async function saveProp(h){ if(!h.id)h.id=newId(); return dbRun("Property",()=>_sb.from("properties").upsert(propToRow(h))); }
+async function saveClient(c){ if(!c.id)c.id=newId(); return dbRun("Client",()=>_sb.from("clients").upsert(clientToRow(c))); }
+async function saveDeal(d){ if(!d.id)d.id=newId(); return dbRun("Deal",()=>_sb.from("deals").upsert(dealToRow(d))); }
+async function saveTask(t){ if(!t.id)t.id=newId(); return dbRun("Task",()=>_sb.from("tasks").upsert(taskToRow(t))); }
+async function saveActivity(title,detail){ return _sb.from("activity").insert({title,detail}); }
 async function saveProfileToDB(p){
-  await _sb.from("profile").upsert({id:1,name:p.name,role:p.role,brand:p.brand,tagline:p.tagline,pic_url:p.picUrl,updated_at:new Date().toISOString()});
+  return dbRun("Profile",()=>_sb.from("profile").upsert({id:1,name:p.name,role:p.role,brand:p.brand,tagline:p.tagline,pic_url:p.picUrl,updated_at:new Date().toISOString()}));
 }
 function clone(v){return JSON.parse(JSON.stringify(v));}
 function norm(h,i=0){
@@ -3117,7 +3154,7 @@ async function submitAsset(){
     resetAssetForm();openAssetForm(false);
     renderAll(); saveProp(h).then(()=>renderAll());
   } else {
-    const h={id:Date.now(),addr,location:loc,intent,price,currency:cur,status,type,size,bedrooms:bed,bathrooms:bath,amenities:amen,wellnessFeatures:well,owner,notes,coverImage:cover,gallery,offMarket:offMkt,linkedClientIds:[],addedBy:"saDT",createdAt:new Date().toISOString(),history:[`Listed by saDT on ${fmtDate(new Date().toISOString())}.`]};
+    const h={id:newId(),addr,location:loc,intent,price,currency:cur,status,type,size,bedrooms:bed,bathrooms:bath,amenities:amen,wellnessFeatures:well,owner,notes,coverImage:cover,gallery,offMarket:offMkt,linkedClientIds:[],addedBy:"saDT",createdAt:new Date().toISOString(),history:[`Listed by saDT on ${fmtDate(new Date().toISOString())}.`]};
     db.houses.unshift(h);
     addActivity("Asset Added",`${h.addr} entered inventory at ${money(h.price,h.currency)}.`);
     showToast("Asset Listed",`${h.addr} is now in your inventory.`);
@@ -3396,7 +3433,7 @@ function renderCRMPropOpts(){
 async function addClient(){
   const name=$("cName").value.trim();if(!name){showToast("Missing Fields","Client name is required.");return;}
   const propId=Number($("cProp").value)||null;
-  const id=Date.now();
+  const id=newId();
   const c={id,name,type:$("cType").value,stage:$("cStage").value,nextAction:$("cNext").value.trim()||"Follow up",estimatedValue:parseFloat($("cVal").value)||0,linkedPropertyIds:propId?[propId]:[],note:$("cNote").value.trim()||"",source:$("cSrc").value.trim()||"Manual",phone:$("cPhone").value.trim()||"-",email:$("cEmail").value.trim()||"-",mustHave:$("cMustHave").value.trim()||"",niceHave:$("cNiceHave").value.trim()||"",createdAt:new Date().toISOString()};
   db.clients.unshift(c);
   if(propId){const h=db.houses.find(x=>x.id===propId);if(h&&!h.linkedClientIds.includes(id)){h.linkedClientIds.push(id);h.history.unshift(`Linked to client ${name}.`);saveProp(h).catch(()=>{});}}
@@ -3406,10 +3443,11 @@ async function addClient(){
   renderAll(); saveClient(c).then(()=>renderAll());
 }
 function deleteClient(id){
-  db.houses.forEach(h=>{h.linkedClientIds=h.linkedClientIds.filter(x=>x!==id);});
+  const _chg=[...db.houses,...db.archived].filter(h=>(h.linkedClientIds||[]).includes(id));
+  _chg.forEach(h=>{h.linkedClientIds=h.linkedClientIds.filter(x=>x!==id);saveProp(h);});
   db.clients=db.clients.filter(c=>c.id!==id);
   addActivity("Client Removed","A client was removed from CRM.");
-  renderAll();_sb.from("clients").delete().eq("id",id).then(()=>{});
+  renderAll();dbRun("Delete client",()=>_sb.from("clients").delete().eq("id",id));
 }
 function getCRMLinkedNames(c){return c.linkedPropertyIds.map(pid=>db.houses.find(h=>h.id===pid)).filter(Boolean).map(h=>h.addr);}
 function renderCRM(){
@@ -3474,7 +3512,7 @@ async function addDeal(){
   const title=$("dTitle").value.trim(),profit=parseFloat($("dProfit").value);
   if(!title||!profit){showToast("Missing Fields","Asset title and commission are required.");return;}
   const propId=Number($("dProp").value)||null,clientId=Number($("dClient").value)||null;
-  const d={id:Date.now(),title,propertyId:propId,clientId,profit,currency:$("dCurr").value,closedDate:$("dDate").value||new Date().toISOString().slice(0,10),note:$("dNote").value.trim()||""};
+  const d={id:newId(),title,propertyId:propId,clientId,profit,currency:$("dCurr").value,closedDate:$("dDate").value||new Date().toISOString().slice(0,10),note:$("dNote").value.trim()||""};
   db.deals.unshift(d);
   if(propId){const h=db.houses.find(x=>x.id===propId);if(h){h.status=h.intent==="RENT"?"RENTED":"SOLD";h.history.unshift(`Settlement logged ${fmtDate(d.closedDate)}.`);}}
   if(clientId){const c=db.clients.find(x=>x.id===clientId);if(c){c.stage="Closed";c.nextAction="Request testimonial";}}
@@ -3491,7 +3529,7 @@ async function addDeal(){
 function deleteDeal(id){
   db.deals=db.deals.filter(d=>d.id!==id);
   addActivity("Deal Removed","A settlement entry was removed.");
-  renderAll();_sb.from("deals").delete().eq("id",id).then(()=>{});
+  renderAll();dbRun("Delete deal",()=>_sb.from("deals").delete().eq("id",id));
 }
 function renderSettlements(){
   renderCRMPropOpts();
@@ -3656,7 +3694,7 @@ function importJSON(e){
           db.clients=db.clients||[];db.deals=db.deals||[];
           db.activity=db.activity||[];db.notifications=db.notifications||[];
           db.houses.forEach(norm);db.archived.forEach(norm);db.clients.forEach(normC);
-          renderAll();showToast("Backup Restored","Your data has been fully restored.");
+          renderAll();showToast("Restoring…","Saving your backup to Supabase.");syncAll().then(ok=>showToast(ok?"Backup Restored":"Restore incomplete",ok?"Your data was restored and saved.":"Some data could not be saved. Check your connection and retry."));
         }
       });
     }catch(err){showToast("Import Failed","Invalid or corrupt backup file.");}
@@ -3924,7 +3962,7 @@ async function submitTask(){
   const title=$("tTitle").value.trim();
   if(!title){showToast("Missing Title","Please enter a task title.");return;}
   const t={
-    id:editingTaskId||Date.now(),
+    id:editingTaskId||newId(),
     title,
     assignee:$("tAssignee").value.trim()||"Unassigned",
     priority:$("tPriority").value,
@@ -3969,7 +4007,7 @@ function editTask(id){
 function deleteTask(id){
   db.tasks=db.tasks.filter(t=>t.id!==id);
   addActivity("Task Removed","A task was deleted.");
-  renderAll();_sb.from("tasks").delete().eq("id",id).then(()=>{});
+  renderAll();dbRun("Delete task",()=>_sb.from("tasks").delete().eq("id",id));
 }
 function toggleTaskDone(id){
   const t=db.tasks.find(x=>x.id===id);if(!t)return;
@@ -4272,7 +4310,8 @@ async function commitImport(tab){
       db.tasks=db.tasks||[];db.profile=db.profile||{};
       db.houses.forEach(norm);db.archived.forEach(norm);db.clients.forEach(normC);
       renderAll();
-      showImportResult(tab,'success',`Backup restored successfully. All data has been loaded.`);
+      const _ok=await syncAll();
+      showImportResult(tab,_ok?'success':'error',_ok?`Backup restored and saved to Supabase.`:`Backup loaded, but some data could not be saved. Check your connection and retry.`);
       addActivity('Backup Restored','Full system data restored from backup.');
     }catch(err){showImportResult(tab,'error','Restore failed: '+err.message);}
     return;
@@ -4285,7 +4324,7 @@ async function commitImport(tab){
     const newItems=data.map((row,i)=>{
       try{
         const h={
-          id:Date.now()+i,
+          id:newId(),
           addr:row.addr||row.address||row.Address||row['Property Address']||'Unknown Property',
           price:parseFloat(row.price||row.Price||row.valuation||row.Valuation||0)||0,
           currency:row.currency||row.Currency||'$',
@@ -4315,7 +4354,7 @@ async function commitImport(tab){
     const newItems=data.map((row,i)=>{
       try{
         const c={
-          id:Date.now()+i,
+          id:newId(),
           name:row.name||row.Name||row['Full Name']||'Unknown',
           type:(row.type||row.Type||'BUYER').toUpperCase(),
           stage:row.stage||row.Stage||'Lead',
@@ -4340,7 +4379,7 @@ async function commitImport(tab){
     const newItems=data.map((row,i)=>{
       try{
         const d={
-          id:Date.now()+i,
+          id:newId(),
           title:row.title||row.Title||row.property||row.Property||'Untitled Deal',
           profit:parseFloat(row.profit||row.commission||row.Commission||row.amount||0)||0,
           currency:row.currency||row.Currency||'$',
@@ -4355,19 +4394,19 @@ async function commitImport(tab){
     addActivity('Deals Imported',`${count} deals imported from file.`);
   }
 
-  // Bulk upsert to Supabase
+  // Bulk save to Supabase
   try{
     if(tab==='properties'){
-      const rows=db.houses.slice(0,count).map(propToRow);
-      await _sb.from("properties").upsert(rows);
+      const rows=(replace?[...db.houses,...db.archived]:db.houses.slice(0,count)).map(propToRow);
+      if(replace) await replaceTable("properties",rows); else await upsertRows("properties",rows);
     } else if(tab==='clients'){
-      const rows=db.clients.slice(0,count).map(c=>({name:c.name,phone:c.phone,email:c.email,type:c.type,stage:c.stage,next_action:c.nextAction,budget:String(c.estimatedValue||0),notes:c.note,source:c.source}));
-      await _sb.from("clients").upsert(rows);
+      const rows=(replace?db.clients:db.clients.slice(0,count)).map(clientToRow);
+      if(replace) await replaceTable("clients",rows); else await upsertRows("clients",rows);
     } else if(tab==='deals'){
-      const rows=db.deals.slice(0,count).map(d=>({title:d.title,profit:d.profit,currency:d.currency,closed_date:d.closedDate,notes:d.note||""}));
-      await _sb.from("deals").upsert(rows);
+      const rows=(replace?db.deals:db.deals.slice(0,count)).map(dealToRow);
+      if(replace) await replaceTable("deals",rows); else await upsertRows("deals",rows);
     }
-  }catch(e){console.error("import upsert error:",e);}
+  }catch(e){dbFail("Import",e);}
   renderAll();
   const msg=errors?`\u2713 ${count} records imported. ${errors} rows had errors and were skipped.`:`\u2713 ${count} records imported successfully into your ${tab}.`;
   showImportResult(tab,errors?'error':'success',msg);
@@ -4561,7 +4600,7 @@ function logOut(){
     text:"Are you sure you want to log out of the Command Center?",
     btn:"Log Out",
     cb:()=>{
-      sessionStorage.removeItem(AUTH_SESSION_KEY); try{_sb.auth.signOut()}catch(e){} currentUser=null; try{parent.postMessage({sadt:"site",logout:true},"*")}catch(e){}
+      sessionStorage.removeItem(AUTH_SESSION_KEY); try{localStorage.removeItem(CACHE_KEY)}catch(e){} try{_sb.auth.signOut()}catch(e){} currentUser=null; try{parent.postMessage({sadt:"site",logout:true},"*")}catch(e){}
       $("loginPass").value=""; $("loginError").classList.remove("show"); $("loginAttempts").textContent="";
       const btn=$("loginSubmitBtn"); btn.textContent="Enter Command Center"; btn.style.background=""; btn.disabled=false;
       $("loginLockOverlay").classList.remove("show");
