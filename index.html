@@ -186,7 +186,7 @@ footer{padding:28px 0;text-align:center;color:var(--mu);font-size:12px;border-to
 <div class="ov" id="ov"><div class="md" id="md"></div></div>
 
 <script>
-const SB=supabase.createClient("https://gcidoukfomnmofaybvsm.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjaWRvdWtmb21ubW9mYXlidnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTYzNTgsImV4cCI6MjA5MDg3MjM1OH0.O9ux2csoRN7ltuIrlYK1mfrwbwIdyy5mSqeP14893M8");
+const SB=supabase.createClient("https://oojwljmabjrdueewbwtf.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vandsam1hYmpyZHVlZXdid3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMzU5NDEsImV4cCI6MjExMDkxMTk0MX0.WA2bsw0wErh5G9A3ovLH9aX8cgp0OfH4lnTRmFi5Y-0");
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=(v,c)=>(c||"$")+Number(v||0).toLocaleString("en-US");
@@ -333,8 +333,8 @@ load();
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>
 <script>
 // ─── PASTE YOUR SUPABASE CREDENTIALS HERE ───
-const SUPABASE_URL  = "https://gcidoukfomnmofaybvsm.supabase.co";
-const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjaWRvdWtmb21ubW9mYXlidnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTYzNTgsImV4cCI6MjA5MDg3MjM1OH0.O9ux2csoRN7ltuIrlYK1mfrwbwIdyy5mSqeP14893M8";
+const SUPABASE_URL  = "https://oojwljmabjrdueewbwtf.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vandsam1hYmpyZHVlZXdid3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMzU5NDEsImV4cCI6MjExMDkxMTk0MX0.WA2bsw0wErh5G9A3ovLH9aX8cgp0OfH4lnTRmFi5Y-0";
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 <\/script>
 <style>
@@ -2802,7 +2802,7 @@ function mapClient(r){
     id:r.id, name:r.name||"", phone:r.phone||"-", email:r.email||"-",
     type:r.type||"VIP", stage:r.stage||"Lead", nextAction:r.next_action||"Follow up",
     estimatedValue:Number(r.budget)||0, note:r.notes||"", source:r.source||"Manual",
-    linkedPropertyIds:r.linked_property_id?[r.linked_property_id]:[], mustHave:"", niceHave:"",
+    linkedPropertyIds:(Array.isArray(r.linked_property_ids)&&r.linked_property_ids.length)?r.linked_property_ids:(r.linked_property_id?[r.linked_property_id]:[]), mustHave:r.must_have||"", niceHave:r.nice_have||"",
     createdAt:r.created_at||new Date().toISOString()
   };
 }
@@ -2852,7 +2852,8 @@ async function saveClient(c){
   const row = {
     name:c.name, phone:c.phone, email:c.email, type:c.type, stage:c.stage,
     next_action:c.nextAction, budget:String(c.estimatedValue||0), notes:c.note,
-    source:c.source, linked_property_id:c.linkedPropertyIds&&c.linkedPropertyIds[0]||null
+    source:c.source, linked_property_id:c.linkedPropertyIds&&c.linkedPropertyIds[0]||null,
+    linked_property_ids:c.linkedPropertyIds||[], must_have:c.mustHave||"", nice_have:c.niceHave||""
   };
   if(c.id && typeof c.id === "number" && c.id > 1000000000000){
     const {data,error} = await _sb.from("clients").insert(row).select().single();
