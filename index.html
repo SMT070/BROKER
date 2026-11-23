@@ -3303,10 +3303,18 @@ function deleteProperty(id){
     const wasActive=db.houses.some(x=>x.id===id);
     db.houses=db.houses.filter(x=>x.id!==id);db.archived=db.archived.filter(x=>x.id!==id);
     closeDrawer();renderAll();
-    const r=await dbRun("Delete property",()=>_sb.from("properties").delete().eq("id",id).select("id"));
-    if((r&&r.error)||!(r&&r.data&&r.data.length)){
+    const del=()=>_sb.from("properties").delete().eq("id",id).select("id");
+    let r=await del();
+    if(r.error&&/foreign key|23503/i.test((r.error.message||"")+(r.error.code||""))){
+      for(const d of (db.deals||[]))if(d.propertyId===id){d.propertyId=null;await saveDeal(d)}
+      for(const t of (db.tasks||[]))if(t.propId===id){t.propId=null;await saveTask(t)}
+      for(const c of (db.clients||[]))if((c.linkedPropertyIds||[]).includes(id)){c.linkedPropertyIds=c.linkedPropertyIds.filter(x=>x!==id);await saveClient(c)}
+      r=await del();
+    }
+    if(r.error)dbFail("Delete property",r.error);
+    if(r.error||!(r.data&&r.data.length)){
       (wasActive?db.houses:db.archived).unshift(h);renderAll();
-      if(!(r&&r.error))showToast("Not deleted","The database refused the delete (no permission for this property).");
+      if(!r.error)showToast("Not deleted","The database refused the delete (no permission for this property).");
       return;
     }
     try{
@@ -3338,9 +3346,10 @@ async function runSaveTest(){
       else{const g=await _sb.from(table).select("id").eq("id",o.id);
         if(g.error)msg=g.error.message;else if(!g.data||!g.data.length)msg="saved but not found afterwards (blocked by permissions?)";else ok=true}
     }catch(e){msg=e.message||String(e)}
-    try{await _sb.from(table).delete().eq("id",o.id)}catch(e){}
-    if(!ok)allOk=false;
-    out.push((ok?"✅ ":"❌ ")+name+(ok?" — saves correctly":" — FAILED: "+msg));
+    let dm="";
+    try{const dr=await _sb.from(table).delete().eq("id",o.id).select("id");if(dr.error)dm=dr.error.message;else if(!dr.data||!dr.data.length)dm="delete was blocked (no permission)"}catch(e){dm=e.message||String(e)}
+    if(!ok||dm)allOk=false;
+    out.push((ok&&!dm?"✅ ":"❌ ")+name+(!ok?" — SAVE FAILED: "+msg:dm?" — saves, but DELETE FAILED: "+dm:" — saves and deletes correctly"));
   }
   const d=document.createElement("div");
   d.style.cssText="position:fixed;inset:0;z-index:100001;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:18px";
