@@ -3495,8 +3495,12 @@ async function addClient(){
   if(propId){const h=db.houses.find(x=>x.id===propId);if(h&&!h.linkedClientIds.includes(id)){h.linkedClientIds.push(id);h.history.unshift(`Linked to client ${name}.`);saveProp(h).catch(()=>{});}}
   ["cName","cPhone","cVal","cEmail","cNote","cNext","cSrc","cMustHave","cNiceHave"].forEach(id=>$(id).value="");
   $("cType").value="VIP";$("cStage").value="Lead";$("cProp").value="";
-  addActivity("Client Added",`${name} entered CRM as ${c.type}.`);
-  renderAll(); saveClient(c).then(()=>renderAll());
+  renderAll();
+  saveClient(c).then(r=>{
+    if(r&&r.error){db.clients=db.clients.filter(x=>x.id!==c.id);showToast("Client NOT saved","The database refused this client. It was removed from the list so you do not lose track. Details are in the red error message.");}
+    else addActivity("Client Added",`${name} entered CRM as ${c.type}.`);
+    renderAll();
+  });
 }
 function deleteClient(id){
   const _chg=[...db.houses,...db.archived].filter(h=>(h.linkedClientIds||[]).includes(id));
