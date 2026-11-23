@@ -1903,6 +1903,7 @@ input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:tex
             <p>Full asset management with status control, archiving, and settlement pipeline.</p>
           </div>
           <div class="page-actions">
+            <button class="btn-ghost btn-sm" onclick="runSaveTest()">✓ Test Saving</button>
             <button class="btn-ghost btn-sm" onclick="impOpen()">⇪ Import Folders</button>
             <button class="btn-ghost btn-sm" onclick="exportCSV()">↓ Export CSV</button>
             <button class="btn-ghost btn-sm" onclick="printReport()">⎙ Report</button>
@@ -2886,8 +2887,18 @@ function taskToRow(t){
   return {id:t.id,created_at:_iso(t.createdAt),title:t.title,assignee:t.assignee,priority:t.priority,category:t.category,
     due:t.due||null,property_id:_num(t.propId),client_id:_num(t.clientId),notes:t.notes,done:!!t.done,extra:_extra(t,TASK_K)};
 }
+const _failedSaves=new Map();
+function updSaveBanner(){
+  let b=document.getElementById("saveBanner");
+  if(!_failedSaves.size){if(b)b.remove();return}
+  if(!b){b=document.createElement("div");b.id="saveBanner";b.style.cssText="position:fixed;top:0;left:0;right:0;z-index:100000;background:#b3261e;color:#fff;padding:10px 16px;font:600 13px sans-serif;text-align:center;cursor:pointer";b.title="Click to hide";b.onclick=function(){b.style.display="none"};document.body.appendChild(b)}
+  b.style.display="block";
+  b.textContent="⚠ NOT SAVED to the database: "+Array.from(_failedSaves.keys()).join(", ")+". Do not close this page. Try again, or log out and back in.";
+}
+window.addEventListener("beforeunload",function(e){if(_failedSaves.size){e.preventDefault();e.returnValue=""}});
 function dbFail(label,error){
   console.error(label,error);
+  _failedSaves.set(label,1);updSaveBanner();
   const m=(error&&error.message)||String(error);
   const auth=/jwt|expired|not authorized|permission denied|row-level|401/i.test(m);
   showToast(auth?"Session problem":"Save failed",auth?"Please log out and log in again, then retry.":label+": "+m);
@@ -2895,7 +2906,7 @@ function dbFail(label,error){
 async function dbRun(label,fn){
   let last;
   for(let i=0;i<3;i++){
-    try{const r=await fn(); if(!r||!r.error) return r||{}; last=r.error;}catch(e){last=e;}
+    try{const r=await fn(); if(!r||!r.error){if(_failedSaves.delete(label))updSaveBanner();return r||{}} last=r.error;}catch(e){last=e;}
     if(/permission denied|row-level|jwt/i.test((last&&last.message)||""))break;
     await new Promise(r=>setTimeout(r,700*(i+1)));
   }
@@ -3307,6 +3318,34 @@ function deleteProperty(id){
     addActivity("Asset Deleted",`${h.addr} was permanently deleted.`);
     showToast("Deleted",h.addr+" was permanently deleted.");
   }});
+}
+
+async function runSaveTest(){
+  const now=new Date().toISOString(),today=now.slice(0,10);
+  const T=[
+   ["Houses","properties",saveProp,()=>({id:newId(),addr:"__SAVE_TEST__",location:"Test",intent:"BUY",price:1,currency:"$",status:"ACTIVE",type:"Villa",size:1,bedrooms:1,bathrooms:1,amenities:[],wellnessFeatures:[],owner:"Test",notes:"",coverImage:"",gallery:[],offMarket:true,archived:false,linkedClientIds:[],addedBy:"test",history:[],createdAt:now})],
+   ["Clients","clients",saveClient,()=>({id:newId(),name:"__SAVE_TEST__",type:"BUYER",stage:"Lead",phone:"000",email:"t@t.t",nextAction:"Test",estimatedValue:1,note:"",source:"Test",linkedPropertyIds:[],mustHave:"x",niceHave:"y",createdAt:now})],
+   ["Settlements","deals",saveDeal,()=>({id:newId(),title:"__SAVE_TEST__",propertyId:null,clientId:null,profit:1,currency:"$",closedDate:today,note:"",createdAt:now})],
+   ["Tasks","tasks",saveTask,()=>({id:newId(),title:"__SAVE_TEST__",assignee:"Test",priority:"medium",category:"general",due:today,done:false,notes:"",propId:null,clientId:null,createdAt:now})]
+  ];
+  showToast("Save test","Testing houses, clients, settlements and tasks…");
+  const out=[];let allOk=true;
+  for(const [name,table,save,mk] of T){
+    const o=mk();let ok=false,msg="";
+    try{
+      const r=await save(o);
+      if(r&&r.error)msg=r.error.message||String(r.error);
+      else{const g=await _sb.from(table).select("id").eq("id",o.id);
+        if(g.error)msg=g.error.message;else if(!g.data||!g.data.length)msg="saved but not found afterwards (blocked by permissions?)";else ok=true}
+    }catch(e){msg=e.message||String(e)}
+    try{await _sb.from(table).delete().eq("id",o.id)}catch(e){}
+    if(!ok)allOk=false;
+    out.push((ok?"✅ ":"❌ ")+name+(ok?" — saves correctly":" — FAILED: "+msg));
+  }
+  const d=document.createElement("div");
+  d.style.cssText="position:fixed;inset:0;z-index:100001;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:18px";
+  d.innerHTML='<div style="background:var(--ink2,#0c0c0c);color:var(--cream,#fff);border:1px solid rgba(201,144,62,.4);border-radius:14px;padding:22px;max-width:520px;width:100%"><h3 style="margin:0 0 12px">Save test '+(allOk?"passed":"found problems")+'</h3><div style="line-height:1.9;font-size:14px">'+out.map(esc).join("<br>")+'</div><p style="font-size:12px;opacity:.7;margin:12px 0">Test rows were created and removed automatically. Nothing of yours was changed.</p><button class="btn-gold" id="stClose">Close</button></div>';
+  document.body.appendChild(d);document.getElementById("stClose").onclick=function(){d.remove()};
 }
 function restoreProperty(id){
   const h=db.archived.find(x=>x.id===id);if(!h)return;
