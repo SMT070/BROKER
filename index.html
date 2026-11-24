@@ -1678,6 +1678,16 @@ body{overscroll-behavior-y:none}
   .pipeline-board{grid-template-columns:1fr}
   #impBox{max-height:96vh}
 }
+
+/* ===== Edit lead dialog ===== */
+#ceOv{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ce-box{background:linear-gradient(180deg,var(--ink2) 0%,var(--ink) 100%);color:inherit;border:1px solid var(--gold-line,rgba(201,144,62,.35));border-radius:16px;width:min(720px,100%);max-height:94vh;max-height:94dvh;overflow:auto;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.ce-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ce-head h3{margin:0}
+.ce-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.ce-wide{grid-column:1/-1}
+.ce-box textarea{width:100%;padding:10px;border:1px solid var(--gold-line,rgba(201,144,62,.35));border-radius:8px;background:transparent;color:inherit;font:inherit;resize:vertical}
+.ce-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -3603,6 +3613,46 @@ async function addClient(){
     renderAll();
   });
 }
+const CE_TYPES=["VIP","BUYER","SELLER","RENTER","INVESTOR"],CE_STAGES=["Lead","Qualified","Viewing Scheduled","Negotiation","Under Offer","Closed"];
+function closeClientEdit(){const o=document.getElementById("ceOv");if(o)o.remove()}
+function editClient(id){
+  const c=db.clients.find(x=>x.id===id);if(!c)return;
+  closeClientEdit();
+  const opt=(arr,v)=>arr.concat(arr.includes(v)?[]:[v]).map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("");
+  const f=(lbl,i,val,type)=>`<div class="field"><label>${lbl}</label><input id="${i}" type="${type||"text"}" value="${esc(val==null?"":val)}"></div>`;
+  const clean=v=>(v&&v!=="-")?v:"";
+  const d=document.createElement("div");d.id="ceOv";
+  d.innerHTML=`<div class="ce-box" role="dialog" aria-modal="true"><div class="ce-head"><h3>Edit Lead</h3><button class="btn-ghost btn-sm" onclick="closeClientEdit()">✕</button></div>
+  <div class="ce-grid">
+    ${f("Full Name","ceName",c.name)}
+    <div class="field"><label>Type</label><select id="ceType">${opt(CE_TYPES,c.type)}</select></div>
+    <div class="field"><label>Stage</label><select id="ceStage">${opt(CE_STAGES,c.stage)}</select></div>
+    ${f("Phone","cePhone",clean(c.phone))}
+    ${f("Email","ceEmail",clean(c.email))}
+    ${f("Est. Value","ceVal",c.estimatedValue||0,"number")}
+    ${f("Next Action","ceNext",c.nextAction)}
+    ${f("Source","ceSrc",c.source)}
+    ${f("Must-Have Features","ceMust",c.mustHave)}
+    ${f("Nice-to-Have Features","ceNice",c.niceHave)}
+    <div class="field ce-wide"><label>Strategy / Note</label><textarea id="ceNote" rows="3">${esc(c.note||"")}</textarea></div>
+  </div>
+  <div class="ce-foot"><button class="btn-outline" onclick="closeClientEdit()">Cancel</button><button class="btn-gold" onclick="saveClientEdit(${c.id})">Save changes</button></div></div>`;
+  d.addEventListener("click",e=>{if(e.target===d)closeClientEdit()});
+  d.addEventListener("keydown",e=>{if(e.key==="Escape")closeClientEdit();if(e.key==="Enter"&&e.target.tagName==="INPUT")saveClientEdit(c.id)});
+  document.body.appendChild(d);document.getElementById("ceName").focus();
+}
+function saveClientEdit(id){
+  const c=db.clients.find(x=>x.id===id);if(!c)return;
+  const v=k=>document.getElementById(k).value.trim();
+  const name=v("ceName");if(!name){showToast("Missing Fields","Client name is required.");return;}
+  const snap=Object.assign({},c);
+  Object.assign(c,{name:name,type:document.getElementById("ceType").value,stage:document.getElementById("ceStage").value,phone:v("cePhone")||"-",email:v("ceEmail")||"-",estimatedValue:parseFloat(v("ceVal"))||0,nextAction:v("ceNext")||"Follow up",source:v("ceSrc")||"Manual",note:v("ceNote"),mustHave:v("ceMust"),niceHave:v("ceNice")});
+  closeClientEdit();renderAll();
+  saveClient(c).then(r=>{
+    if(r&&r.error){Object.assign(c,snap);renderAll();showToast("Not saved","Your changes to "+snap.name+" were NOT saved. See the red message.");}
+    else{addActivity("Client Updated",c.name+" details were updated.");showToast("Saved",c.name+" was updated.");}
+  });
+}
 let crmArch=false;
 const actC=()=>db.clients.filter(c=>!c.archived);
 function archiveClient(id){setClientArchived(id,true)}
@@ -3640,12 +3690,12 @@ function renderCRM(){
     const linked=getCRMLinkedNames(c);
     const prefTags=[...(c.mustHave?c.mustHave.split(",").map(s=>s.trim()).filter(Boolean):[])].slice(0,3);
     return`<tr>
-      <td data-label="Client"><strong>${esc(c.name)}</strong><br><span style="font-size:11px;color:var(--muted);">${esc(c.phone)} · ${esc(c.email)}</span></td>
+      <td data-label="Client" style="cursor:pointer" onclick="editClient(${c.id})" title="Click to edit"><strong>${esc(c.name)}</strong><br><span style="font-size:11px;color:var(--muted);">${esc(c.phone)} · ${esc(c.email)}</span></td>
       <td data-label="Type"><span class="badge badge-${sc(c.type)}">${esc(c.type)}</span></td>
       <td data-label="Stage"><span class="badge badge-${sc(c.stage)}">${esc(c.stage)}</span></td>
       <td data-label="Note"><span style="font-size:13px;">${esc(c.note)}</span><br><span style="font-size:11px;color:var(--muted);">Next: ${esc(c.nextAction)}</span>${prefTags.length?`<br><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;">${prefTags.map(t=>`<span class="pref-tag">★ ${esc(t)}</span>`).join("")}</div>`:""}</td>
       <td data-label="Linked">${linked.length?esc(linked.join(", ")):"None"}</td>
-      <td data-label="Actions">${crmArch?`<button class="btn-outline btn-sm" onclick="restoreClient(${c.id})">Restore</button>`:`<button class="btn-outline btn-sm" onclick="archiveClient(${c.id})">Archive</button>`} <button class="btn-danger btn-sm" onclick="requestDeleteClient(${c.id})">Delete</button></td>
+      <td data-label="Actions"><button class="btn-outline btn-sm" onclick="editClient(${c.id})">Edit</button> ${crmArch?`<button class="btn-outline btn-sm" onclick="restoreClient(${c.id})">Restore</button>`:`<button class="btn-outline btn-sm" onclick="archiveClient(${c.id})">Archive</button>`} <button class="btn-danger btn-sm" onclick="requestDeleteClient(${c.id})">Delete</button></td>
     </tr>`;
   }).join(""):emptyRow(6,crmArch?"No archived clients.":"No client records yet. Add your first lead above.");
   renderPipeline();
