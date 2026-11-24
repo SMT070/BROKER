@@ -2080,10 +2080,11 @@ input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:tex
         <div class="tab-row">
           <button class="tab-btn active" onclick="switchCRMView('table',this)">Table View</button>
           <button class="tab-btn" onclick="switchCRMView('pipeline',this)">Pipeline Board</button>
+          <button class="tab-btn" id="crmArchTab" onclick="switchCRMView('archived',this)">Archived</button>
         </div>
 
         <div id="crmTableView" class="panel">
-          <div class="panel-head"><div><h3>Client Relationships</h3><p>Full view of all active people records.</p></div></div>
+          <div class="panel-head"><div><h3 id="crmHeadT">Client Relationships</h3><p id="crmHeadP">Full view of all active people records.</p></div></div>
           <div class="panel-body" style="padding:0;">
             <div class="table-wrap" style="border-radius:0;border:none;">
               <table>
@@ -3086,15 +3087,15 @@ function renderOverview(){
   const rev=db.deals.reduce((s,d)=>s+d.profit,0);
   $("ovAum").textContent=money(aum);
   $("ovActive").textContent=active;
-  $("ovLeads").textContent=db.clients.length;
+  $("ovLeads").textContent=actC().length;
   $("ovRevenue").textContent=money(rev);
 
   // Trend indicators (compare to rough baseline from seed data)
   const prevAum=db._prevAum||aum;const prevActive=db._prevActive||active;
-  const prevLeads=db._prevLeads||db.clients.length;const prevRev=db._prevRev||rev;
+  const prevLeads=db._prevLeads||actC().length;const prevRev=db._prevRev||rev;
   setTrend("ovAumTrend",aum,prevAum);
   setTrend("ovActiveTrend",active,prevActive);
-  setTrend("ovLeadsTrend",db.clients.length,prevLeads);
+  setTrend("ovLeadsTrend",actC().length,prevLeads);
   setTrend("ovRevTrend",rev,prevRev);
 
   const invB=$("ovInventoryBody");
@@ -3120,7 +3121,7 @@ function renderOverview(){
 
 function buildPipelineData(){
   return STAGES.map(s=>{
-    const total=db.clients.filter(c=>c.stage===s).reduce((sum,c)=>sum+Number(c.estimatedValue||0),0);
+    const total=actC().filter(c=>c.stage===s).reduce((sum,c)=>sum+Number(c.estimatedValue||0),0);
     return{label:s,value:total};
   });
 }
@@ -3447,9 +3448,9 @@ function openDrawer(id,archived=false){
   currentDrawerPropId=id;
   const h=archived?db.archived.find(x=>x.id===id):db.houses.find(x=>x.id===id);if(!h)return;
   const linkedC=h.linkedClientIds.map(cid=>db.clients.find(c=>c.id===cid)).filter(Boolean);
-  const avail=db.clients.filter(c=>!h.linkedClientIds.includes(c.id));
+  const avail=actC().filter(c=>!h.linkedClientIds.includes(c.id));
   // Find clients with preferences and score them
-  const matchingClients=db.clients.filter(c=>c.mustHave||c.niceHave).map(c=>({c,score:getMatchScore(c,h)})).filter(x=>x.score!==null).sort((a,b)=>b.score-a.score).slice(0,4);
+  const matchingClients=actC().filter(c=>c.mustHave||c.niceHave).map(c=>({c,score:getMatchScore(c,h)})).filter(x=>x.score!==null).sort((a,b)=>b.score-a.score).slice(0,4);
   $("drawerTitle").textContent=h.addr;
   $("drawerSub").textContent=`${h.type} · ${h.location} · ${money(h.price,h.currency)} · Added by ${h.addedBy}`;
   $("drawerBody").innerHTML=`
@@ -3530,7 +3531,7 @@ function renderCRMPropOpts(){
   const opts=db.houses.map(h=>`<option value="${h.id}">${esc(h.addr)}</option>`).join("");
   $("cProp").innerHTML=`<option value="">— None —</option>`+opts;
   $("dProp").innerHTML=`<option value="">— None —</option>`+opts;
-  const closed=db.clients.filter(c=>c.stage==="Closed");
+  const closed=actC().filter(c=>c.stage==="Closed");
   $("dClient").innerHTML=`<option value="">— None —</option>`+closed.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
   ["cProp","dProp","dClient"].forEach((i,k)=>{$(i).value=keep[k];});
 }
@@ -3550,6 +3551,22 @@ async function addClient(){
     renderAll();
   });
 }
+let crmArch=false;
+const actC=()=>db.clients.filter(c=>!c.archived);
+function archiveClient(id){setClientArchived(id,true)}
+function restoreClient(id){setClientArchived(id,false)}
+function setClientArchived(id,flag){
+  const c=db.clients.find(x=>x.id===id);if(!c)return;
+  c.archived=flag;renderAll();
+  saveClient(c).then(r=>{
+    if(r&&r.error){c.archived=!flag;renderAll();showToast("Not saved","Could not "+(flag?"archive":"restore")+" "+c.name+". See the red message.");}
+    else{addActivity(flag?"Client Archived":"Client Restored",c.name+(flag?" was archived.":" was restored."));showToast(flag?"Client archived":"Client restored",c.name+(flag?" moved to the Archived tab.":" is back in the CRM."));}
+  });
+}
+function requestDeleteClient(id){
+  const c=db.clients.find(x=>x.id===id);if(!c)return;
+  openConfirm({title:"Delete Client Permanently",text:c.name+" will be permanently deleted. This cannot be undone. Use Archive if you may need them later.",btn:"Delete",cb:()=>deleteClient(id)});
+}
 function deleteClient(id){
   const _chg=[...db.houses,...db.archived].filter(h=>(h.linkedClientIds||[]).includes(id));
   _chg.forEach(h=>{h.linkedClientIds=h.linkedClientIds.filter(x=>x!==id);saveProp(h);});
@@ -3560,10 +3577,14 @@ function deleteClient(id){
 function getCRMLinkedNames(c){return c.linkedPropertyIds.map(pid=>db.houses.find(h=>h.id===pid)).filter(Boolean).map(h=>h.addr);}
 function renderCRM(){
   renderCRMPropOpts();
-  const unread=db.clients.length;
+  const unread=actC().length;
   $("crmBadge").textContent=unread;
   const body=$("crmBody");
-  body.innerHTML=db.clients.length?db.clients.map(c=>{
+  const shown=db.clients.filter(c=>!!c.archived===crmArch);
+  $("crmHeadT").textContent=crmArch?"Archived Clients":"Client Relationships";
+  $("crmHeadP").textContent=crmArch?"Clients you archived. Restore them any time.":"Full view of all active people records.";
+  $("crmArchTab").textContent="Archived ("+db.clients.filter(c=>c.archived).length+")";
+  body.innerHTML=shown.length?shown.map(c=>{
     const linked=getCRMLinkedNames(c);
     const prefTags=[...(c.mustHave?c.mustHave.split(",").map(s=>s.trim()).filter(Boolean):[])].slice(0,3);
     return`<tr>
@@ -3572,15 +3593,15 @@ function renderCRM(){
       <td data-label="Stage"><span class="badge badge-${sc(c.stage)}">${esc(c.stage)}</span></td>
       <td data-label="Note"><span style="font-size:13px;">${esc(c.note)}</span><br><span style="font-size:11px;color:var(--muted);">Next: ${esc(c.nextAction)}</span>${prefTags.length?`<br><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;">${prefTags.map(t=>`<span class="pref-tag">★ ${esc(t)}</span>`).join("")}</div>`:""}</td>
       <td data-label="Linked">${linked.length?esc(linked.join(", ")):"None"}</td>
-      <td data-label="Actions"><button class="btn-danger" onclick="deleteClient(${c.id})">Delete</button></td>
+      <td data-label="Actions">${crmArch?`<button class="btn-outline btn-sm" onclick="restoreClient(${c.id})">Restore</button>`:`<button class="btn-outline btn-sm" onclick="archiveClient(${c.id})">Archive</button>`} <button class="btn-danger btn-sm" onclick="requestDeleteClient(${c.id})">Delete</button></td>
     </tr>`;
-  }).join(""):emptyRow(6,"No client records yet. Add your first lead above.");
+  }).join(""):emptyRow(6,crmArch?"No archived clients.":"No client records yet. Add your first lead above.");
   renderPipeline();
 }
 function switchCRMView(view,btn){
   document.querySelectorAll(".tab-btn").forEach(b=>{if(b.getAttribute("onclick")&&b.getAttribute("onclick").includes("switchCRMView"))b.classList.remove("active");});
   btn.classList.add("active");
-  $("crmTableView").classList.toggle("hidden",view!=="table");
+  $("crmTableView").classList.toggle("hidden",view!=="table"&&view!=="archived");crmArch=(view==="archived");renderCRM();
   $("crmPipelineView").classList.toggle("hidden",view!=="pipeline");
 }
 function startDrag(e,id){dragClientId=id;e.dataTransfer.setData("text/plain",String(id));}
@@ -3599,7 +3620,7 @@ function dropCard(e,stage){
 function renderPipeline(){
   const board=$("pipelineBoard");
   board.innerHTML=STAGES.map(s=>{
-    const cc=db.clients.filter(c=>c.stage===s);
+    const cc=actC().filter(c=>c.stage===s);
     return`<div class="pipeline-col" ondragover="allowDrop(event)" ondrop="dropCard(event,'${s.replace(/'/g,"\\'")}')">
       <div class="pipeline-col-head"><strong>${esc(s)}</strong><div class="pipeline-count">${cc.length}</div></div>
       <div class="pipeline-stack">${cc.map(c=>{
@@ -3663,7 +3684,7 @@ function renderOps(){
   const aum=db.houses.reduce((s,h)=>s+h.price,0);
   const rev=db.deals.reduce((s,d)=>s+d.profit,0);
   $("opsAum").textContent=money(aum);$("opsRev").textContent=money(rev);
-  $("opsClients").textContent=db.clients.length;$("opsDeals").textContent=db.deals.length;
+  $("opsClients").textContent=actC().length;$("opsDeals").textContent=db.deals.length;
   $("opsArrivals").innerHTML=db.houses.slice(0,5).map(h=>`
     <tr>
       <td data-label="Status"><span class="badge badge-${sc(h.status)}">${esc(h.status)}</span></td>
@@ -3872,7 +3893,7 @@ function openAddShowing(){
   if(!propId)return;
   const h=db.houses.find(x=>x.id===propId)||db.archived.find(x=>x.id===propId);
   if(!h)return;
-  const clientOpts=db.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  const clientOpts=actC().map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
   openConfirm({
     title:"Log a Showing",
     text:`Record a property showing for ${h.addr}. Enter: Client Name · Date · Outcome (e.g. "Daniel Harari · 2026-04-02 · Interested, follow up")`,
@@ -3950,7 +3971,7 @@ function renderMatchBadge(score){
 
 // ─────────────── RENDER ALL ───────────────
 function updateBadges(){
-  $("crmBadge").textContent=db.clients.length;
+  $("crmBadge").textContent=actC().length;
   const o=(db.tasks||[]).filter(t=>!t.done).length;
   const b=$("tasksBadge");b.textContent=o;b.style.display=o?"grid":"none";
 }
