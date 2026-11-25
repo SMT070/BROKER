@@ -2561,11 +2561,13 @@ body{overscroll-behavior-y:none}
           ondragover="handleDragOver(event,'properties')"
           ondragleave="handleDragLeave('properties')"
           ondrop="handleDrop(event,'properties')">
-          <input type="file" id="fileInput-properties" accept=".csv,.xlsx,.xls,.json" onchange="handleFileSelect(event,'properties')">
+          <input type="file" id="fileInput-properties" multiple accept=".csv,.xlsx,.xls,.json,.docx,.txt,.webp,.jpg,.jpeg,.png" onchange="handleFileSelect(event,'properties')">
           <div class="import-drop-icon">📂</div>
-          <div class="import-drop-title">Drop your property file here</div>
-          <div class="import-drop-sub">or click to browse your computer</div>
+          <div class="import-drop-title">Drop a house folder, or photos + a Word/text file</div>
+          <div class="import-drop-sub">Up to 50 photos per house. You can drop many folders at once. Or drop a spreadsheet. Or click to browse.</div>
           <div class="import-format-chips">
+            <span class="import-format-chip">Folder with photos</span>
+            <span class="import-format-chip">DOCX / TXT</span>
             <span class="import-format-chip">CSV</span>
             <span class="import-format-chip">Excel .xlsx</span>
             <span class="import-format-chip">JSON</span>
@@ -4396,14 +4398,26 @@ function switchImportTab(tab,btn){
 
 function handleDragOver(e,tab){e.preventDefault();$(`dropZone-${tab}`).classList.add('drag-over');}
 function handleDragLeave(tab){$(`dropZone-${tab}`).classList.remove('drag-over');}
+const SHEET_RE=/\.(csv|xlsx|xls|json)$/i;
 function handleDrop(e,tab){
   e.preventDefault();
   $(`dropZone-${tab}`).classList.remove('drag-over');
+  if(tab==='properties'){
+    const items=[].slice.call(e.dataTransfer.items||[]);
+    const hasDir=items.some(i=>{const en=i.webkitGetAsEntry&&i.webkitGetAsEntry();return en&&en.isDirectory});
+    const fl=[].slice.call(e.dataTransfer.files||[]);
+    const folderMode=hasDir||fl.length>1||(fl.length===1&&!SHEET_RE.test(fl[0].name));
+    if(folderMode&&window.impIngestDrop){closeImportCenter();window.impIngestDrop(e.dataTransfer);return;}
+  }
   const file=e.dataTransfer.files[0];
   if(file)processImportFile(file,tab);
 }
 function handleFileSelect(e,tab){
-  const file=e.target.files[0];
+  const fl=[].slice.call(e.target.files||[]);
+  if(tab==='properties'&&(fl.length>1||(fl.length===1&&!SHEET_RE.test(fl[0].name)))&&window.impIngestFiles){
+    closeImportCenter();window.impIngestFiles(fl);e.target.value='';return;
+  }
+  const file=fl[0];
   if(file)processImportFile(file,tab);
   e.target.value='';
 }
@@ -5138,13 +5152,20 @@ async function readText(f){
   return await f.text();
 }
 async function build(files){
-  var g={};files.forEach(function(f){var p=(f._path||f.webkitRelativePath||f.name).split("/");p.pop();var k=p.join("/")||"house";(g[k]=g[k]||[]).push(f)});
+  var g={};files.forEach(function(f){var p=(f._path||f.webkitRelativePath||f.name).split("/");p.pop();var k=p.join("/")||"__loose__";(g[k]=g[k]||[]).push(f)});
+  var hasDoc=function(a){return a.some(function(f){return /\.(docx|txt)$/i.test(f.name)&&!/^~\$/.test(f.name)})};
+  Object.keys(g).sort(function(a,b){return b.split("/").length-a.split("/").length}).forEach(function(k){
+    var pk=k.split("/").slice(0,-1).join("/");
+    if(k!=="__loose__"&&g[pk]&&!hasDoc(g[k])){g[pk]=g[pk].concat(g[k]);delete g[k]}
+  });
   rows=[];var all=[].concat(db.houses||[],db.archived||[]);
   for(var k in g){
     var fs=g[k],imgs=fs.filter(function(f){return /\.(webp|jpe?g|png)$/i.test(f.name)}).sort(function(a,b){return a.name.localeCompare(b.name,undefined,{numeric:true})});
     var doc=fs.find(function(f){return /\.(docx|txt)$/i.test(f.name)&&!/^~\$/.test(f.name)});
     if(!imgs.length&&!doc)continue;
-    var folder=k.split("/").pop(),r={folder:folder,key:slug(folder),imgs:imgs,warn:[],on:true};
+    var folder=k==="__loose__"?((doc?doc.name.replace(/\.[^.]+$/,""):"house")+" "+new Date().toISOString().slice(0,16).replace("T"," ")):k.split("/").pop();
+    var more=imgs.length;if(more>50)imgs=imgs.slice(0,50);
+    var r={folder:folder,key:slug(folder),imgs:imgs,warn:[],on:true};if(more>50)r.warn.push("Only the first 50 of "+more+" photos will be imported");
     try{Object.assign(r,doc?parse(await readText(doc),folder):parse("",folder))}catch(e){r.warn.push("Could not read notes: "+e.message);Object.assign(r,parse("",folder))}
     if(!doc)r.warn.push("No description file");
     if(!r.price)r.warn.push("No price");
@@ -5169,6 +5190,13 @@ function draw(){
 function upd(){var c=rows.filter(function(r){return r.on}).length;document.getElementById("impGo").disabled=busy||!c;document.getElementById("impMsg").textContent=rows.length+" found · "+c+" selected"}
 window.impSet=function(i,k,v){rows[i][k]=v;if(k==="on")upd()};
 window.impOpen=function(){rows=[];document.getElementById("impOut").innerHTML="";upd();document.getElementById("impModal").classList.add("open")};
+window.impIngestDrop=async function(dt){
+  var out=[],it=[].slice.call(dt.items||[]),ens=it.map(function(i){return i.webkitGetAsEntry&&i.webkitGetAsEntry()}).filter(Boolean),fl=[].slice.call(dt.files||[]);
+  impOpen();document.getElementById("impMsg").textContent="Reading files…";
+  if(ens.length){for(var i=0;i<ens.length;i++)await walk(ens[i],"",out)}else out=fl;
+  await build(out);
+};
+window.impIngestFiles=function(files){impOpen();document.getElementById("impMsg").textContent="Reading files…";build(files)};
 window.impClose=function(){if(busy&&!confirm("Import is running. Close anyway?"))return;document.getElementById("impModal").classList.remove("open")};
 async function shrink(f){var b=await createImageBitmap(f),k=Math.min(1,1600/Math.max(b.width,b.height)),c=document.createElement("canvas");c.width=Math.round(b.width*k);c.height=Math.round(b.height*k);c.getContext("2d").drawImage(b,0,0,c.width,c.height);return new Promise(function(r){c.toBlob(r,"image/webp",.82)})}
 async function upImgs(r){
