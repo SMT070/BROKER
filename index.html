@@ -197,6 +197,18 @@ html[data-theme="dark"] #mapEl .leaflet-tile-pane{filter:invert(1) hue-rotate(18
 .maphint.on{opacity:1}
 @media(max-width:620px){#mapEl{height:min(68vh,520px);min-height:360px;border-radius:22px}html{scroll-padding-top:128px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ===== Vertical-only scrolling + tidy phone layout ===== */
+html{overflow-x:hidden}
+body{overflow-x:clip;max-width:100%}
+img,video,svg,canvas{max-width:100%}
+html.admin-open,html.admin-open body{overflow:hidden;overscroll-behavior:none}
+@media(max-width:620px){
+  nav{flex-wrap:wrap;overflow:visible;white-space:normal;gap:2px 20px}
+  .sct{flex-direction:column;overflow:visible;scroll-snap-type:none;padding:10px 0 20px;gap:18px}
+  .fc{flex:none;width:100%;height:420px}
+  .chips,.tabs{flex-wrap:wrap;gap:8px}
+}
 </style>
 </head>
 <body>
@@ -311,7 +323,7 @@ function openProp(id){
 }
 function pick(i,el){const g=arr(cur.gallery).length?cur.gallery:[cur.cover_image];$("mi").src=img(g[i],1200);[...el.parentNode.children].forEach(x=>x.classList.toggle("on",x===el))}
 function closeProp(){$("ov").classList.remove("on");document.body.style.overflow="";cur=null}
-function unlockScroll(){const o=$("ov");if(o&&!o.classList.contains("on")&&document.body.style.overflow==="hidden")document.body.style.overflow=""}
+function unlockScroll(){if(document.documentElement.classList.contains("admin-open"))return;const o=$("ov");if(o&&!o.classList.contains("on")&&document.body.style.overflow==="hidden")document.body.style.overflow=""}
 addEventListener("pageshow",unlockScroll);addEventListener("visibilitychange",unlockScroll);document.addEventListener("touchstart",unlockScroll,{passive:true});
 $("ov").addEventListener("click",e=>{if(e.target===$("ov"))closeProp()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeProp()});
@@ -1713,6 +1725,35 @@ body{overscroll-behavior-y:none}
 .ce-wide{grid-column:1/-1}
 .ce-box textarea{width:100%;padding:10px;border:1px solid var(--gold-line,rgba(201,144,62,.35));border-radius:8px;background:transparent;color:inherit;font:inherit;resize:vertical}
 .ce-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
+
+/* ===== Vertical-only scrolling + organized phone layout ===== */
+html{overscroll-behavior:none;overflow-x:hidden}
+body{overflow-x:clip;min-height:100vh;min-height:100dvh}
+img,svg,canvas,video{max-width:100%}
+html.lockscroll,html.lockscroll body{overflow:hidden}
+.drawer-scroll,.modal-card{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@media(max-width:780px){
+  .content{overflow:visible;overflow-wrap:anywhere}
+  .panel,.panel-body,.field,.page,.page-header>div,.topbar-left{min-width:0}
+  .form-grid,.fg2,.fg3,.fg4,.fg5,.filters-5{grid-template-columns:1fr!important}
+  .filters-bar{grid-template-columns:1fr 1fr!important}
+  .filters-bar>*:first-child{grid-column:1/-1}
+  .page-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+  .page-actions .btn-gold{grid-column:1/-1}
+  .page-actions>*{width:100%;justify-content:center;text-align:center}
+  .tab-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;overflow:visible}
+  td[data-label="Actions"]{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px;text-align:left}
+  td[data-label="Actions"]::before{display:none}
+  td[data-label="Actions"] button{flex:1 1 92px}
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal-card{width:100%!important;max-width:100%!important;max-height:94vh;max-height:94dvh;overflow-y:auto;border-radius:20px 20px 0 0}
+  #impTbl,#impTbl tbody{display:block;width:100%}
+  #impTbl tr:first-child{display:none}
+  #impTbl tr{display:block;border:1px solid rgba(255,255,255,.12);border-radius:12px;margin:10px 0;padding:8px 10px}
+  #impTbl td{display:flex;gap:10px;align-items:center;justify-content:space-between;border:0;padding:5px 0}
+  #impTbl td::before{content:attr(data-label);font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.65;min-width:70px}
+  #impTbl td>input[type=text],#impTbl td>input[type=number]{flex:1}
+}
 </style>
 </head>
 <body>
@@ -5180,11 +5221,11 @@ function draw(){
   var o=document.getElementById("impOut");
   if(!rows.length){o.innerHTML='<p style="margin-top:14px">No house folders found.</p>';return}
   o.innerHTML='<table id="impTbl"><tr><th></th><th>Folder</th><th>Title</th><th>Location</th><th>Price</th><th>Bd/Ba/m²</th><th>Photos</th><th>Notes</th></tr>'+rows.map(function(r,i){
-    return '<tr><td><input type="checkbox" '+(r.on?"checked":"")+(r.dup?" disabled":"")+' onchange="impSet('+i+',\'on\',this.checked)"></td><td>'+esc(r.folder)+'</td>'
-    +'<td><input type="text" dir="auto" value="'+esc(r.addr)+'" onchange="impSet('+i+',\'addr\',this.value)"></td>'
-    +'<td><input type="text" dir="auto" value="'+esc(r.location)+'" onchange="impSet('+i+',\'location\',this.value)"></td>'
-    +'<td><input type="number" value="'+r.price+'" onchange="impSet('+i+',\'price\',+this.value)">'+esc(r.currency)+'</td>'
-    +'<td>'+r.bedrooms+' / '+r.bathrooms+' / '+r.size+'</td><td>'+r.imgs.length+'</td><td class="impWarn">'+r.warn.map(esc).join("<br>")+'</td></tr>'}).join("")+'</table><div class="impBar"><i id="impProg"></i></div>';
+    return '<tr><td><input type="checkbox" '+(r.on?"checked":"")+(r.dup?" disabled":"")+' onchange="impSet('+i+',\'on\',this.checked)"></td><td data-label="Folder">'+esc(r.folder)+'</td>'
+    +'<td data-label="Title"><input type="text" dir="auto" value="'+esc(r.addr)+'" onchange="impSet('+i+',\'addr\',this.value)"></td>'
+    +'<td data-label="Location"><input type="text" dir="auto" value="'+esc(r.location)+'" onchange="impSet('+i+',\'location\',this.value)"></td>'
+    +'<td data-label="Price"><input type="number" value="'+r.price+'" onchange="impSet('+i+',\'price\',+this.value)">'+esc(r.currency)+'</td>'
+    +'<td data-label="Details">'+r.bedrooms+' / '+r.bathrooms+' / '+r.size+'</td><td data-label="Photos">'+r.imgs.length+'</td><td class="impWarn" data-label="Notes">'+r.warn.map(esc).join("<br>")+'</td></tr>'}).join("")+'</table><div class="impBar"><i id="impProg"></i></div>';
   upd();
 }
 function upd(){var c=rows.filter(function(r){return r.on}).length;document.getElementById("impGo").disabled=busy||!c;document.getElementById("impMsg").textContent=rows.length+" found · "+c+" selected"}
@@ -5233,6 +5274,10 @@ dz.ondrop=async function(e){e.preventDefault();dz.classList.remove("over");var o
 document.getElementById("impPick").onchange=function(e){document.getElementById("impMsg").textContent="Reading files…";build([].slice.call(e.target.files))};
 })();
 <\/script>
+<script>
+(function(){var q=0;function lock(){q=0;var o=document.querySelector(".drawer-overlay.open,.modal-overlay.open,#impModal.open,#ceOv");document.documentElement.classList.toggle("lockscroll",!!o)}
+new MutationObserver(function(){if(!q)q=requestAnimationFrame(lock)}).observe(document.body,{subtree:true,attributes:true,attributeFilter:["class"],childList:true});lock()})();
+<\/script>
 </body>
 </html>
 </script>
@@ -5244,11 +5289,11 @@ function openAdmin(){
   try{sessionStorage.setItem("SADT_ADMIN_OPEN","1")}catch(e){}
   const f=$("adminFrame");
   if(!f.dataset.ready){f.srcdoc=$("adminSrc").textContent.replace(/<\\\/script/g,"</script").replace(/<\\!--/g,"<!--");f.dataset.ready="1";}
-  $("adminWrap").style.display="block";document.body.style.overflow="hidden";
+  $("adminWrap").style.display="block";document.body.style.overflow="hidden";document.documentElement.classList.add("admin-open");
 }
 function closeAdmin(reset){
   try{sessionStorage.removeItem("SADT_ADMIN_OPEN")}catch(e){}
-  $("adminWrap").style.display="none";document.body.style.overflow="";
+  $("adminWrap").style.display="none";document.body.style.overflow="";document.documentElement.classList.remove("admin-open");
   if(reset){const f=$("adminFrame");f.removeAttribute("srcdoc");f.src="about:blank";delete f.dataset.ready}
   let t="dark";try{t=localStorage.getItem("SADT_THEME")==="light"?"light":"dark"}catch(e){}
   applyTheme(t);load();
