@@ -209,6 +209,13 @@ html.admin-open,html.admin-open body{overflow:hidden;overscroll-behavior:none}
   .fc{flex:none;width:100%;height:420px}
   .chips,.tabs{flex-wrap:wrap;gap:8px}
 }
+
+/* ===== Public header: theme button top-right, no pointless carousel arrows on phones ===== */
+@media(max-width:620px){
+  header .wrap{position:relative}
+  header nav .ic{position:absolute;top:10px;right:16px}
+  .sh .ar{display:none}
+}
 </style>
 </head>
 <body>
@@ -1754,6 +1761,45 @@ html.lockscroll,html.lockscroll body{overflow:hidden}
   #impTbl td::before{content:attr(data-label);font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.65;min-width:70px}
   #impTbl td>input[type=text],#impTbl td>input[type=number]{flex:1}
 }
+
+/* ===== Phone fixes found by rendering the dashboard at 360-390px ===== */
+.sidebar-nav{min-height:0;overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:780px){
+  .sidebar.mobile-open{height:100vh;height:100dvh}
+  .drawer{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+  .drawer-head{position:sticky;top:0;z-index:3;background:var(--ink2);padding:16px 16px 12px}
+  .drawer-head h2{font-size:22px}
+  .drawer-scroll{flex:none;overflow:visible;padding:16px 16px 12px}
+  .drawer-image{height:200px}
+  .drawer-foot{padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .drawer-foot .btn-gold{grid-column:1/-1}
+  .drawer-foot button{width:100%;justify-content:center}
+  #showingLogWrap{padding:0 16px 24px!important}
+  .tab-btn[onclick*="'pipeline'"]{display:none!important}
+  #crmPipelineView{display:none!important}
+}
+
+/* ===== Phone top bar + form fit (found by rendering at 360-390px) ===== */
+.phone-only{display:none}
+@media(max-width:780px){
+  .phone-only{display:flex!important}
+  .topbar{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"menu title tools" "search search search";gap:8px 10px;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 12px 10px}
+  .topbar .hamburger{grid-area:menu}
+  .topbar-left{grid-area:title;min-width:0}
+  .topbar-left p{display:none}
+  .topbar-left h1{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+  .topbar-right{grid-area:tools;gap:6px}
+  .topbar-right>.btn-outline,.topbar-right>.icon-btn[title="Backup Data"]{display:none!important}
+  .topbar .icon-btn,.topbar .hamburger{width:40px;height:40px;min-height:40px;min-width:40px}
+  .global-search-wrap{grid-area:search;max-width:none;width:100%}
+  .search-results-drop{left:0;right:0;width:auto;max-width:none}
+  .notif-panel{position:fixed!important;left:12px!important;right:12px!important;top:72px!important;width:auto!important;max-width:none!important}
+  input,select,textarea{max-width:100%;min-width:0;box-sizing:border-box}
+  .field input,.field select,.field textarea,.panel-body select,.panel-body input[type=text],.panel-body input[type=number]{width:100%}
+  .col-filters{grid-template-columns:1fr 1fr!important}
+  .col-filters>*:last-child{grid-column:1/-1}
+  .page-actions .tab-row{grid-column:1/-1}
+}
 </style>
 </head>
 <body>
@@ -1882,6 +1928,7 @@ html.lockscroll,html.lockscroll body{overflow:hidden}
       <button class="nav-item" id="manageUsersNav" style="display:none;" onclick="toggleTeamView()">
         <span class="nav-icon">👥</span> Team view: Off
       </button>
+      <button class="nav-item phone-only" onclick="goSite()"><span class="nav-icon">↗</span> Public Website</button>
     </nav>
 
     <div class="sidebar-footer">
@@ -2164,7 +2211,7 @@ html.lockscroll,html.lockscroll body{overflow:hidden}
             </div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:10px;margin-bottom:22px;">
+        <div class="col-filters" style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:10px;margin-bottom:22px;">
           <select id="colLoc" onchange="renderCollection()" style="padding:11px 14px;border-radius:var(--r3);border:1px solid rgba(var(--fg),0.09);background:rgba(var(--fg),0.03);color:var(--text);outline:none;font-size:13px;"><option value="ALL">All Locations</option></select>
           <select id="colType" onchange="renderCollection()" style="padding:11px 14px;border-radius:var(--r3);border:1px solid rgba(var(--fg),0.09);background:rgba(var(--fg),0.03);color:var(--text);outline:none;font-size:13px;"><option value="ALL">All Types</option><option>Villa</option><option>Penthouse</option><option>Estate</option><option>Apartment</option></select>
           <select id="colBudget" onchange="renderCollection()" style="padding:11px 14px;border-radius:var(--r3);border:1px solid rgba(var(--fg),0.09);background:rgba(var(--fg),0.03);color:var(--text);outline:none;font-size:13px;"><option value="ALL">All Budgets</option><option value="0-3000000">$0–$3M</option><option value="3000000-8000000">$3M–$8M</option><option value="8000000-15000000">$8M–$15M</option><option value="15000000-999999999">$15M+</option></select>
@@ -3584,7 +3631,7 @@ function openDrawer(id,archived=false){
   $("drawerTitle").textContent=h.addr;
   $("drawerSub").textContent=`${h.type} · ${h.location} · ${money(h.price,h.currency)} · Added by ${h.addedBy}`;
   $("drawerBody").innerHTML=`
-    <div class="drawer-image"><img src="${esc(h.coverImage)}" alt="${esc(h.addr)}"></div>
+    ${h.coverImage?`<div class="drawer-image"><img src="${esc(h.coverImage)}" alt="${esc(h.addr)}"></div>`:""}
     <div class="drawer-gallery">${getGallery(h).slice(0,8).map(s=>`<img src="${esc(thumb(s,300))}" alt="" loading="lazy">`).join("")}</div>
     <div class="drawer-grid">
       <div class="detail-cell"><strong>Valuation</strong><span>${money(h.price,h.currency)}</span></div>
@@ -3769,6 +3816,7 @@ function renderCRM(){
   renderPipeline();
 }
 function switchCRMView(view,btn){
+  if(view==="pipeline"&&window.matchMedia&&matchMedia("(max-width:780px)").matches){view="table";btn=[].slice.call(document.querySelectorAll(".tab-btn")).filter(function(b){return /Table/.test(b.textContent)})[0]||btn}
   document.querySelectorAll(".tab-btn").forEach(b=>{if(b.getAttribute("onclick")&&b.getAttribute("onclick").includes("switchCRMView"))b.classList.remove("active");});
   btn.classList.add("active");
   $("crmTableView").classList.toggle("hidden",view!=="table"&&view!=="archived");crmArch=(view==="archived");renderCRM();
