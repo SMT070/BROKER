@@ -159,8 +159,11 @@ footer{padding:28px 0;text-align:center;color:var(--mu);font-size:12px;border-to
 .im img{position:absolute;inset:0;z-index:1}.pr,.st{z-index:2}.gal{min-height:340px}
 .demo{padding:12px 16px;border:1px dashed var(--ln);border-radius:12px;color:var(--g2);font-size:13px;margin-bottom:16px}
 #mapEl{height:580px;border-radius:28px;overflow:hidden;border:1px solid var(--ln);background:var(--bg2)}
-.pin span{display:block;transform:translate(-50%,-100%);background:var(--grad);color:#000;font:700 12px "DM Sans",sans-serif;padding:6px 11px;border-radius:999px;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.45);border:2px solid #000;transition:.2s}
-.pin:hover span{transform:translate(-50%,-100%) scale(1.15)}
+.mpin{background:none!important;border:0!important;box-shadow:none!important;width:0!important;height:0!important}
+.mpin span{display:block;position:relative;transform:translate(-50%,calc(-100% - 7px));background:var(--grad);color:#1a1205;font:700 12px "DM Sans",sans-serif;padding:6px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.35);border:2px solid rgba(0,0,0,.85);transition:transform .2s;cursor:pointer}
+.mpin span::after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;transform:translateX(-50%) rotate(45deg);background:var(--g);border-right:2px solid rgba(0,0,0,.85);border-bottom:2px solid rgba(0,0,0,.85)}
+.mpin:hover span{transform:translate(-50%,calc(-100% - 7px)) scale(1.1)}
+.ppl{max-height:240px;overflow-y:auto;min-width:170px}.ppx{border:0;border-top:1px solid var(--ln);margin:10px 0}
 .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--bg2);color:var(--tx);border:1px solid var(--ln)}
 .leaflet-popup-content-wrapper{border-radius:14px}.pp b{font:700 16px "Playfair Display",serif;color:var(--cr)}.pp button{margin-top:8px;color:var(--g2);font-weight:700}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}.slides i:first-child{opacity:1}}
@@ -363,9 +366,12 @@ function drawMap(a){
       mc.addEventListener("touchstart",e=>{if(e.touches.length===1){hint.classList.add("on");clearTimeout(ht);ht=setTimeout(()=>hint.classList.remove("on"),1400)}else hint.classList.remove("on")},{passive:true})}
     LAY=L.layerGroup().addTo(MAP);setTimeout(()=>MAP.invalidateSize(),400)}
   LAY.clearLayers();const pts=[];
-  a.forEach(h=>{const k=(h.location||"").trim().toLowerCase(),c=COORDS[k]||GEO[k];if(!c){need(h.location);return}
-    const n=Number(h.id)||0,ll=[c[0]+((n%7)-3)*.004,c[1]+((Math.floor(n/7)%7)-3)*.004];pts.push(ll);
-    L.marker(ll,{icon:L.divIcon({className:"pin",html:`<span>${esc(short(h.price,h.currency))}</span>`,iconSize:null})}).addTo(LAY).bindPopup(`<div class="pp"><b>${esc(h.addr)}</b><br>${esc(h.location)} · ${money(h.price,h.currency)}<br><button onclick="openProp('${h.id}')">View details →</button></div>`)});
+  const grp={};
+  a.forEach(h=>{const k=(h.location||"").trim().toLowerCase(),c=COORDS[k]||GEO[k];if(!c){need(h.location);return}(grp[k]=grp[k]||{c:c,items:[]}).items.push(h)});
+  Object.keys(grp).forEach(k=>{const g=grp[k],n=g.items.length;pts.push(g.c);
+    const label=n===1?short(g.items[0].price,g.items[0].currency):n+" homes";
+    const body=g.items.map(h=>`<div class="pp"><b>${esc(h.addr)}</b><br>${esc(h.location)} · ${money(h.price,h.currency)}<br><button onclick="openProp('${h.id}')">View details →</button></div>`).join('<hr class="ppx">');
+    L.marker(g.c,{icon:L.divIcon({className:"mpin",html:`<span>${esc(label)}</span>`,iconSize:[0,0]}),riseOnHover:true}).addTo(LAY).bindPopup(`<div class="ppl">${body}</div>`,{maxHeight:260,autoPanPadding:[30,30]})});
   const RG={GR:[38.5,23.6,7],IL:[32,35,8]},q=pts.filter(x=>mapR==="GR"?x[1]<30:mapR==="IL"?x[1]>33:true);
   if(q.length)MAP.fitBounds(q,{padding:[60,60],maxZoom:11});else if(mapR!=="ALL")MAP.setView([RG[mapR][0],RG[mapR][1]],RG[mapR][2]);else if(pts.length)MAP.fitBounds(pts,{padding:[60,60],maxZoom:11});
 }
