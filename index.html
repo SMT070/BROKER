@@ -379,9 +379,9 @@ function need(loc){const k=(loc||"").trim().toLowerCase();if(!k||asked[k])return
   fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(loc)).then(r=>r.json()).then(d=>{if(d&&d[0]){GEO[k]=[+d[0].lat,+d[0].lon];try{localStorage.setItem("SADT_GEO",JSON.stringify(GEO))}catch(e){}drawMap(filtered())}}).catch(()=>{})}
 function drawMap(a){
   if(typeof L==="undefined"||!$("mapEl"))return;
-  if(!MAP){MAP=L.map("mapEl",{scrollWheelZoom:false,dragging:!L.Browser.mobile,tap:false}).setView([35,28],4);TL=L.tileLayer(tileUrl(),{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(MAP);
+  if(!MAP){const TOUCHY=L.Browser.mobile||(window.matchMedia&&matchMedia("(pointer: coarse)").matches);MAP=L.map("mapEl",{scrollWheelZoom:false,dragging:!TOUCHY,tap:false}).setView([35,28],4);TL=L.tileLayer(tileUrl(),{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(MAP);
     MAP.on("click",()=>MAP.scrollWheelZoom.enable());MAP.on("mouseout",()=>MAP.scrollWheelZoom.disable());
-    if(L.Browser.mobile){const mc=MAP.getContainer(),hint=document.createElement("div");hint.className="maphint";hint.textContent="Use two fingers to move the map";mc.appendChild(hint);let ht;
+    if(TOUCHY){const mc=MAP.getContainer(),hint=document.createElement("div");hint.className="maphint";hint.textContent="Use two fingers to move the map";mc.appendChild(hint);let ht;
       mc.addEventListener("touchstart",e=>{if(e.touches.length===1){hint.classList.add("on");clearTimeout(ht);ht=setTimeout(()=>hint.classList.remove("on"),1400)}else hint.classList.remove("on")},{passive:true})}
     LAY=L.layerGroup().addTo(MAP);setTimeout(()=>MAP.invalidateSize(),400)}
   LAY.clearLayers();const pts=[];
@@ -1724,7 +1724,7 @@ body{overscroll-behavior-y:none}
 }
 
 /* ===== Edit lead dialog ===== */
-#ceOv{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+#ceOv,#teamOv{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
 .ce-box{background:linear-gradient(180deg,var(--ink2) 0%,var(--ink) 100%);color:inherit;border:1px solid var(--gold-line,rgba(201,144,62,.35));border-radius:16px;width:min(720px,100%);max-height:94vh;max-height:94dvh;overflow:auto;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
 .ce-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .ce-head h3{margin:0}
@@ -1928,6 +1928,7 @@ html.lockscroll,html.lockscroll body{overflow:hidden}
       <button class="nav-item" id="manageUsersNav" style="display:none;" onclick="toggleTeamView()">
         <span class="nav-icon">👥</span> Team view: Off
       </button>
+      <button class="nav-item" id="manageTeamNav" style="display:none" onclick="openTeam()"><span class="nav-icon">🧑‍💼</span> Manage Team</button>
       <button class="nav-item phone-only" onclick="goSite()"><span class="nav-icon">↗</span> Public Website</button>
     </nav>
 
@@ -2996,7 +2997,7 @@ async function loadDB(){
 // Map Supabase snake_case → app camelCase
 function mapProp(r){
   return {...(r.extra||{}),
-    id:r.id, addr:r.addr, location:r.location||"Unknown", intent:r.intent||"BUY",
+    id:r.id, ownerId:r.owner_id||null, addr:r.addr, location:r.location||"Unknown", intent:r.intent||"BUY",
     price:Number(r.price)||0, currency:r.currency||"$", status:r.status||"ACTIVE",
     type:r.type||"Villa", size:r.size||0, bedrooms:r.bedrooms||0, bathrooms:r.bathrooms||0,
     owner:r.owner||"Private Owner", notes:r.notes||"", coverImage:r.cover_image||"",
@@ -3036,7 +3037,7 @@ function newId(){_lastId=Math.max(Date.now(),_lastId+1);return _lastId}
 const _num=v=>(v==null||v===""||!Number.isFinite(Number(v)))?null:Number(v);
 const _iso=v=>(v&&!isNaN(Date.parse(v)))?new Date(v).toISOString():undefined;
 function _extra(o,known){const x={};for(const k of Object.keys(o)){if(k==="id"||k==="createdAt"||known.includes(k)||o[k]===undefined)continue;x[k]=o[k]}return x}
-const PROP_K=["addr","location","intent","price","currency","status","type","size","bedrooms","bathrooms","owner","notes","coverImage","offMarket","archived","addedBy","amenities","wellnessFeatures","gallery","history","linkedClientIds"];
+const PROP_K=["addr","location","intent","price","currency","status","type","size","bedrooms","bathrooms","owner","notes","coverImage","offMarket","archived","addedBy","amenities","wellnessFeatures","gallery","history","linkedClientIds","ownerId"];
 const CLI_K=["name","phone","email","type","stage","nextAction","estimatedValue","note","source","linkedPropertyIds","mustHave","niceHave"];
 const DEAL_K=["title","propertyId","clientId","profit","currency","closedDate","note"];
 const TASK_K=["title","assignee","priority","category","due","propId","clientId","notes","done"];
@@ -3093,7 +3094,7 @@ async function dbRun(label,fn){
 async function fetchAll(t){
   let out=[],from=0;const step=1000;
   while(from<500000){
-    let q=_sb.from(t).select("*"); if(!TEAM_VIEW&&_uid) q=q.eq("owner_id",_uid);
+    let q=_sb.from(t).select("*"); if(!TEAM_VIEW&&_uid&&t!=="properties") q=q.eq("owner_id",_uid);
     const {data,error}=await q.order("created_at",{ascending:false}).order("id",{ascending:false}).range(from,from+step-1);
     if(error) return {error};
     out=out.concat(data||[]); if(!data||data.length<step) break; from+=step;
@@ -3457,8 +3458,16 @@ function renderInventory(){
   $("invPagBtns").innerHTML=btns.join("");
 }
 
-function editProp(id){const h=db.houses.find(x=>x.id===id);if(h)fillAssetForm(h);}
+function canEditProp(id){
+  const h=db.houses.find(x=>x.id===id)||db.archived.find(x=>x.id===id);
+  if(!h)return true;
+  const ok=(currentUser&&currentUser.role==="Admin")||!h.ownerId||h.ownerId===_uid;
+  if(!ok)showToast("Shared property","Only the member who added this property, or an admin, can change it. You can view it.");
+  return ok;
+}
+function editProp(id){if(!canEditProp(id))return;const h=db.houses.find(x=>x.id===id);if(h)fillAssetForm(h);}
 function requestArchive(id){
+  if(!canEditProp(id))return;
   const h=db.houses.find(x=>x.id===id);if(!h)return;
   openConfirm({title:"Archive Asset",text:`${h.addr} will move to Archived — not permanently deleted.`,input:true,placeholder:"Reason (e.g. Withdrawn by owner)",inputVal:"Withdrawn by owner",btn:"Archive",cb:reason=>archiveProp(id,reason||"Withdrawn by owner")});
 }
@@ -3476,6 +3485,7 @@ function archiveProp(id,reason){
   renderAll();saveProp(h).then(()=>renderAll());
 }
 function deleteProperty(id){
+  if(!canEditProp(id))return;
   const h=db.houses.find(x=>x.id===id)||db.archived.find(x=>x.id===id);if(!h)return;
   openConfirm({title:"Delete Permanently",text:`${h.addr} and its photos will be permanently deleted. This cannot be undone. Use Archive if you may need it again.`,btn:"Delete",cb:async()=>{
     const wasActive=db.houses.some(x=>x.id===id);
@@ -3534,7 +3544,63 @@ async function runSaveTest(){
   d.innerHTML='<div style="background:var(--ink2,#0c0c0c);color:var(--cream,#fff);border:1px solid rgba(201,144,62,.4);border-radius:14px;padding:22px;max-width:520px;width:100%"><h3 style="margin:0 0 12px">Save test '+(allOk?"passed":"found problems")+'</h3><div style="line-height:1.9;font-size:14px">'+out.map(esc).join("<br>")+'</div><p style="font-size:12px;opacity:.7;margin:12px 0">Test rows were created and removed automatically. Nothing of yours was changed.</p><button class="btn-gold" id="stClose">Close</button></div>';
   document.body.appendChild(d);document.getElementById("stClose").onclick=function(){d.remove()};
 }
+function closeTeam(){const o=document.getElementById("teamOv");if(o)o.remove()}
+function openTeam(){
+  if(!currentUser||currentUser.role!=="Admin"){showToast("Admins only","Only admins can manage the team.");return}
+  closeTeam();
+  const d=document.createElement("div");d.id="teamOv";
+  d.innerHTML=`<div class="ce-box" role="dialog" aria-modal="true"><div class="ce-head"><h3>Team members</h3><button class="btn-ghost btn-sm" onclick="closeTeam()">✕</button></div>
+  <p style="font-size:13px;opacity:.8;line-height:1.6;margin:0 0 12px">Everyone shares the property inventory. Each member keeps their own clients, tasks and settlements. Only admins can add members.</p>
+  <div id="teamList" style="display:grid;gap:8px;margin-bottom:18px"><div style="opacity:.7">Loading…</div></div>
+  <h4 style="margin:6px 0 8px">Add a member</h4>
+  <ol style="font-size:12.5px;line-height:1.75;opacity:.85;margin:0 0 14px;padding-left:18px">
+   <li>In Supabase open <b>Authentication → Users → Add user</b>, enter their email and a password, and tick <b>Auto Confirm User</b>.</li>
+   <li>Enter the same email below and press <b>Add member</b>.</li>
+   <li>Send them the site address and their password. They tap the PRESTIGE logo 5 times (or add <b>#staff</b> to the address) and sign in.</li></ol>
+  <div class="ce-grid">
+   <div class="field"><label>Email</label><input id="tmEmail" type="email" autocomplete="off" autocapitalize="off"></div>
+   <div class="field"><label>Full name</label><input id="tmName" type="text" autocomplete="off"></div>
+   <div class="field"><label>Role</label><select id="tmRole"><option>Agent</option><option>Admin</option></select></div>
+  </div>
+  <div class="ce-foot"><button class="btn-outline" onclick="closeTeam()">Close</button><button class="btn-gold" id="tmAdd" onclick="addTeamMember()">Add member</button></div></div>`;
+  d.addEventListener("click",e=>{if(e.target===d)closeTeam()});
+  d.addEventListener("keydown",e=>{if(e.key==="Escape")closeTeam()});
+  document.body.appendChild(d);loadTeam();
+}
+async function loadTeam(){
+  const box=document.getElementById("teamList");if(!box)return;
+  let r;try{r=await _sb.rpc("admin_list_staff")}catch(e){r={error:e}}
+  if(r.error){box.innerHTML='<div style="color:#e8b96a;font-size:13px">Could not load the team: '+esc(r.error.message||String(r.error))+'. Make sure team_setup.sql was run in Supabase.</div>';return}
+  const rows=r.data||[];
+  box.innerHTML=rows.length?rows.map(m=>{
+    const me=m.user_id===_uid,id=esc(m.user_id);
+    return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;align-items:center;padding:10px 12px;border:1px solid rgba(201,144,62,.25);border-radius:12px;${m.active?"":"opacity:.55"}">
+     <div style="min-width:0"><strong>${esc(m.name||"(no name)")}${me?" (you)":""}</strong>${m.active?"":" · <span style='opacity:.8'>inactive</span>"}<div style="font-size:12px;opacity:.7;overflow-wrap:anywhere">${esc(m.email||"no login found")}</div></div>
+     <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+      <select ${me?"disabled":""} aria-label="Role" onchange="setMember('${id}',{role:this.value})"><option${m.role==="Admin"?" selected":""}>Admin</option><option${m.role==="Admin"?"":" selected"}>Agent</option></select>
+      <button class="btn-outline btn-sm" ${me?"disabled":""} onclick="setMember('${id}',{active:${!m.active}})">${m.active?"Deactivate":"Activate"}</button></div></div>`}).join(""):'<div style="opacity:.7">No members yet.</div>';
+}
+async function setMember(uid,patch){
+  let r;try{r=await _sb.from("staff").update(patch).eq("user_id",uid).select("user_id")}catch(e){r={error:e}}
+  if(r.error||!(r.data&&r.data.length))showToast("Not saved",(r.error&&r.error.message)||"The database refused this change.");
+  else showToast("Saved","Member updated.");
+  loadTeam();
+}
+async function addTeamMember(){
+  const g=i=>document.getElementById(i),email=g("tmEmail").value.trim(),name=g("tmName").value.trim(),role=g("tmRole").value,btn=g("tmAdd");
+  if(!email||!name){showToast("Missing fields","Enter the member's email and full name.");return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){showToast("Check the email","That email address does not look right.");return}
+  btn.disabled=true;
+  let r;try{r=await _sb.rpc("admin_add_staff",{p_email:email,p_name:name,p_role:role})}catch(e){r={error:e}}
+  btn.disabled=false;
+  if(r.error){showToast("Could not add member",r.error.message||String(r.error));return}
+  g("tmEmail").value="";g("tmName").value="";
+  showToast("Member added",name+" can now sign in with "+email+".");
+  try{addActivity("Member Added",name+" was added to the team.")}catch(e){}
+  loadTeam();
+}
 function restoreProperty(id){
+  if(!canEditProp(id))return;
   const h=db.archived.find(x=>x.id===id);if(!h)return;
   db.archived=db.archived.filter(x=>x.id!==id);
   h.history.unshift("Restored from archive.");delete h.archivedReason;h.archived=false;
@@ -4271,7 +4337,7 @@ function applyProfile(){
   } else {tbc.textContent=initial;}
   // Hero greeting
   const hr=getHourGreeting();
-  $("heroGreeting").innerHTML=`${hr},<br>${name||brand}.`;
+  $("heroGreeting").innerHTML=`${esc(hr)},<br>${esc(name||brand)}.`;
 }
 function setAvatarEl(container,initEl,initial,picUrl){
   if(!container)return;
@@ -4668,6 +4734,7 @@ async function commitImport(tab){
   const data=importParsedData[tab];
   if(!data){showImportResult(tab,'error','No data loaded. Please select a file first.');return;}
 
+  if(tab==='backup'&&!confirm("RESTORE BACKUP will REPLACE everything.\n\nAny house, client, settlement or task that is NOT in this backup file will be permanently DELETED from the database.\n\nTip: press the 💾 backup button first to save a copy of what you have now.\n\nContinue?"))return;
   if(tab==='backup'){
     try{
       db=data;
@@ -4685,6 +4752,7 @@ async function commitImport(tab){
   }
 
   const replace=tab==='properties'?$('replaceProps')?.checked:tab==='clients'?$('replaceClients')?.checked:tab==='deals'?$('replaceDeals')?.checked:false;
+  if(replace&&!confirm("REPLACE mode is ON.\n\nEverything of this kind that is NOT in your file will be permanently DELETED from the database.\n\nUntick \"Replace existing data\" if you only want to ADD the rows in the file.\n\nContinue and delete?"))return;
   let count=0;let errors=0;
 
   if(tab==='properties'){
@@ -4933,7 +5001,7 @@ function showApp(name, animate, role){
   const isAdmin = role==="Admin";
   const adminSec=$("adminNavSection"), adminNav=$("manageUsersNav");
   if(adminSec) adminSec.style.display=isAdmin?"":"none";
-  if(adminNav) adminNav.style.display=isAdmin?"flex":"none"; updateTeamBtn();
+  if(adminNav) adminNav.style.display=isAdmin?"flex":"none"; const mtn=$("manageTeamNav"); if(mtn) mtn.style.display=isAdmin?"flex":"none"; updateTeamBtn();
 
   if(animate){
     loginEl.style.transition="opacity 0.4s ease,transform 0.4s ease";
@@ -5323,7 +5391,7 @@ document.getElementById("impPick").onchange=function(e){document.getElementById(
 })();
 <\/script>
 <script>
-(function(){var q=0;function lock(){q=0;var o=document.querySelector(".drawer-overlay.open,.modal-overlay.open,#impModal.open,#ceOv");document.documentElement.classList.toggle("lockscroll",!!o)}
+(function(){var q=0;function lock(){q=0;var o=document.querySelector(".drawer-overlay.open,.modal-overlay.open,#impModal.open,#ceOv,#teamOv");document.documentElement.classList.toggle("lockscroll",!!o)}
 new MutationObserver(function(){if(!q)q=requestAnimationFrame(lock)}).observe(document.body,{subtree:true,attributes:true,attributeFilter:["class"],childList:true});lock()})();
 <\/script>
 </body>
